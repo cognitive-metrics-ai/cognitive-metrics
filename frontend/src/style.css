@@ -3,14 +3,20 @@
    ========================================================================== */
 
 :root {
-  --color-primary: #f52c68;
-  --color-primary-hover: #d81c54;
-  --color-primary-light: #fef1f5;
-  --color-navy: #0e1b2f;
-  --color-navy-light: #1e2e4a;
-  --color-blue: #2563eb;
-  --color-blue-light: #eff6ff;
-  --color-blue-dark: #1d4ed8;
+  /* Primary Blue Palette (Core Identity) */
+  --color-navy: #0A3D62;           /* Deep Metric Blue: headers, nav bars, hero sections */
+  --color-navy-dark: #06273f;      /* Deepest tone for footer and dark contrast blocks */
+  --color-navy-light: #124e7a;     /* Lighter navy accent */
+  --color-primary: #1B6CA8;        /* Cognitive Core Blue: main brand, buttons, accents, charts */
+  --color-primary-hover: #145585;  /* Deeper interactive hover tone */
+  --color-primary-light: #eaf3fa;  /* Light brand tint for subtle tags & active cards */
+  --color-sky: #4DA8DA;            /* Signal Sky Blue: energetic highlights, hovers, secondary buttons */
+  --color-sky-light: #eef7fc;      /* Soft sky tint */
+  --color-sky-hover: #3b9ac9;      /* Signal Sky active / hover */
+  
+  --color-blue: #1B6CA8;
+  --color-blue-light: #f0f7fc;
+  --color-blue-dark: #145585;
   --color-text-main: #1e293b;
   --color-text-muted: #64748b;
   --color-bg-light: #f8fafc;
@@ -32,7 +38,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
   --shadow-xl: 0 20px 35px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-  --shadow-primary: 0 10px 25px -5px rgba(245, 44, 104, 0.35);
+  --shadow-primary: 0 10px 25px -5px rgba(27, 108, 168, 0.35);
 }
 
 * {
@@ -98,12 +104,17 @@ p {
   text-align: center;
 }
 
-.text-blue {
-  color: var(--color-blue);
-}
-
+.text-blue,
 .text-primary {
   color: var(--color-primary);
+}
+
+.text-navy {
+  color: var(--color-navy);
+}
+
+.text-sky {
+  color: var(--color-sky);
 }
 
 .section-label {
@@ -112,12 +123,21 @@ p {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--color-blue);
+  color: var(--color-primary);
   margin-bottom: 0.75rem;
 }
 
-.section-label.coral {
+.section-label.coral,
+.section-label.primary {
   color: var(--color-primary);
+}
+
+.section-label.sky {
+  color: var(--color-sky);
+}
+
+.section-label.navy {
+  color: var(--color-navy);
 }
 
 /* ==========================================================================
@@ -186,7 +206,7 @@ p {
 .btn-primary:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px -4px rgba(245, 44, 104, 0.45);
+  box-shadow: 0 14px 28px -4px rgba(27, 108, 168, 0.45);
 }
 
 .btn-primary:active {
@@ -196,22 +216,24 @@ p {
 .btn-secondary {
   background-color: transparent;
   color: var(--color-navy);
-  border-color: var(--color-navy);
+  border-color: var(--color-sky);
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-navy);
+  background-color: var(--color-sky);
+  border-color: var(--color-sky);
   color: #ffffff;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px -3px rgba(77, 168, 218, 0.4);
 }
 
 .btn-blue {
-  background-color: var(--color-blue);
+  background-color: var(--color-primary);
   color: #ffffff;
 }
 
 .btn-blue:hover {
-  background-color: var(--color-blue-dark);
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
 }
 
@@ -256,12 +278,12 @@ p {
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #f52c68 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #0A3D62 0%, #1B6CA8 50%, #4DA8DA 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  box-shadow: 0 4px 10px rgba(245, 44, 104, 0.3);
+  box-shadow: 0 4px 12px rgba(27, 108, 168, 0.35);
 }
 
 .nav-menu {
@@ -736,8 +758,8 @@ p {
 .form-select:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: var(--color-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(27, 108, 168, 0.18);
 }
 
 .service-checkbox-grid {
@@ -849,7 +871,11 @@ p {
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: transform 0.25s ease;
+  transition: transform 0.25s ease, background-color 0.2s ease;
+}
+
+.faq-item:hover .faq-circle-btn {
+  background-color: var(--color-sky);
 }
 
 .faq-circle-btn .line-h,
@@ -887,7 +913,7 @@ p {
    Footer
    ========================================================================== */
 .footer {
-  background-color: #0b1424;
+  background-color: var(--color-navy-dark);
   color: #94a3b8;
   padding: 4.5rem 0 2.5rem 0;
 }
@@ -946,7 +972,7 @@ p {
 }
 
 .social-circle:hover {
-  background: var(--color-primary);
+  background: var(--color-sky);
 }
 
 .footer-bottom {

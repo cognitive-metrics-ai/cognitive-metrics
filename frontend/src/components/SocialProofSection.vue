@@ -1,8 +1,6 @@
 <script setup>
 const universities = [
-  'Stanford', 'UC Berkeley', 'MIT', 'Carnegie Mellon',
-  'Harvard', 'Cornell', 'Brown', 'Columbia',
-  'Georgia Tech', 'UPenn', 'Princeton', 'Caltech'
+  'University of the Cumberlands'
 ]
 </script>
 
@@ -12,7 +10,7 @@ const universities = [
       <!-- Academic Testimonial Quote Block -->
       <div class="quote-box" style="margin-bottom: 5rem;">
         <div class="quote-avatar-wrapper">
-          <div style="width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, #1e3a8a, #0e1b2f); display: flex; align-items: center; justify-content: center; margin: 0 auto; color: white; font-weight: 800; font-size: 1.6rem; box-shadow: 0 10px 25px rgba(30, 58, 138, 0.25);">
+          <div style="width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, #1B6CA8, #0A3D62); display: flex; align-items: center; justify-content: center; margin: 0 auto; color: white; font-weight: 800; font-size: 1.6rem; box-shadow: 0 10px 25px rgba(10, 61, 98, 0.25);">
             LAB
           </div>
         </div>
@@ -30,12 +28,16 @@ const universities = [
         <span class="section-label">Academic & Research Alignment</span>
         <h3>Built for university researchers, labs, and doctoral candidates</h3>
         <p style="max-width: 640px; margin: 0.5rem auto 0 auto;">
-          We support research initiatives across premier university departments in Computer Science, Cognitive Science, and Information Systems.
+          We support research initiatives across Computer Science, Cognitive Science, and Information Systems in alignment with University of the Cumberlands.
         </p>
 
-        <div class="logo-grid">
+        <div class="logo-grid single-institution">
           <div v-for="school in universities" :key="school" class="logo-badge-item">
-            {{ school }}
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.75rem; color: var(--color-blue); flex-shrink: 0;">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+              <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+            </svg>
+            <span>{{ school }}</span>
           </div>
         </div>
       </div>
@@ -97,3 +99,36 @@ const universities = [
     </div>
   </section>
 </template>
+
+<style scoped>
+.logo-grid.single-institution {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.logo-grid.single-institution .logo-badge-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.1rem 2.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+  max-width: 440px;
+  width: 100%;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.logo-grid.single-institution .logo-badge-item:hover {
+  border-color: var(--color-blue);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  color: var(--color-blue);
+}
+</style>

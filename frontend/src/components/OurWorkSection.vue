@@ -11,7 +11,7 @@ const caseStudies = [
     category: 'ADLC Empirical Study',
     description: 'Designed and engineered an experimental IDE testbed measuring developer cognitive load, interruption recovery latency, and task completion fidelity during autonomous agent code synthesis.',
     impact: '12,000+ Empirical Traces · $0 Grant Cost',
-    imageBg: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+    imageBg: 'linear-gradient(135deg, #0A3D62 0%, #1B6CA8 100%)',
     tags: ['ADLC Metrics', 'Cognitive Load', 'FastAPI', 'Vue 3', 'Eye-Tracking Hook'],
     fullStory: 'The lab needed a custom web-based IDE testbed to compare traditional development against an Agentic Development Life Cycle (ADLC). We engineered the complete frontend interface, telemetry event loggers, and LLM orchestration layer at zero development expense, enabling the researchers to conduct controlled trials and submit to ACM/IEEE conferences.'
   },

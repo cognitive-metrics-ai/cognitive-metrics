@@ -74,7 +74,7 @@ onUnmounted(() => {
         </div>
         <div style="display: flex; flex-direction: column; line-height: 1.15;">
           <span>Cognitive Metrics</span>
-          <span style="font-size: 0.6875rem; font-weight: 700; color: #f52c68; letter-spacing: 0.08em; text-transform: uppercase;">
+          <span style="font-size: 0.6875rem; font-weight: 700; color: var(--color-primary); letter-spacing: 0.08em; text-transform: uppercase;">
             Academic ADLC Research
           </span>
         </div>
@@ -132,7 +132,7 @@ onUnmounted(() => {
     <div v-if="mobileMenuOpen" class="mobile-nav-drawer">
       <!-- User Profile Header in Mobile Drawer -->
       <div v-if="currentUser" style="padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 0.5rem;">
-        <div style="font-weight: 700; color: #0e1b2f;">{{ currentUser.displayName || 'Academic Researcher' }}</div>
+        <div style="font-weight: 700; color: var(--color-navy);">{{ currentUser.displayName || 'Academic Researcher' }}</div>
         <div style="font-size: 0.8rem; color: #64748b;">{{ currentUser.email }}</div>
       </div>
 

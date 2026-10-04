@@ -69,7 +69,7 @@ const handleGoToProposal = () => {
               <span style="font-family: monospace; font-size: 0.75rem; background: #e2e8f0; color: #334155; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">
                 {{ p.id }}
               </span>
-              <h3 style="font-size: 1.2rem; margin-top: 0.4rem; color: #0e1b2f;">{{ p.title }}</h3>
+              <h3 style="font-size: 1.2rem; margin-top: 0.4rem; color: var(--color-navy);">{{ p.title }}</h3>
             </div>
             
             <span style="font-size: 0.75rem; font-weight: 700; color: #059669; background: #d1fae5; padding: 0.25rem 0.65rem; border-radius: 9999px;">

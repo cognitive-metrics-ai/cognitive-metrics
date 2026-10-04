@@ -191,7 +191,7 @@ const handleDemoSignIn = async () => {
         <button 
           type="button" 
           @click="isSignUp = !isSignUp" 
-          style="background: none; border: none; color: #f52c68; font-weight: 700; cursor: pointer; margin-left: 0.35rem;"
+          style="background: none; border: none; color: var(--color-primary); font-weight: 700; cursor: pointer; margin-left: 0.35rem;"
         >
           {{ isSignUp ? 'Sign In' : 'Sign Up' }}
         </button>

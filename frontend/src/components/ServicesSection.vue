@@ -5,7 +5,7 @@ const services = [
   {
     id: 'testbed_dev',
     title: 'Experimental Testbed & Prototype Engineering',
-    iconColor: '#2563eb',
+    iconColor: '#1B6CA8',
     desc: 'We design and build production-grade web applications, interactive software testbeds, and stimulus control environments tailored specifically to your lab’s experimental requirements.',
     sprintTypes: [
       'Interactive web-based study testbeds & UI',
@@ -20,7 +20,7 @@ const services = [
   {
     id: 'telemetry_metrics',
     title: 'ADLC Telemetry & Cognitive Metric Instrumentation',
-    iconColor: '#f52c68',
+    iconColor: '#4DA8DA',
     desc: 'We instrument software prototypes with granular behavioral event logging and cognitive friction tracking to capture developer interaction dynamics during agentic workflows.',
     sprintTypes: [
       'Micro-interaction & cognitive latency loggers',

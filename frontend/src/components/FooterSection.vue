@@ -63,7 +63,7 @@ const handleSubscribe = async () => {
           <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem;">
             PhD in IT (AI Focus) · Senior Software Architect
             <br />
-            <a href="http://jeremylankford.com" target="_blank" rel="noopener noreferrer" style="color: #f52c68; text-decoration: none; font-weight: 600;">
+            <a href="http://jeremylankford.com" target="_blank" rel="noopener noreferrer" style="color: var(--color-sky); text-decoration: none; font-weight: 600;">
               jeremylankford.com ↗
             </a>
           </div>

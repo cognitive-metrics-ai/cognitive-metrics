@@ -22,8 +22,8 @@ const closeGuide = () => {
 
       <div style="background: #ffffff; border-radius: 16px; border: 1px solid var(--color-border); box-shadow: var(--shadow-md); overflow: hidden; display: grid; grid-template-columns: 1fr 1.3fr; gap: 2.5rem; align-items: center; padding: 2.5rem;">
         <!-- Left Book Mockup Graphic -->
-        <div style="background: linear-gradient(135deg, #0e1b2f 0%, #1e3a8a 100%); border-radius: 12px; padding: 3rem 2rem; color: white; text-align: center; box-shadow: 0 15px 30px rgba(14, 27, 47, 0.25);">
-          <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #f52c68; letter-spacing: 0.15em; margin-bottom: 1rem;">
+        <div style="background: linear-gradient(135deg, #0A3D62 0%, #1B6CA8 100%); border-radius: 12px; padding: 3rem 2rem; color: white; text-align: center; box-shadow: 0 15px 30px rgba(10, 61, 98, 0.3);">
+          <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #4DA8DA; letter-spacing: 0.15em; margin-bottom: 1rem;">
             Cognitive Metrics Monograph
           </div>
           <div style="font-size: 1.7rem; font-weight: 800; font-family: var(--font-heading); margin-bottom: 1rem; line-height: 1.25;">
@@ -36,7 +36,7 @@ const closeGuide = () => {
 
         <!-- Right Content -->
         <div>
-          <span class="section-label coral">Methodological Guide</span>
+          <span class="section-label" style="color: #1B6CA8;">Methodological Guide</span>
           <h3 style="font-size: 1.55rem; margin-bottom: 0.75rem;">Standardizing empirical evaluation for autonomous & agentic software engineering</h3>
           <p style="font-size: 0.95rem; margin-bottom: 1.25rem;">
             As software engineering shifts toward autonomous agent architectures, traditional developer productivity metrics fail to capture the nuances of human-agent cognitive handoff, supervisory fatigue, and context degradation.
@@ -44,19 +44,19 @@ const closeGuide = () => {
 
           <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem; color: #334155; margin-bottom: 1.75rem;">
             <li style="display: flex; align-items: center; gap: 0.5rem;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f52c68" stroke-width="2.5">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               <span>Granular telemetry models for human-agent handoffs & latency</span>
             </li>
             <li style="display: flex; align-items: center; gap: 0.5rem;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f52c68" stroke-width="2.5">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               <span>Cognitive Friction Index (CFI) formulation & statistical validity</span>
             </li>
             <li style="display: flex; align-items: center; gap: 0.5rem;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f52c68" stroke-width="2.5">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
               <span>Open-source experimental testbed designs and stimulus generators</span>
