@@ -1,5 +1,22 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import UserMenu from './UserMenu.vue'
+import { logoutUser } from '../services/firebase'
+
+const props = defineProps({
+  currentUser: {
+    type: Object,
+    default: null
+  }
+})
+
+const emit = defineEmits([
+  'open-auth',
+  'submit-proposal',
+  'open-approved-projects',
+  'open-preferences',
+  'logged-out'
+])
 
 const isScrolled = ref(false)
 const mobileMenuOpen = ref(false)
@@ -14,6 +31,24 @@ const toggleMobileMenu = () => {
 
 const closeMobileMenu = () => {
   mobileMenuOpen.value = false
+}
+
+const handleMobileAction = (action) => {
+  closeMobileMenu()
+  if (action === 'auth') {
+    emit('open-auth')
+  } else if (action === 'submit-proposal') {
+    emit('submit-proposal')
+    const el = document.getElementById('submit-app')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  } else if (action === 'approved-projects') {
+    emit('open-approved-projects')
+  } else if (action === 'preferences') {
+    emit('open-preferences')
+  } else if (action === 'logout') {
+    logoutUser()
+    emit('logged-out')
+  }
 }
 
 onMounted(() => {
@@ -54,9 +89,29 @@ onUnmounted(() => {
         <a href="#faqs" class="nav-link">FAQs</a>
       </nav>
 
-      <!-- Desktop CTA Group -->
+      <!-- Desktop CTA & User Account Group -->
       <div class="nav-cta-group">
-        <a href="#submit-app" class="btn btn-primary">Submit research proposal</a>
+        <a href="#submit-app" class="btn btn-primary">Submit proposal</a>
+
+        <!-- If User Logged In: Avatar with User Menu -->
+        <UserMenu 
+          v-if="currentUser" 
+          :user="currentUser" 
+          @submit-proposal="emit('submit-proposal')"
+          @open-approved-projects="emit('open-approved-projects')"
+          @open-preferences="emit('open-preferences')"
+          @logged-out="emit('logged-out')"
+        />
+
+        <!-- If Logged Out: Sign In Button -->
+        <button 
+          v-else 
+          @click="emit('open-auth')" 
+          class="btn btn-secondary" 
+          style="font-size: 0.875rem; padding: 0.55rem 1.25rem;"
+        >
+          Sign In
+        </button>
       </div>
 
       <!-- Mobile Hamburger Button -->
@@ -75,13 +130,37 @@ onUnmounted(() => {
 
     <!-- Mobile Drawer -->
     <div v-if="mobileMenuOpen" class="mobile-nav-drawer">
+      <!-- User Profile Header in Mobile Drawer -->
+      <div v-if="currentUser" style="padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 0.5rem;">
+        <div style="font-weight: 700; color: #0e1b2f;">{{ currentUser.displayName || 'Academic Researcher' }}</div>
+        <div style="font-size: 0.8rem; color: #64748b;">{{ currentUser.email }}</div>
+      </div>
+
       <a href="#how-it-works" class="nav-link" @click="closeMobileMenu">How it works</a>
       <a href="#our-work" class="nav-link" @click="closeMobileMenu">ADLC Studies</a>
       <a href="#client-services" class="nav-link" @click="closeMobileMenu">Free services</a>
       <a href="#batch-timeline" class="nav-link" @click="closeMobileMenu">Research cycle</a>
       <a href="#faqs" class="nav-link" @click="closeMobileMenu">FAQs</a>
-      <div style="padding-top: 0.5rem;">
-        <a href="#submit-app" class="btn btn-primary" style="width: 100%; text-align: center;" @click="closeMobileMenu">Submit research proposal</a>
+
+      <!-- Logged In Mobile Actions -->
+      <template v-if="currentUser">
+        <div style="height: 1px; background: #e2e8f0; margin: 0.5rem 0;"></div>
+        <a href="#submit-app" class="nav-link" @click="handleMobileAction('submit-proposal')">📝 Submit proposal</a>
+        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%;" @click="handleMobileAction('approved-projects')">
+          🔬 Approved projects
+        </button>
+        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%;" @click="handleMobileAction('preferences')">
+          ⚙️ Preferences
+        </button>
+        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; color: #dc2626; width: 100%;" @click="handleMobileAction('logout')">
+          🚪 Logout
+        </button>
+      </template>
+
+      <!-- Logged Out Mobile Actions -->
+      <div v-else style="padding-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <button @click="handleMobileAction('auth')" class="btn btn-secondary" style="width: 100%;">Sign In / Sign Up</button>
+        <a href="#submit-app" class="btn btn-primary" style="width: 100%; text-align: center;" @click="closeMobileMenu">Submit proposal</a>
       </div>
     </div>
   </header>

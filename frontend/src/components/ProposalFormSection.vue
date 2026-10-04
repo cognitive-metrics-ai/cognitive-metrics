@@ -5,6 +5,10 @@ const props = defineProps({
   preselectedService: {
     type: String,
     default: ''
+  },
+  currentUser: {
+    type: Object,
+    default: null
   }
 })
 
@@ -21,10 +25,15 @@ const formData = reactive({
   non_commercial_confirmed: false
 })
 
-const isSubmitting = ref(false)
-const submitSuccess = ref(false)
-const submissionResult = ref(null)
-const errorMessage = ref('')
+// Auto-prefill if user is logged in
+watch(() => props.currentUser, (user) => {
+  if (user) {
+    if (user.displayName && !formData.researcher_name) formData.researcher_name = user.displayName
+    if (user.email && !formData.contact_email) formData.contact_email = user.email
+    if (user.institution && !formData.institution_name) formData.institution_name = user.institution
+    if (user.department && !formData.department_name) formData.department_name = user.department
+  }
+}, { immediate: true })
 
 // Watch for preselection from services section
 watch(() => props.preselectedService, (newVal) => {
