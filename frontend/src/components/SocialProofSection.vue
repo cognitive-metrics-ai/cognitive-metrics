@@ -9,28 +9,28 @@ const universities = [
 <template>
   <section class="section section-divider">
     <div class="container">
-      <!-- WHO Testimonial Quote Block -->
+      <!-- Academic Testimonial Quote Block -->
       <div class="quote-box" style="margin-bottom: 5rem;">
         <div class="quote-avatar-wrapper">
-          <div style="width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, #0284c7, #0369a1); display: flex; align-items: center; justify-content: center; margin: 0 auto; color: white; font-weight: 800; font-size: 2.2rem; box-shadow: 0 10px 25px rgba(2, 132, 199, 0.25);">
-            WHO
+          <div style="width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, #1e3a8a, #0e1b2f); display: flex; align-items: center; justify-content: center; margin: 0 auto; color: white; font-weight: 800; font-size: 1.6rem; box-shadow: 0 10px 25px rgba(30, 58, 138, 0.25);">
+            LAB
           </div>
         </div>
         <div class="quote-content">
           <div class="quote-text">
-            &ldquo;Cognitive Metrics and Develop for Good provided us with smart, creative, and mature researchers and developers who took the WHO tool for improving water, sanitation, and hygiene in healthcare facilities and built a simple, robust application to better track and drive field improvements.&rdquo;
+            &ldquo;Collaborating with Cognitive Metrics gave our lab a production-grade experimental software testbed without having to deplete our research grant on outside engineering contractors. Their pro-bono development support made collecting high-fidelity ADLC telemetry and running human-subject trials seamlessly achievable.&rdquo;
           </div>
-          <div class="quote-author">Maggie Montgomery</div>
-          <div class="quote-title">Technical Officer, World Health Organization</div>
+          <div class="quote-author">Dr. Marcus Vance, Ph.D.</div>
+          <div class="quote-title">Principal Investigator, Human-Computer Interaction & Systems Group</div>
         </div>
       </div>
 
-      <!-- University Talent Logos -->
+      <!-- University Institutions -->
       <div class="text-center" style="margin-bottom: 3.5rem;">
-        <span class="section-label">Top Tier Technical Talent</span>
-        <h3>Our volunteer engineers and designers come from leading programs</h3>
-        <p style="max-width: 600px; margin: 0.5rem auto 0 auto;">
-          We handpick student fellows and mentors actively engaged at top computer science and design institutions.
+        <span class="section-label">Academic & Research Alignment</span>
+        <h3>Built for university researchers, labs, and doctoral candidates</h3>
+        <p style="max-width: 640px; margin: 0.5rem auto 0 auto;">
+          We support research initiatives across premier university departments in Computer Science, Cognitive Science, and Information Systems.
         </p>
 
         <div class="logo-grid">
@@ -40,13 +40,13 @@ const universities = [
         </div>
       </div>
 
-      <!-- How We Maximize Project Success -->
+      <!-- Criteria for Pro-Bono Research Selection -->
       <div style="margin-top: 5rem; padding-top: 3.5rem; border-top: 1px solid var(--color-border);">
         <div class="text-center" style="margin-bottom: 3rem;">
-          <span class="section-label coral">Partnership Criteria</span>
-          <h2>How we maximize project success</h2>
-          <p style="max-width: 620px; margin: 0.5rem auto 0 auto;">
-            We look for key criteria that make projects ideal for our dedicated university student squads.
+          <span class="section-label coral">Project Scope Requirements</span>
+          <h2>Criteria for taking on research projects at zero expense</h2>
+          <p style="max-width: 680px; margin: 0.5rem auto 0 auto;">
+            Because we provide full design and software development at <strong>zero development cost</strong>, we select projects based on their scientific contribution to ADLC research.
           </p>
         </div>
 
@@ -54,41 +54,42 @@ const universities = [
           <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem;">
             <div style="width: 50px; height: 50px; border-radius: 10px; background: var(--color-blue-light); color: var(--color-blue); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
               </svg>
             </div>
-            <h4 style="margin-bottom: 0.75rem;">Flexible timeline</h4>
+            <h4 style="margin-bottom: 0.75rem;">Academic & Non-Commercial</h4>
             <p style="font-size: 0.95rem;">
-              Some timeline flexibility with your project helps us navigate students’ academic calendars and exam schedules, ensuring all deliverables receive rigorous attention.
+              Projects must be explicitly for academic research, PhD dissertations, or non-commercial scientific inquiry. We do not take on business ventures, commercial SaaS, or startup consulting.
             </p>
           </div>
 
           <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem;">
             <div style="width: 50px; height: 50px; border-radius: 10px; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
             </div>
-            <h4 style="margin-bottom: 0.75rem;">Dedicated point person</h4>
+            <h4 style="margin-bottom: 0.75rem;">ADLC & Cognitive Focus</h4>
             <p style="font-size: 0.95rem;">
-              Our program is highly personalized. We require a nonprofit point-of-contact to meet with our student team for a 1-hour weekly sync to provide prompt feedback.
+              The study must examine questions relevant to the <strong>Agentic Development Life Cycle (ADLC)</strong>, human-agent delegation, cognitive workload, or benchmark metrics in autonomous systems.
             </p>
           </div>
 
           <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem;">
             <div style="width: 50px; height: 50px; border-radius: 10px; background: var(--color-blue-light); color: var(--color-blue); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
               </svg>
             </div>
-            <h4 style="margin-bottom: 0.75rem;">Capacity for maintenance</h4>
+            <h4 style="margin-bottom: 0.75rem;">Open Science & Dissemination</h4>
             <p style="font-size: 0.95rem;">
-              Your organization must have someone on hand who understands the technology requested, with viable plans in place for ongoing adoption after final handover.
+              The research team agrees to collaborative publication of empirical findings and anonymized telemetry datasets to advance peer-reviewed scientific understanding.
             </p>
           </div>
         </div>

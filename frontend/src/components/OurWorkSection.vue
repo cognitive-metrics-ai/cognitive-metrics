@@ -6,36 +6,36 @@ const activeCase = ref(null)
 const caseStudies = [
   {
     id: 1,
-    client: 'World Health Organization',
-    title: 'WASH Healthcare Intelligence & Monitoring Application',
-    category: 'Full-Stack & Benchmarks',
-    description: 'A student team engineered a responsive platform empowering healthcare workers to track, benchmark, and improve water and hygiene standards in decentralized facilities worldwide.',
-    impact: '1,200+ Facilities Monitored',
+    client: 'Software Engineering & HCI Lab',
+    title: 'Human-in-the-Loop ADLC Code Synthesis Benchmark',
+    category: 'ADLC Empirical Study',
+    description: 'Designed and engineered an experimental IDE testbed measuring developer cognitive load, interruption recovery latency, and task completion fidelity during autonomous agent code synthesis.',
+    impact: '12,000+ Empirical Traces · $0 Grant Cost',
     imageBg: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
-    tags: ['Vue 3', 'FastAPI', 'Offline First', 'Healthcare'],
-    fullStory: 'The team worked directly with technical officers at WHO to transform complex spreadsheet-based audit protocols into an intuitive, touch-friendly web application with real-time analytics and automated PDF report generation.'
+    tags: ['ADLC Metrics', 'Cognitive Load', 'FastAPI', 'Vue 3', 'Eye-Tracking Hook'],
+    fullStory: 'The lab needed a custom web-based IDE testbed to compare traditional development against an Agentic Development Life Cycle (ADLC). We engineered the complete frontend interface, telemetry event loggers, and LLM orchestration layer at zero development expense, enabling the researchers to conduct controlled trials and submit to ACM/IEEE conferences.'
   },
   {
     id: 2,
-    client: 'Pangolino Wildlife Network',
-    title: 'Designing & Developing a Digital Presence for Pangolin Conservation',
-    category: 'Web & Visual Design',
-    description: 'A dedicated team crafted a high-converting marketing website and interactive donation funnel with custom animations for Nigerian wildlife conservation organization Pangolino.',
-    impact: '3.4x Donor Conversion',
+    client: 'Biomedical Informatics Research Group',
+    title: 'Multi-Agent Clinical Diagnostic Decision Testbed',
+    category: 'Autonomous Agent Research',
+    description: 'Built a multi-agent orchestration testbed allowing medical researchers to evaluate physician trust calibration, cognitive friction, and autonomous verification protocols in healthcare workflows.',
+    impact: 'Multi-Center Trial · Zero Development Fees',
     imageBg: 'linear-gradient(135deg, #065f46 0%, #10b981 100%)',
-    tags: ['UX Research', 'Webflow', 'Custom Animations', 'Stripe'],
-    fullStory: 'Students developed end-to-end interactive storyboards, visual asset libraries, and high-performance Webflow pages, enabling international supporters to sponsor conservation ranger patrols.'
+    tags: ['Clinical ADLC', 'Multi-Agent Systems', 'Safety Auditing', 'Python'],
+    fullStory: 'Researchers sought to investigate how clinicians interact when AI agents autonomously synthesize lab records and propose differential diagnoses. We designed and built the double-blind experimental software testbed, logging time-to-decision and physician verification steps without charging any consulting or development fees.'
   },
   {
     id: 3,
-    client: 'Energy Policy Institute (UChicago)',
-    title: 'Crowdsourcing Platform to Empower Community Donors & Volunteers',
-    category: 'Platform Engineering',
-    description: 'Designed and deployed a responsive platform empowering community residents to coordinate solid-waste management and environmental benchmarking in urban micro-neighborhoods.',
-    impact: '80,000+ Citizens Engaged',
+    client: 'Cognitive Computing & Learning Lab',
+    title: 'Cognitive Friction Telemetry & Benchmark Harness',
+    category: 'Cognitive Metrics',
+    description: 'Constructed an open-source evaluation suite and behavioral telemetry harness quantifying mental fatigue, task switching overhead, and autonomous agent delegation patterns.',
+    impact: 'Open Research Artifact · 100% Free Collaboration',
     imageBg: 'linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%)',
-    tags: ['Geospatial AI', 'Vue.js', 'PostgreSQL', 'Civic Tech'],
-    fullStory: 'By integrating community mapping with localized reporting metrics, this project provided actionable insights to municipal authorities while incentivizing volunteer participation.'
+    tags: ['Telemetry Harness', 'Open Science', 'Benchmark Suite', 'Reproducible Protocol'],
+    fullStory: 'To evaluate autonomous development agents across complex multi-step workflows, the research team needed standardized cognitive metric logging. We implemented the telemetry collector, benchmark harnesses, and visualization dashboard entirely pro-bono for their academic publication.'
   }
 ]
 
@@ -52,10 +52,10 @@ const closeModal = () => {
   <section id="our-work" class="section section-divider section-light">
     <div class="container">
       <div class="text-center" style="margin-bottom: 3rem;">
-        <span class="section-label coral">Case Studies</span>
-        <h2>Our work & nonprofit impact</h2>
-        <p style="max-width: 640px; margin: 0.75rem auto 0 auto;">
-          Explore how our university student squads have delivered research-backed websites, applications, and AI benchmarks for organizations around the globe.
+        <span class="section-label coral">Peer-Reviewed & Empirical Science</span>
+        <h2>ADLC research studies & testbeds</h2>
+        <p style="max-width: 680px; margin: 0.75rem auto 0 auto;">
+          Review sample academic research testbeds and experimental prototypes engineered pro-bono to study the Agentic Development Life Cycle.
         </p>
       </div>
 
@@ -67,7 +67,7 @@ const closeModal = () => {
               <span style="display: inline-block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 9999px; margin-bottom: 0.75rem; backdrop-filter: blur(4px);">
                 {{ item.category }}
               </span>
-              <div style="font-size: 1.25rem; font-weight: 800; font-family: var(--font-heading);">
+              <div style="font-size: 1.15rem; font-weight: 800; font-family: var(--font-heading);">
                 {{ item.impact }}
               </div>
             </div>
@@ -86,14 +86,14 @@ const closeModal = () => {
             </div>
 
             <button @click="openModal(item)" class="btn btn-secondary" style="width: 100%; margin-top: auto;">
-              Read case study
+              View study details
             </button>
           </div>
         </div>
       </div>
 
       <div class="text-center" style="margin-top: 3rem;">
-        <a href="#submit-app" class="btn btn-primary btn-large">Start your project with us</a>
+        <a href="#submit-app" class="btn btn-primary btn-large">Propose an ADLC research collaboration</a>
       </div>
     </div>
 
@@ -107,17 +107,17 @@ const closeModal = () => {
         <span class="section-label coral">{{ activeCase.client }}</span>
         <h2 style="font-size: 1.75rem; margin-bottom: 1rem;">{{ activeCase.title }}</h2>
         <div style="background: var(--color-blue-light); color: var(--color-blue-dark); font-weight: 700; padding: 0.6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem;">
-          Verified Impact: {{ activeCase.impact }}
+          Research Milestone: {{ activeCase.impact }}
         </div>
 
-        <h4 style="margin-bottom: 0.5rem;">Project Overview</h4>
+        <h4 style="margin-bottom: 0.5rem;">Experimental Objective</h4>
         <p style="margin-bottom: 1.5rem;">{{ activeCase.description }}</p>
 
-        <h4 style="margin-bottom: 0.5rem;">Implementation & Results</h4>
+        <h4 style="margin-bottom: 0.5rem;">Technical Implementation ($0 Development Expenses)</h4>
         <p style="margin-bottom: 1.75rem;">{{ activeCase.fullStory }}</p>
 
         <div style="display: flex; gap: 1rem;">
-          <a href="#submit-app" @click="closeModal" class="btn btn-primary" style="flex: 1;">Request Similar Solution</a>
+          <a href="#submit-app" @click="closeModal" class="btn btn-primary" style="flex: 1;">Propose Your Research Project</a>
           <button @click="closeModal" class="btn btn-secondary">Close</button>
         </div>
       </div>

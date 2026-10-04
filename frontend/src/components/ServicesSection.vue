@@ -3,50 +3,50 @@ const emit = defineEmits(['select-service'])
 
 const services = [
   {
-    id: 'ux_design',
-    title: 'UX research & UI design',
+    id: 'testbed_dev',
+    title: 'Experimental Testbed & Prototype Engineering',
     iconColor: '#2563eb',
-    desc: 'From uncovering user needs to defining research-backed product strategies, our student designers uncover insights that drive intuitive and effective design solutions.',
+    desc: 'We design and build production-grade web applications, interactive software testbeds, and stimulus control environments tailored specifically to your lab’s experimental requirements.',
     sprintTypes: [
-      'User personas & journey maps and flows',
-      'Competitive analyses & cognitive friction audits',
-      'Information architecture (IA)',
-      'Design systems & visual design tokens',
-      'Interactive clickable prototypes'
+      'Interactive web-based study testbeds & UI',
+      'Full-stack stimulus & task presentation tools',
+      'Subject trial interfaces & participant onboarding',
+      'Researcher control consoles & session management',
+      'Cross-platform responsiveness & accessibility'
     ],
-    techOptions: 'Design & Prototyping: Figma, FigJam\nResearch: Dovetail, Optimal Workshop\nSurveys: Typeform, Google Forms',
-    requirements: "A clear understanding of your product's objectives, target demographic user groups, key functionalities, and access to brand guidelines."
+    techOptions: 'Frontend: Vue 3, Vite, HTML5 Canvas, WebSockets\nBackend: FastAPI, Python, PostgreSQL, Docker\nDeployment: University servers, Cloud testbeds',
+    requirements: 'A defined study protocol, description of participant tasks, and clear experimental variables/conditions to be evaluated.'
   },
   {
-    id: 'web_dev',
-    title: 'Website & application development',
+    id: 'telemetry_metrics',
+    title: 'ADLC Telemetry & Cognitive Metric Instrumentation',
     iconColor: '#f52c68',
-    desc: 'Our tech students craft intuitive, accessible, and high-performance websites and digital tools. At minimum, websites include responsive Home (impact), Donate, and About Us pages.',
+    desc: 'We instrument software prototypes with granular behavioral event logging and cognitive friction tracking to capture developer interaction dynamics during agentic workflows.',
     sprintTypes: [
-      'Greenfield responsive web & app builds',
-      'Interactive metric & impact dashboards',
-      'Custom HTML, CSS, JavaScript, or Vue 3',
-      'Third-party tools and API integrations',
-      'SEO & accessibility compliance'
+      'Micro-interaction & cognitive latency loggers',
+      'Developer friction & handoff telemetry pipelines',
+      'Interruption recovery & task-switching monitors',
+      'Anonymized session recording & trace export',
+      'Automated empirical data aggregation & CSV/JSON export'
     ],
-    techOptions: 'Frontend: Vue 3, Vite, Webflow, Squarespace\nBackend: FastAPI, REST APIs, Python\nHosting & CI/CD: Netlify, Vercel, Docker',
-    requirements: "Brand guidelines and existing assets (if applicable). Technical familiarity with requested technologies and handover maintenance plans."
+    techOptions: 'Instrumentation: Custom event SDKs, OpenTelemetry\nStorage: Structured JSONL, SQLite, DuckDB, Parquet\nAnalytics: Python Pandas/Polars scripts, R export',
+    requirements: 'Defined dependent variables, telemetry schema preferences, and IRB/ethics-compliant participant data handling procedures.'
   },
   {
-    id: 'ai_audit',
-    title: 'AI audit & strategy',
-    badge: 'NEW COHORT PILOT',
+    id: 'agentic_arch',
+    title: 'Agentic Architectures & Benchmark Evaluation',
+    badge: 'CORE ADLC FOCUS',
     iconColor: '#10b981',
-    desc: 'We evaluate and audit AI readiness, data workflows, and LLM implementations for mission-driven teams, establishing verifiable accuracy and ethical safety guardrails.',
+    desc: 'We implement and evaluate autonomous agent architectures, multi-agent coordination loops, and human-in-the-loop validation frameworks to test your theoretical ADLC models.',
     sprintTypes: [
-      'AI readiness assessment & model feasibility',
-      'Workflow audits & operational pain points',
-      'Use case identification & prioritization',
-      'Model safety, hallucination & bias evaluation',
-      'Implementation roadmap & tool selection'
+      'Multi-agent task decomposition pipelines',
+      'Autonomous code synthesis & review harnesses',
+      'Human-in-the-loop intervention gates & metrics',
+      'Systematic error & hallucination benchmarks',
+      'Comparative baseline model testing'
     ],
-    techOptions: 'Frameworks: AI risk management, custom safety rubrics\nModels Evaluated: Claude, ChatGPT, Gemini, Open Source LLMs\nAutomation: Slack, Airtable, Zapier',
-    requirements: "A dedicated point-of-contact familiar with current tools. Openness to process improvements. NDAs available for sensitive organizational data."
+    techOptions: 'Agent Frameworks: LangGraph, AutoGen, custom state machines\nModels: Claude, OpenAI, Gemini, Local Open-Weights (Ollama/vLLM)\nBenchmarking: Automated evaluation scripts',
+    requirements: 'Research hypotheses regarding agent behavior, target evaluation rubrics, and model access credentials for your experiment.'
   }
 ]
 
@@ -63,14 +63,14 @@ const handleSelect = (serviceId) => {
   <section id="client-services" class="section section-divider">
     <div class="container">
       <div class="text-center" style="margin-bottom: 3.5rem;">
-        <span class="section-label coral">Menu of Services</span>
-        <h2>Our services & batch model</h2>
+        <span class="section-label coral">Zero-Expense Research Engineering</span>
+        <h2>Pro-bono development for ADLC research</h2>
         <div style="max-width: 860px; margin: 1.25rem auto 0 auto; background: var(--color-blue-light); border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.5rem; text-align: left;">
           <h5 style="color: var(--color-navy); margin-bottom: 0.5rem; font-weight: 700;">
-            16-Week Custom Sprints · 800 Hours of Technical Work · $1,000 Flat Fee
+            100% Free Development · No Consulting Fees · No Development Expenses
           </h5>
           <p style="font-size: 0.95rem; color: #334155; margin: 0;">
-            Each project squad consists of: <strong>1 student Product Manager</strong>, <strong>1 student Design or Tech Lead</strong>, <strong>4–6 Engineers/Designers</strong>, and <strong>industry professional mentors</strong>. Together, they dedicate ~800 hours of technical execution at our unbeatable flat fee of $1,000. We are also open to considering further discounting to accommodate extenuating financial circumstances.
+            I offer full software design and development capabilities directly to academic researchers with <strong>zero development expenses</strong>. This is not a commercial service, commercial product, or consulting business. I take on software development for qualifying research projects in exchange for the opportunity to advance empirical scientific discovery on the <strong>Agentic Development Life Cycle (ADLC)</strong> and co-author peer-reviewed publications.
           </p>
         </div>
       </div>
@@ -94,9 +94,9 @@ const handleSelect = (serviceId) => {
           <h3 style="margin-bottom: 0.75rem; font-size: 1.35rem;">{{ service.title }}</h3>
           <p style="font-size: 0.95rem; margin-bottom: 1.25rem;">{{ service.desc }}</p>
 
-          <!-- Sprints -->
+          <!-- Sprints / Research Areas -->
           <div class="service-section-block">
-            <div class="service-section-label">SPRINT TYPES</div>
+            <div class="service-section-label">DEVELOPMENT DELIVERABLES</div>
             <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.875rem; color: var(--color-text-main);">
               <li v-for="st in service.sprintTypes" :key="st" style="display: flex; align-items: flex-start; gap: 0.4rem;">
                 <span style="color: var(--color-blue); font-weight: bold;">•</span>
@@ -107,20 +107,20 @@ const handleSelect = (serviceId) => {
 
           <!-- Technologies -->
           <div class="service-section-block">
-            <div class="service-section-label">TECHNOLOGY OPTIONS</div>
+            <div class="service-section-label">STACK & INSTRUMENTATION</div>
             <div class="service-section-content" style="white-space: pre-line;">{{ service.techOptions }}</div>
           </div>
 
           <!-- Requirements -->
           <div class="service-section-block" style="flex-grow: 1;">
-            <div class="service-section-label">PRE-PROJECT REQUIREMENTS</div>
+            <div class="service-section-label">LAB PRE-REQUISITES</div>
             <div class="service-section-content">{{ service.requirements }}</div>
           </div>
 
           <!-- Select Button -->
           <div style="margin-top: 1.75rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
             <button @click="handleSelect(service.id)" class="btn btn-primary" style="width: 100%; font-size: 0.9rem;">
-              Select for proposal
+              Request for research study
             </button>
           </div>
         </div>

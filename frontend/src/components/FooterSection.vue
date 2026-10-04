@@ -21,7 +21,6 @@ const handleSubscribe = async () => {
       subscribed.value = true
     }
   } catch (err) {
-    // Client fallback
     subscribed.value = true
   } finally {
     subscribing.value = false
@@ -33,32 +32,31 @@ const handleSubscribe = async () => {
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
-        <!-- Col 1: Get Involved -->
+        <!-- Col 1: Academic Inquiries -->
         <div>
-          <div class="footer-col-title">Get Involved</div>
+          <div class="footer-col-title">Academic Inquiries</div>
           <ul class="footer-link-list">
-            <li><a href="#submit-app" class="footer-link">Nonprofits & Proposals</a></li>
-            <li><a href="#how-it-works" class="footer-link">Students & Fellows</a></li>
-            <li><a href="#our-work" class="footer-link">Industry Mentors</a></li>
-            <li><a href="#client-services" class="footer-link">Batch Sponsorships</a></li>
+            <li><a href="#submit-app" class="footer-link">Propose ADLC Study ($0 Cost)</a></li>
+            <li><a href="#client-services" class="footer-link">Free Testbed Engineering</a></li>
+            <li><a href="#our-work" class="footer-link">Empirical Studies</a></li>
+            <li><a href="#how-it-works" class="footer-link">Authorship & IP Model</a></li>
           </ul>
         </div>
 
-        <!-- Col 2: About -->
+        <!-- Col 2: Research Focus -->
         <div>
-          <div class="footer-col-title">Cognitive Metrics</div>
+          <div class="footer-col-title">Cognitive Metrics Research</div>
           <ul class="footer-link-list">
-            <li><a href="#our-work" class="footer-link">Our Work & Cases</a></li>
-            <li><a href="#how-it-works" class="footer-link">Our Process</a></li>
-            <li><a href="#client-services" class="footer-link">Menu of Services</a></li>
-            <li><a href="#batch-timeline" class="footer-link">Cohort Timeline</a></li>
-            <li><a href="#faqs" class="footer-link">Frequently Asked Questions</a></li>
+            <li><a href="#how-it-works" class="footer-link">ADLC Lifecycle Framework</a></li>
+            <li><a href="#client-services" class="footer-link">Cognitive Friction Telemetry</a></li>
+            <li><a href="#batch-timeline" class="footer-link">Conference Submission Cycles</a></li>
+            <li><a href="#faqs" class="footer-link">Academic Collaboration FAQs</a></li>
           </ul>
         </div>
 
-        <!-- Col 3: Stay in Touch & Newsletter -->
+        <!-- Col 3: Research Dissemination -->
         <div>
-          <div class="footer-col-title">Stay in touch</div>
+          <div class="footer-col-title">Research Dissemination</div>
           
           <!-- Social Icons -->
           <div class="footer-social-row">
@@ -80,14 +78,14 @@ const handleSubscribe = async () => {
           </div>
 
           <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 0.85rem;">
-            Receive updates about upcoming batch openings and technical impact reports.
+            Receive notifications on new ADLC empirical datasets, open-source testbeds, and publication pre-prints.
           </div>
 
           <div v-if="!subscribed" style="display: flex; gap: 0.5rem;">
             <input 
               type="email" 
               v-model="newsletterEmail" 
-              placeholder="Enter your email address" 
+              placeholder="Enter academic email address" 
               style="padding: 0.65rem 1rem; border-radius: 9999px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #ffffff; font-size: 0.9rem; flex-grow: 1; outline: none;" 
               required
             />
@@ -97,26 +95,25 @@ const handleSubscribe = async () => {
               class="btn btn-primary" 
               style="padding: 0.65rem 1.25rem; font-size: 0.85rem;"
             >
-              {{ subscribing ? 'Joining...' : 'Subscribe' }}
+              {{ subscribing ? 'Subscribing...' : 'Subscribe' }}
             </button>
           </div>
           <div v-else style="color: #34d399; font-size: 0.9rem; font-weight: 600;">
-            ✓ Thank you! You’re subscribed to Cognitive Metrics updates.
+            ✓ Subscribed! You will receive ADLC empirical research releases.
           </div>
         </div>
       </div>
 
-      <!-- Legal / Non-profit Disclaimers -->
+      <!-- Legal / Academic Disclaimers -->
       <div class="footer-bottom">
-        <div>Cognitive Metrics © 2026. All Rights Reserved.</div>
-        <div style="color: #64748b; margin-top: 0.4rem; max-width: 680px; margin-left: auto; margin-right: auto;">
-          Cognitive Metrics is a registered 501(c)(3) nonprofit organization (EIN: 85-1596146). All donations are tax deductible to the full extent allowable under IRS regulations.
-          <br />584 Castro Street #3117, San Francisco, CA 94114
+        <div>Cognitive Metrics · Academic Research Initiative © 2026. All Rights Reserved.</div>
+        <div style="color: #64748b; margin-top: 0.4rem; max-width: 720px; margin-left: auto; margin-right: auto;">
+          Strictly dedicated to non-commercial academic research into the Agentic Development Life Cycle (ADLC) and cognitive metrics. We offer software design and prototype development for qualifying academic studies at <strong>zero development expenses</strong>. Not for business or commercial venture purposes.
         </div>
         <div class="footer-legal-links">
-          <a href="#">Privacy Policy</a> ·
-          <a href="#">Volunteer Terms & Conditions</a> ·
-          <a href="#">AI Ethics & Safety Policy</a>
+          <a href="#">Open Science & Publication Ethics</a> ·
+          <a href="#">IRB & Human Subjects Policy</a> ·
+          <a href="#">Non-Commercial Academic Agreement</a>
         </div>
       </div>
     </div>

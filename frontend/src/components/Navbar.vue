@@ -37,21 +37,26 @@ onUnmounted(() => {
             <circle cx="12" cy="12" r="3" fill="currentColor"/>
           </svg>
         </div>
-        <span>Cognitive Metrics</span>
+        <div style="display: flex; flex-direction: column; line-height: 1.15;">
+          <span>Cognitive Metrics</span>
+          <span style="font-size: 0.6875rem; font-weight: 700; color: #f52c68; letter-spacing: 0.08em; text-transform: uppercase;">
+            Academic ADLC Research
+          </span>
+        </div>
       </a>
 
       <!-- Desktop Navigation Menu -->
       <nav class="nav-menu">
         <a href="#how-it-works" class="nav-link">How it works</a>
-        <a href="#our-work" class="nav-link">Our work</a>
-        <a href="#client-services" class="nav-link">Services</a>
-        <a href="#batch-timeline" class="nav-link">Timeline</a>
+        <a href="#our-work" class="nav-link">ADLC Studies</a>
+        <a href="#client-services" class="nav-link">Free services</a>
+        <a href="#batch-timeline" class="nav-link">Research cycle</a>
         <a href="#faqs" class="nav-link">FAQs</a>
       </nav>
 
       <!-- Desktop CTA Group -->
       <div class="nav-cta-group">
-        <a href="#submit-app" class="btn btn-primary">Submit a proposal</a>
+        <a href="#submit-app" class="btn btn-primary">Submit research proposal</a>
       </div>
 
       <!-- Mobile Hamburger Button -->
@@ -71,12 +76,12 @@ onUnmounted(() => {
     <!-- Mobile Drawer -->
     <div v-if="mobileMenuOpen" class="mobile-nav-drawer">
       <a href="#how-it-works" class="nav-link" @click="closeMobileMenu">How it works</a>
-      <a href="#our-work" class="nav-link" @click="closeMobileMenu">Our work</a>
-      <a href="#client-services" class="nav-link" @click="closeMobileMenu">Services</a>
-      <a href="#batch-timeline" class="nav-link" @click="closeMobileMenu">Timeline</a>
+      <a href="#our-work" class="nav-link" @click="closeMobileMenu">ADLC Studies</a>
+      <a href="#client-services" class="nav-link" @click="closeMobileMenu">Free services</a>
+      <a href="#batch-timeline" class="nav-link" @click="closeMobileMenu">Research cycle</a>
       <a href="#faqs" class="nav-link" @click="closeMobileMenu">FAQs</a>
       <div style="padding-top: 0.5rem;">
-        <a href="#submit-app" class="btn btn-primary" style="width: 100%; text-align: center;" @click="closeMobileMenu">Submit a proposal</a>
+        <a href="#submit-app" class="btn btn-primary" style="width: 100%; text-align: center;" @click="closeMobileMenu">Submit research proposal</a>
       </div>
     </div>
   </header>

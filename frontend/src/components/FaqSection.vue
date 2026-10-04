@@ -5,39 +5,39 @@ const openIndices = ref([0]) // First FAQ open by default
 
 const faqsCol1 = [
   {
-    q: 'Is my organization eligible for our services?',
-    a: 'All eligible nonprofits or organizations must be able to present documents officiating their status as any of the following:\n\n• U.S.-based nonprofits: 501(c)(3) letter of determination\n• Non-U.S.-based nonprofits: Proof of registered charity/nonprofit status in home country\n• Governing agencies or international organizations: Official charter or NGO registration\n\nAlthough we resonate with the missions of social impact startups, we cannot match volunteer developers and designers with for-profit organizations under the Fair Labor Standards Act.'
+    q: 'Why are development services offered with zero development expenses?',
+    a: 'Our focus is strictly on advancing empirical academic research into the Agentic Development Life Cycle (ADLC) and cognitive metrics in software engineering. We offer full design and software development at no cost because your project serves as an empirical research study, yielding valuable scientific data and joint peer-reviewed publications.'
   },
   {
-    q: 'How will Cognitive Metrics ensure a smooth project handover?',
-    a: 'At the end of the program, we make sure to document all work before the handover. Your student squad will organize and deliver all Figma design files, research assets, production code repositories, and step-by-step documentation guiding your team on maintenance and future updates.'
+    q: 'Who is eligible to propose an academic research collaboration?',
+    a: 'Eligible collaborators include university professors, principal investigators (PIs), postdoctoral fellows, doctoral candidates, and academic research institutions. The proposed study must be targeted for academic conference/journal publication or thesis defense.'
   },
   {
-    q: 'How do you source top tech & design talent?',
-    a: "Each student and mentor volunteer matched to your project is carefully evaluated by our management team. Candidates are scored across Technical skill, Passion, Resilience, and Leadership. Key roles are handpicked, while others are paired via our matching system based on technical competencies and social cause alignment."
+    q: 'Can commercial businesses or startups apply for this service?',
+    a: 'No. This service is strictly non-commercial. We do not take on business ventures, commercial software products, or corporate consulting. Every project taken on must be an academic study with open or peer-reviewed scientific deliverables.'
   },
   {
-    q: 'What can I expect from this 16-week program?',
-    a: 'You can expect a dedicated team of 4–6 university students and mentors dedicating ~800 hours over 16 weeks. Students commit 5–10 hours per week, supported by professional industry mentors. While teams work diligently to complete scope, projects focus on delivering verified, high-quality milestones.'
+    q: 'What types of projects qualify under ADLC research?',
+    a: 'Qualifying projects investigate the Agentic Development Life Cycle. This includes human-agent paired development, autonomous multi-agent task orchestration, developer cognitive friction, mental workload measurement, hallucination guardrails, and agent evaluation benchmarks.'
   }
 ]
 
 const faqsCol2 = [
   {
-    q: 'How is my project proposal reviewed and scoped?',
-    a: 'After you submit your proposal, our Product Leads screen it to ensure alignment with technologies our talent pool excels in. Nonprofits accepted into the cohort enter a month-long scoping phase where the team collaborates with you on a formal Product Requirements Document (PRD) before development begins.'
+    q: 'How are intellectual property (IP) and publication authorship handled?',
+    a: 'Your university or research lab retains full ownership of your domain hypotheses, proprietary datasets, and core research concepts. Because we provide complete pro-bono software engineering and telemetry instrumentation, we participate as technical co-authors or collaborators on resulting scholarly publications.'
   },
   {
-    q: 'What if I need both design and engineering work done?',
-    a: 'Our multidisciplinary squads are built specifically for full-lifecycle delivery! Teams typically include both UI/UX designers and software engineers, allowing us to simultaneously conduct user research, build design systems, and implement full-stack code or CMS integrations.'
+    q: 'What kind of software testbeds can you build for our lab?',
+    a: 'We build complete full-stack web applications, interactive stimulus presentation interfaces, experimental IDE testbeds, participant onboarding flows, multi-agent execution harnesses, and real-time cognitive telemetry collectors (exporting directly to JSONL, SQLite, or Parquet).'
   },
   {
-    q: 'What is expected of my nonprofit during the program?',
-    a: 'Your organization must provide a dedicated point-of-contact available for a ~1 hour sync every week throughout the 16-week engagement. Additionally, we ask clients to provide necessary brand assets, credentials, and respond to team inquiries within 48 business hours.'
+    q: 'What is expected of our lab during the research engagement?',
+    a: 'Your lab provides the experimental design, participant recruitment protocols, and an academic point-of-contact for a weekly technical sync. You are also responsible for securing your institution’s IRB (Institutional Review Board) approval if conducting human-subject trials.'
   },
   {
-    q: 'Can we continue our partnership in subsequent batches?',
-    a: 'Absolutely! Many of our nonprofit partners engage with us across multiple successive batches to expand product capabilities, launch secondary features, or audit newer models. Each 16-week batch carries the standard flat fee of $1,000.'
+    q: 'How fast can our experimental testbed be built and deployed?',
+    a: 'Most experimental prototypes and instrumented testbeds are fully engineered and verified within 4 to 8 weeks, ensuring your team has sufficient runway to gather participant data ahead of major academic submission deadlines (ICSE, CHI, FSE, NeurIPS, ACL, AAAI).'
   }
 ]
 
@@ -57,10 +57,10 @@ const isOpen = (key) => openIndices.value.includes(key)
   <section id="faqs" class="section section-divider">
     <div class="container">
       <div class="text-center" style="margin-bottom: 3.5rem;">
-        <span class="section-label coral">Help Center</span>
+        <span class="section-label coral">Academic Inquiry FAQ</span>
         <h2>Frequently asked questions</h2>
         <p style="max-width: 620px; margin: 0.5rem auto 0 auto;">
-          Everything you need to know about our student squads, deliverables, and partnership process.
+          Key details about our pro-bono academic development model, ADLC research scope, and collaboration terms.
         </p>
       </div>
 

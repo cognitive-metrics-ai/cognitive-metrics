@@ -16,30 +16,30 @@ const closeGuide = () => {
   <section class="section section-divider section-light">
     <div class="container">
       <div class="text-center" style="margin-bottom: 3rem;">
-        <span class="section-label">Featured Publication</span>
-        <h2>Resources for mission-driven leaders</h2>
+        <span class="section-label">Open Science Publication</span>
+        <h2>Research frameworks & telemetry standards</h2>
       </div>
 
       <div style="background: #ffffff; border-radius: 16px; border: 1px solid var(--color-border); box-shadow: var(--shadow-md); overflow: hidden; display: grid; grid-template-columns: 1fr 1.3fr; gap: 2.5rem; align-items: center; padding: 2.5rem;">
         <!-- Left Book Mockup Graphic -->
         <div style="background: linear-gradient(135deg, #0e1b2f 0%, #1e3a8a 100%); border-radius: 12px; padding: 3rem 2rem; color: white; text-align: center; box-shadow: 0 15px 30px rgba(14, 27, 47, 0.25);">
           <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #f52c68; letter-spacing: 0.15em; margin-bottom: 1rem;">
-            Cognitive Metrics Field Guide
+            Cognitive Metrics Monograph
           </div>
-          <div style="font-size: 1.75rem; font-weight: 800; font-family: var(--font-heading); margin-bottom: 1rem; line-height: 1.25;">
-            Nonprofit AI & Systems Optimization Guide
+          <div style="font-size: 1.7rem; font-weight: 800; font-family: var(--font-heading); margin-bottom: 1rem; line-height: 1.25;">
+            The ADLC Empirical Research Handbook
           </div>
           <div style="font-size: 0.9rem; color: #94a3b8;">
-            A practical handbook for social impact executives navigating modern AI, web performance, and cognitive benchmarks.
+            A methodological handbook on telemetry schemas, cognitive friction indices, and evaluation protocols in the Agentic Development Life Cycle.
           </div>
         </div>
 
         <!-- Right Content -->
         <div>
-          <span class="section-label coral">Free Strategy Guide</span>
-          <h3 style="font-size: 1.6rem; margin-bottom: 0.75rem;">Your organization’s roadmap to responsible digital innovation</h3>
+          <span class="section-label coral">Methodological Guide</span>
+          <h3 style="font-size: 1.55rem; margin-bottom: 0.75rem;">Standardizing empirical evaluation for autonomous & agentic software engineering</h3>
           <p style="font-size: 0.95rem; margin-bottom: 1.25rem;">
-            94% of first impressions are based on digital design and system responsiveness. For nonprofits, modern AI and digital tools aren't just technical upgrades—they are your primary levers for donor trust, volunteer mobilization, and program delivery.
+            As software engineering shifts toward autonomous agent architectures, traditional developer productivity metrics fail to capture the nuances of human-agent cognitive handoff, supervisory fatigue, and context degradation.
           </p>
 
           <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem; color: #334155; margin-bottom: 1.75rem;">
@@ -47,24 +47,24 @@ const closeGuide = () => {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f52c68" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>Why ethical AI benchmarks matter for community trust</span>
+              <span>Granular telemetry models for human-agent handoffs & latency</span>
             </li>
             <li style="display: flex; align-items: center; gap: 0.5rem;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f52c68" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>Key elements of high-converting nonprofit websites & donation funnels</span>
+              <span>Cognitive Friction Index (CFI) formulation & statistical validity</span>
             </li>
             <li style="display: flex; align-items: center; gap: 0.5rem;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f52c68" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
-              <span>Actionable metrics: Google Analytics, model observability, and SEO</span>
+              <span>Open-source experimental testbed designs and stimulus generators</span>
             </li>
           </ul>
 
           <button @click="openGuide" class="btn btn-secondary">
-            Read optimization summary
+            Read research methodology summary
           </button>
         </div>
       </div>
@@ -77,19 +77,19 @@ const closeGuide = () => {
           &times;
         </button>
 
-        <span class="section-label coral">Executive Summary</span>
-        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">Nonprofit AI & Systems Optimization Guide</h2>
+        <span class="section-label coral">Academic Overview</span>
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">The ADLC Research Framework</h2>
         <div style="font-size: 0.95rem; color: #475569; line-height: 1.65; margin-bottom: 1.5rem;">
           <p style="margin-bottom: 1rem;">
-            This publication outlines the critical technical infrastructure modern mission-driven organizations need. By pairing human-centered UX research with verifiable cognitive evaluations, nonprofits can maximize their operational efficiency while upholding community privacy and safety standards.
+            This publication outlines our standardized telemetry architecture for human-subject and automated benchmarking in ADLC environments. By instrumenting micro-interaction events alongside model reasoning steps, researchers can objectively measure cognitive overhead, trust calibration, and autonomous fidelity.
           </p>
           <p>
-            When applying for our 16-week project batches, teams receive an in-depth custom audit and implementation roadmap aligned with this framework.
+            When partnering on a pro-bono academic project, your experimental testbed will automatically incorporate these standardized logging harnesses for seamless data analysis.
           </p>
         </div>
 
         <div style="display: flex; gap: 1rem;">
-          <a href="#submit-app" @click="closeGuide" class="btn btn-primary" style="flex: 1;">Apply for Project Batch</a>
+          <a href="#submit-app" @click="closeGuide" class="btn btn-primary" style="flex: 1;">Propose an ADLC Study</a>
           <button @click="closeGuide" class="btn btn-secondary">Close</button>
         </div>
       </div>

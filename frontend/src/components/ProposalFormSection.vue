@@ -9,17 +9,16 @@ const props = defineProps({
 })
 
 const formData = reactive({
-  organization_name: '',
-  contact_name: '',
+  researcher_name: '',
+  institution_name: '',
+  department_name: '',
   contact_email: '',
-  organization_website: '',
-  organization_type: '501(c)(3) Nonprofit',
-  selected_services: ['web_dev'],
+  lab_website: '',
+  research_focus: ['adlc_lifecycle'],
   project_summary: '',
-  target_demographic: '',
-  technical_stack: '',
-  budget_readiness: 'standard_1000',
-  point_of_contact_confirmed: false
+  target_venue: '',
+  academic_confirmation: false,
+  non_commercial_confirmed: false
 })
 
 const isSubmitting = ref(false)
@@ -29,35 +28,49 @@ const errorMessage = ref('')
 
 // Watch for preselection from services section
 watch(() => props.preselectedService, (newVal) => {
-  if (newVal && !formData.selected_services.includes(newVal)) {
-    formData.selected_services.push(newVal)
+  if (newVal && !formData.research_focus.includes(newVal)) {
+    formData.research_focus.push(newVal)
   }
 })
 
-const toggleService = (id) => {
-  const index = formData.selected_services.indexOf(id)
+const toggleFocus = (id) => {
+  const index = formData.research_focus.indexOf(id)
   if (index > -1) {
-    if (formData.selected_services.length > 1) {
-      formData.selected_services.splice(index, 1)
+    if (formData.research_focus.length > 1) {
+      formData.research_focus.splice(index, 1)
     }
   } else {
-    formData.selected_services.push(id)
+    formData.research_focus.push(id)
   }
 }
 
 const handleSubmit = async () => {
-  if (!formData.organization_name || !formData.contact_name || !formData.contact_email || !formData.project_summary) {
-    errorMessage.value = 'Please fill out all required fields marked with *.'
+  if (!formData.researcher_name || !formData.institution_name || !formData.contact_email || !formData.project_summary) {
+    errorMessage.value = 'Please complete all required fields marked with *.'
     return
   }
 
-  if (!formData.point_of_contact_confirmed) {
-    errorMessage.value = 'Please confirm your organization’s availability for the weekly 1-hour sync.'
+  if (!formData.academic_confirmation || !formData.non_commercial_confirmed) {
+    errorMessage.value = 'Please confirm that this is strictly non-commercial academic research eligible for pro-bono collaboration.'
     return
   }
 
   errorMessage.value = ''
   isSubmitting.value = true
+
+  const payload = {
+    organization_name: `${formData.institution_name} - ${formData.department_name || 'Academic Lab'}`,
+    contact_name: formData.researcher_name,
+    contact_email: formData.contact_email,
+    organization_website: formData.lab_website,
+    organization_type: 'Academic / Educational',
+    selected_services: formData.research_focus,
+    project_summary: `[Target Venue: ${formData.target_venue || 'N/A'}] ${formData.project_summary}`,
+    target_demographic: 'Academic Study Participants',
+    technical_stack: 'Custom ADLC Research Testbed',
+    budget_readiness: 'academic_free_zero_expense',
+    point_of_contact_confirmed: true
+  }
 
   try {
     const res = await fetch('http://localhost:8000/api/proposals', {
@@ -65,7 +78,7 @@ const handleSubmit = async () => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(payload)
     })
 
     if (res.ok) {
@@ -76,12 +89,11 @@ const handleSubmit = async () => {
       throw new Error('Server returned non-200 response')
     }
   } catch (err) {
-    // Graceful client fallback for offline backend
-    console.warn('Backend unavailable, generating local confirmation:', err)
-    const fakeId = `PROP-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
+    console.warn('Backend unavailable, using client confirmation:', err)
+    const fakeId = `RESEARCH-${Math.random().toString(36).substring(2, 9).toUpperCase()}`
     submissionResult.value = {
       proposal_id: fakeId,
-      message: 'Proposal received successfully! Our Product Leads will review your submission within 48 business hours.',
+      message: 'Academic research proposal received. We will review your study design within 48 hours.',
       data: { ...formData, id: fakeId }
     }
     submitSuccess.value = true
@@ -91,14 +103,15 @@ const handleSubmit = async () => {
 }
 
 const resetForm = () => {
-  formData.organization_name = ''
-  formData.contact_name = ''
+  formData.researcher_name = ''
+  formData.institution_name = ''
+  formData.department_name = ''
   formData.contact_email = ''
-  formData.organization_website = ''
+  formData.lab_website = ''
   formData.project_summary = ''
-  formData.target_demographic = ''
-  formData.technical_stack = ''
-  formData.point_of_contact_confirmed = false
+  formData.target_venue = ''
+  formData.academic_confirmation = false
+  formData.non_commercial_confirmed = false
   submitSuccess.value = false
   submissionResult.value = null
 }
@@ -108,10 +121,10 @@ const resetForm = () => {
   <section id="submit-app" class="section section-divider">
     <div class="container-narrow">
       <div class="text-center">
-        <span class="section-label coral">Application Portal</span>
-        <h2>Start your project proposal today</h2>
-        <p style="max-width: 600px; margin: 0.5rem auto 0 auto;">
-          Submit your proposal to partner with a dedicated student engineering squad. We review applications within 48 business hours.
+        <span class="section-label coral">Academic Inquiry Portal</span>
+        <h2>Propose an academic ADLC research study</h2>
+        <p style="max-width: 640px; margin: 0.5rem auto 0 auto;">
+          Submit your study design or experimental software requirements. Qualifying projects receive end-to-end software development at <strong>zero development expenses</strong> to advance empirical science.
         </p>
       </div>
 
@@ -123,21 +136,21 @@ const resetForm = () => {
           </svg>
         </div>
 
-        <h3 style="color: #065f46; margin-bottom: 0.5rem;">Proposal Submitted Successfully!</h3>
+        <h3 style="color: #065f46; margin-bottom: 0.5rem;">Research Proposal Received!</h3>
         <p style="color: #047857; margin-bottom: 1.5rem; font-size: 1.05rem;">
-          Reference ID: <strong style="font-family: monospace; font-size: 1.2rem; background: #d1fae5; padding: 0.2rem 0.6rem; border-radius: 6px;">{{ submissionResult?.proposal_id }}</strong>
+          Study Docket ID: <strong style="font-family: monospace; font-size: 1.2rem; background: #d1fae5; padding: 0.2rem 0.6rem; border-radius: 6px;">{{ submissionResult?.proposal_id }}</strong>
         </p>
 
         <div style="background: white; border-radius: 10px; padding: 1.5rem; text-align: left; margin-bottom: 1.75rem; border: 1px solid #a7f3d0;">
-          <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">Next Steps:</div>
+          <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">Academic Review Process:</div>
           <ul style="padding-left: 1.25rem; color: #475569; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.95rem;">
-            <li>Our Product Leads will review your proposal against technical and mission alignment rubrics.</li>
-            <li>We will email <strong>{{ formData.contact_email }}</strong> to coordinate an exploratory 30-minute scoping call.</li>
-            <li>Upon acceptance, we finalize squad matching for the upcoming Winter 2027 batch.</li>
+            <li>We review your study hypothesis, target dependent variables, and software testbed requirements.</li>
+            <li>We will email <strong>{{ formData.contact_email }}</strong> to schedule a 30-minute academic scoping sync.</li>
+            <li>Upon alignment, we finalize an experimental development plan at <strong>$0 development expense</strong> to your grant.</li>
           </ul>
         </div>
 
-        <button @click="resetForm" class="btn btn-primary">Submit Another Proposal</button>
+        <button @click="resetForm" class="btn btn-primary">Submit Another Research Docket</button>
       </div>
 
       <!-- Active Form -->
@@ -148,103 +161,101 @@ const resetForm = () => {
 
         <form @submit.prevent="handleSubmit">
           <div class="form-grid">
-            <!-- Organization Name -->
+            <!-- Lead Researcher Name -->
             <div class="form-group">
               <label class="form-label">
-                Organization Name <span class="required">*</span>
+                Principal Investigator / Researcher Name <span class="required">*</span>
               </label>
               <input 
                 type="text" 
-                v-model="formData.organization_name" 
+                v-model="formData.researcher_name" 
                 class="form-input" 
-                placeholder="e.g. Wildlife Conservation Alliance" 
+                placeholder="e.g. Prof. David K. Reed / Elena Rostova, PhD" 
                 required 
               />
             </div>
 
-            <!-- Website -->
-            <div class="form-group">
-              <label class="form-label">Organization Website</label>
-              <input 
-                type="url" 
-                v-model="formData.organization_website" 
-                class="form-input" 
-                placeholder="https://yourorganization.org" 
-              />
-            </div>
-
-            <!-- Organization Type -->
+            <!-- University / Institution -->
             <div class="form-group">
               <label class="form-label">
-                Organization Status <span class="required">*</span>
-              </label>
-              <select v-model="formData.organization_type" class="form-select">
-                <option value="501(c)(3) Nonprofit">U.S. 501(c)(3) Nonprofit Organization</option>
-                <option value="International NGO">International Registered Charity / NGO</option>
-                <option value="Educational / Academic">Educational / Academic Institution</option>
-                <option value="Public Agency">Public Agency / Government Initiative</option>
-              </select>
-            </div>
-
-            <!-- Point of Contact Name -->
-            <div class="form-group">
-              <label class="form-label">
-                Primary Contact Name <span class="required">*</span>
+                University or Research Institution <span class="required">*</span>
               </label>
               <input 
                 type="text" 
-                v-model="formData.contact_name" 
+                v-model="formData.institution_name" 
                 class="form-input" 
-                placeholder="e.g. Elena Rostova" 
+                placeholder="e.g. University of Washington / MIT CSAIL" 
                 required 
               />
             </div>
 
-            <!-- Contact Email -->
-            <div class="form-group full-width">
+            <!-- Department / Lab -->
+            <div class="form-group">
+              <label class="form-label">Department / Lab Name</label>
+              <input 
+                type="text" 
+                v-model="formData.department_name" 
+                class="form-input" 
+                placeholder="e.g. Dept of Computer Science / HCI Research Lab" 
+              />
+            </div>
+
+            <!-- Institutional Email -->
+            <div class="form-group">
               <label class="form-label">
-                Primary Contact Email <span class="required">*</span>
+                Institutional Email (.edu / academic) <span class="required">*</span>
               </label>
               <input 
                 type="email" 
                 v-model="formData.contact_email" 
                 class="form-input" 
-                placeholder="elena@yourorganization.org" 
+                placeholder="dreed@cs.washington.edu" 
                 required 
               />
             </div>
 
-            <!-- Service Selection -->
+            <!-- Lab Website -->
+            <div class="form-group full-width">
+              <label class="form-label">Lab Website / Faculty Profile URL</label>
+              <input 
+                type="url" 
+                v-model="formData.lab_website" 
+                class="form-input" 
+                placeholder="https://hci.stanford.edu/~researcher" 
+              />
+            </div>
+
+            <!-- Research Focus Areas -->
             <div class="form-group full-width">
               <label class="form-label">
-                Requested Services (Select all that apply) <span class="required">*</span>
+                Research Focus & Experimental Needs (Select all applicable) <span class="required">*</span>
               </label>
               <div class="service-checkbox-grid">
                 <div 
                   class="service-checkbox-card" 
-                  :class="{ selected: formData.selected_services.includes('ux_design') }"
-                  @click="toggleService('ux_design')"
+                  :class="{ selected: formData.research_focus.includes('testbed_dev') }"
+                  @click="toggleFocus('testbed_dev')"
                 >
-                  <div class="service-checkbox-title">UX Research & UI Design</div>
-                  <div class="service-checkbox-desc">User journeys, wireframes, visual design systems, and prototypes.</div>
+                  <div class="service-checkbox-title">Testbed & Prototype UI</div>
+                  <div class="service-checkbox-desc">Interactive web testbed, study stimulus interfaces, participant trials.</div>
                 </div>
 
                 <div 
                   class="service-checkbox-card" 
-                  :class="{ selected: formData.selected_services.includes('web_dev') }"
-                  @click="toggleService('web_dev')"
+                  :class="{ selected: formData.research_focus.includes('telemetry_metrics') }"
+                  @click="toggleFocus('telemetry_metrics')"
                 >
-                  <div class="service-checkbox-title">Website & App Development</div>
-                  <div class="service-checkbox-desc">Custom responsive builds, Vue.js, Webflow, and API integrations.</div>
+                  <div class="service-checkbox-title">Cognitive Telemetry Logs</div>
+                  <div class="service-checkbox-desc">Developer cognitive friction, latency logging, session event traces.</div>
                 </div>
 
                 <div 
                   class="service-checkbox-card" 
-                  :class="{ selected: formData.selected_services.includes('ai_audit') }"
-                  @click="toggleService('ai_audit')"
+                  :class="{ selected: formData.research_focus.includes('agentic_arch') }"
+                  @click="toggleFocus('agentic_arch')"
                 >
-                  <div class="service-checkbox-title">AI Audit & Strategy</div>
-                  <div class="service-checkbox-desc">LLM evaluation, readiness rubrics, workflows, and safety verification.</div>
+                  <div class="service-checkbox-title">Agentic Architectures</div>
+                  <div class="service-checkbox-desc">Autonomous multi-agent loops, synthesis benchmark evaluation.</div>
                 </div>
               </div>
             </div>
@@ -252,48 +263,51 @@ const resetForm = () => {
             <!-- Project Summary -->
             <div class="form-group full-width">
               <label class="form-label">
-                Project Summary & Needs <span class="required">*</span>
+                Research Hypotheses & Experimental Software Requirements <span class="required">*</span>
               </label>
               <textarea 
                 v-model="formData.project_summary" 
                 rows="4" 
                 class="form-textarea" 
-                placeholder="Describe your current challenge, what product or tool you would like designed/built, and what problem it solves for your community." 
+                placeholder="Describe your research questions regarding ADLC (Agentic Development Life Cycle), the experimental software testbed you need developed, and the dependent variables you plan to measure." 
                 required
               ></textarea>
             </div>
 
-            <!-- Tech Stack & Maintenance -->
-            <div class="form-group">
-              <label class="form-label">Preferred Tech Stack or CMS</label>
+            <!-- Target Publication Venue -->
+            <div class="form-group full-width">
+              <label class="form-label">Target Academic Venue / Target Submission Window</label>
               <input 
                 type="text" 
-                v-model="formData.technical_stack" 
+                v-model="formData.target_venue" 
                 class="form-input" 
-                placeholder="e.g. Webflow, Vue, Python, Figma, etc." 
+                placeholder="e.g. ICSE 2027, CHI 2027, FSE, NeurIPS, PhD Dissertation Chapter" 
               />
-            </div>
-
-            <!-- Budget Readiness -->
-            <div class="form-group">
-              <label class="form-label">Service Fee Readiness</label>
-              <select v-model="formData.budget_readiness" class="form-select">
-                <option value="standard_1000">Standard $1,000 Flat Batch Fee</option>
-                <option value="requesting_subsidy">Requesting Financial Assistance / Subsidy</option>
-              </select>
             </div>
           </div>
 
-          <!-- Commitment Checkbox -->
+          <!-- Academic & Non-Commercial Confirmation -->
           <div class="checkbox-agreement">
             <input 
               type="checkbox" 
-              id="confirm-poc" 
-              v-model="formData.point_of_contact_confirmed" 
+              id="confirm-academic" 
+              v-model="formData.academic_confirmation" 
               required 
             />
-            <label for="confirm-poc" style="cursor: pointer;">
-              I confirm that our organization has a dedicated point-of-contact available to meet with our student team for a 1-hour weekly sync throughout the 16-week engagement.
+            <label for="confirm-academic" style="cursor: pointer;">
+              <strong>Academic Research Confirmation:</strong> I confirm this study is for academic, scientific, or doctoral research and will contribute to peer-reviewed scholarly literature.
+            </label>
+          </div>
+
+          <div class="checkbox-agreement" style="margin-top: -0.5rem;">
+            <input 
+              type="checkbox" 
+              id="confirm-noncommercial" 
+              v-model="formData.non_commercial_confirmed" 
+              required 
+            />
+            <label for="confirm-noncommercial" style="cursor: pointer;">
+              <strong>Non-Commercial & Zero Expense Terms:</strong> I confirm this project is not for business or commercial venture purposes, and understand that Cognitive Metrics takes on development for research with <strong>no development expenses</strong>.
             </label>
           </div>
 
@@ -302,10 +316,10 @@ const resetForm = () => {
               type="submit" 
               class="btn btn-primary btn-large" 
               :disabled="isSubmitting"
-              style="min-width: 240px;"
+              style="min-width: 260px;"
             >
-              <span v-if="!isSubmitting">Submit proposal</span>
-              <span v-else>Submitting application...</span>
+              <span v-if="!isSubmitting">Submit research proposal ($0 cost)</span>
+              <span v-else>Submitting research docket...</span>
             </button>
           </div>
         </form>
