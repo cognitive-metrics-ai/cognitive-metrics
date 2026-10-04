@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import Navbar from './components/Navbar.vue'
 import HeroSection from './components/HeroSection.vue'
 import ResearcherProfileSection from './components/ResearcherProfileSection.vue'
@@ -13,17 +13,66 @@ import FaqSection from './components/FaqSection.vue'
 import ResourceGuideSection from './components/ResourceGuideSection.vue'
 import FooterSection from './components/FooterSection.vue'
 
+// Auth & Modals
+import AuthModal from './components/AuthModal.vue'
+import ApprovedProjectsModal from './components/ApprovedProjectsModal.vue'
+import PreferencesModal from './components/PreferencesModal.vue'
+import { subscribeToAuthChanges, saveLocalUser } from './services/firebase'
+
+const currentUser = ref(null)
 const preselectedService = ref('')
+
+const showAuthModal = ref(false)
+const showApprovedProjectsModal = ref(false)
+const showPreferencesModal = ref(false)
+
+let unsubscribeAuth = null
+
+onMounted(() => {
+  unsubscribeAuth = subscribeToAuthChanges((user) => {
+    currentUser.value = user
+  })
+})
+
+onUnmounted(() => {
+  if (unsubscribeAuth) unsubscribeAuth()
+})
 
 const onSelectService = (serviceId) => {
   preselectedService.value = serviceId
+}
+
+const handleAuthSuccess = (user) => {
+  currentUser.value = user
+  showAuthModal.value = false
+}
+
+const handleLoggedOut = () => {
+  currentUser.value = null
+}
+
+const handlePreferencesSaved = (updatedUser) => {
+  currentUser.value = updatedUser
+  saveLocalUser(updatedUser)
+}
+
+const scrollToProposal = () => {
+  const el = document.getElementById('submit-app')
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 </script>
 
 <template>
   <div class="app-layout">
-    <!-- Sticky Nav -->
-    <Navbar />
+    <!-- Sticky Nav with User Account Menu -->
+    <Navbar 
+      :current-user="currentUser"
+      @open-auth="showAuthModal = true"
+      @open-approved-projects="showApprovedProjectsModal = true"
+      @open-preferences="showPreferencesModal = true"
+      @submit-proposal="scrollToProposal"
+      @logged-out="handleLoggedOut"
+    />
 
     <!-- Main Page Sections -->
     <main>
@@ -49,7 +98,10 @@ const onSelectService = (serviceId) => {
       <TimelineSection />
 
       <!-- The Core Proposal Application Form (#submit-app) -->
-      <ProposalFormSection :preselected-service="preselectedService" />
+      <ProposalFormSection 
+        :preselected-service="preselectedService" 
+        :current-user="currentUser" 
+      />
 
       <!-- Signature Dual-Column FAQs with Pink Plus/Minus Toggles -->
       <FaqSection />
@@ -60,6 +112,26 @@ const onSelectService = (serviceId) => {
 
     <!-- Comprehensive Nonprofit Footer -->
     <FooterSection />
+
+    <!-- Modals -->
+    <AuthModal 
+      v-if="showAuthModal" 
+      @close="showAuthModal = false" 
+      @auth-success="handleAuthSuccess" 
+    />
+
+    <ApprovedProjectsModal 
+      v-if="showApprovedProjectsModal" 
+      @close="showApprovedProjectsModal = false" 
+      @open-proposal="scrollToProposal" 
+    />
+
+    <PreferencesModal 
+      v-if="showPreferencesModal" 
+      :user="currentUser" 
+      @close="showPreferencesModal = false" 
+      @saved="handlePreferencesSaved" 
+    />
   </div>
 </template>
 
