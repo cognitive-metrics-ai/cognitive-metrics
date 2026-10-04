@@ -77,12 +77,12 @@ const runTelemetrySimulation = () => {
             <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0; margin-bottom: 1.25rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                 <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Current Research Study</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 0.2rem 0.6rem; border-radius: 9999px;">
-                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #2563eb;"></span>
+                <span style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700; color: var(--color-primary); background: var(--color-primary-light); padding: 0.2rem 0.6rem; border-radius: 9999px;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-primary);"></span>
                   Active Protocol
                 </span>
               </div>
-              <div style="font-size: 1.1rem; font-weight: 700; color: #0e1b2f; margin-bottom: 0.25rem;">
+              <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-navy); margin-bottom: 0.25rem;">
                 Agentic Lifecycle & Cognitive Workload in Software Synthesis
               </div>
               <div style="font-size: 0.85rem; color: #64748b;">
@@ -94,12 +94,12 @@ const runTelemetrySimulation = () => {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
               <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; background: #ffffff;">
                 <div style="font-size: 0.72rem; color: #64748b; font-weight: 700;">AUTONOMY RATIO</div>
-                <div style="font-size: 1.5rem; font-weight: 800; color: #f52c68; margin: 0.2rem 0;">{{ autonomyScore }}%</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary); margin: 0.2rem 0;">{{ autonomyScore }}%</div>
                 <div style="font-size: 0.75rem; color: #10b981; font-weight: 600;">Autonomous step execution</div>
               </div>
               <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; background: #ffffff;">
                 <div style="font-size: 0.72rem; color: #64748b; font-weight: 700;">COGNITIVE FRICTION (CFI)</div>
-                <div style="font-size: 1.5rem; font-weight: 800; color: #2563eb; margin: 0.2rem 0;">{{ frictionIndex }}</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-sky); margin: 0.2rem 0;">{{ frictionIndex }}</div>
                 <div style="font-size: 0.75rem; color: #64748b;">Low mental handover load</div>
               </div>
             </div>
@@ -111,7 +111,7 @@ const runTelemetrySimulation = () => {
                 <span>{{ telemetryProgress }}%</span>
               </div>
               <div style="height: 6px; width: 100%; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
-                <div :style="{ width: `${telemetryProgress}%`, background: 'linear-gradient(90deg, #f52c68, #2563eb)' }" style="height: 100%; transition: width 0.3s ease;"></div>
+                <div :style="{ width: `${telemetryProgress}%`, background: 'linear-gradient(90deg, #1B6CA8, #4DA8DA)' }" style="height: 100%; transition: width 0.3s ease;"></div>
               </div>
             </div>
 
@@ -127,7 +127,7 @@ const runTelemetrySimulation = () => {
               </svg>
               <svg v-else class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke="#f52c68"></path>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="#1B6CA8"></path>
               </svg>
               {{ isSimulating ? 'Executing ADLC Instrumentation...' : 'Simulate ADLC Telemetry Run' }}
             </button>

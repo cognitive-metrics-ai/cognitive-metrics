@@ -83,7 +83,7 @@ const handleAction = (action) => {
         </div>
         <div 
           v-else 
-          style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f52c68 0%, #2563eb 100%); color: #ffffff; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(245, 44, 104, 0.25);"
+          style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #1B6CA8 0%, #4DA8DA 100%); color: #ffffff; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(27, 108, 168, 0.25);"
         >
           {{ userInitials }}
         </div>
@@ -106,13 +106,13 @@ const handleAction = (action) => {
     >
       <!-- User Info Header -->
       <div style="padding: 1.15rem 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
-        <div style="font-weight: 700; color: #0e1b2f; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        <div style="font-weight: 700; color: var(--color-navy); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           {{ user.displayName || 'Academic Researcher' }}
         </div>
         <div style="font-size: 0.8rem; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.4rem;">
           {{ user.email }}
         </div>
-        <span style="display: inline-block; font-size: 0.7rem; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 0.15rem 0.5rem; border-radius: 9999px;">
+        <span style="display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--color-primary); background: var(--color-primary-light); padding: 0.15rem 0.5rem; border-radius: 9999px;">
           Verified Researcher
         </span>
       </div>
@@ -194,7 +194,7 @@ const handleAction = (action) => {
 
 .dropdown-item:hover {
   background: #f1f5f9;
-  color: #0e1b2f;
+  color: var(--color-navy);
 }
 
 .dropdown-item.logout {

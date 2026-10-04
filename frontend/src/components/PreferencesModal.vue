@@ -57,7 +57,7 @@ const handleSave = () => {
       <form @submit.prevent="handleSave">
         <!-- Profile Info -->
         <div style="margin-bottom: 1.5rem;">
-          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: #0e1b2f; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
             Academic Identity
           </h4>
 
@@ -86,23 +86,23 @@ const handleSave = () => {
 
         <!-- Telemetry & Privacy -->
         <div style="margin-bottom: 1.5rem;">
-          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: #0e1b2f; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
             ADLC Telemetry & IRB Privacy Defaults
           </h4>
 
           <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem;">
             <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-              <input type="checkbox" v-model="settings.anonymizeSubjects" style="width: 18px; height: 18px; accent-color: #f52c68;" />
+              <input type="checkbox" v-model="settings.anonymizeSubjects" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Automatically anonymize and hash human participant IDs in telemetry logs</span>
             </label>
 
             <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-              <input type="checkbox" v-model="settings.logMicroLatencies" style="width: 18px; height: 18px; accent-color: #f52c68;" />
+              <input type="checkbox" v-model="settings.logMicroLatencies" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Record millisecond-level cognitive pauses & prompt-edit latencies</span>
             </label>
 
             <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-              <input type="checkbox" v-model="settings.autoExportTelemetry" style="width: 18px; height: 18px; accent-color: #f52c68;" />
+              <input type="checkbox" v-model="settings.autoExportTelemetry" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Auto-generate JSONL and Parquet exports upon study trial completion</span>
             </label>
           </div>
@@ -110,18 +110,18 @@ const handleSave = () => {
 
         <!-- Notifications -->
         <div style="margin-bottom: 2rem;">
-          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: #0e1b2f; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
             Notifications
           </h4>
 
           <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem;">
             <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-              <input type="checkbox" v-model="settings.notifyMilestones" style="width: 18px; height: 18px; accent-color: #f52c68;" />
+              <input type="checkbox" v-model="settings.notifyMilestones" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Email notifications when testbed milestones or PRD reviews complete</span>
             </label>
 
             <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-              <input type="checkbox" v-model="settings.notifyPapers" style="width: 18px; height: 18px; accent-color: #f52c68;" />
+              <input type="checkbox" v-model="settings.notifyPapers" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Receive pre-print announcements and new open-source ADLC benchmark releases</span>
             </label>
           </div>
