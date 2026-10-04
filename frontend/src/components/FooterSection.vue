@@ -54,31 +54,59 @@ const handleSubscribe = async () => {
           </ul>
         </div>
 
-        <!-- Col 3: Research Dissemination -->
+        <!-- Col 3: Research Dissemination & Lead Researcher -->
         <div>
-          <div class="footer-col-title">Research Dissemination</div>
+          <div class="footer-col-title">Lead Researcher & Architect</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: #ffffff; margin-bottom: 0.25rem;">
+            Jeremy Lankford
+          </div>
+          <div style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem;">
+            PhD in IT (AI Focus) · Senior Software Architect
+            <br />
+            <a href="http://jeremylankford.com" target="_blank" rel="noopener noreferrer" style="color: #f52c68; text-decoration: none; font-weight: 600;">
+              jeremylankford.com ↗
+            </a>
+          </div>
           
           <!-- Social Icons -->
           <div class="footer-social-row">
-            <a href="https://linkedin.com" target="_blank" class="social-circle" aria-label="LinkedIn">
+            <a href="http://jeremylankford.com" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="Personal Website" title="jeremylankford.com">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </a>
+            <a href="https://github.com/jwlankford" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="GitHub" title="GitHub / jwlankford">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/>
+              </svg>
+            </a>
+            <a href="https://www.linkedin.com/in/jwlankford/" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="LinkedIn" title="LinkedIn / jwlankford">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
               </svg>
             </a>
-            <a href="https://twitter.com" target="_blank" class="social-circle" aria-label="X / Twitter">
+            <a href="https://x.com/jwlankford" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="X / Twitter" title="X (Twitter) / @jwlankford">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
               </svg>
             </a>
-            <a href="https://github.com/cognitive-metrics-ai/cognitive-metrics" target="_blank" class="social-circle" aria-label="GitHub">
+            <a href="https://jwlankford.substack.com" target="_blank" rel="noopener noreferrer" class="social-circle" aria-label="Substack" title="Substack / jwlankford">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/>
+                <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>
+              </svg>
+            </a>
+            <a href="mailto:jwlankford@gmail.com" class="social-circle" aria-label="Email" title="Email: jwlankford@gmail.com">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
             </a>
           </div>
 
           <div style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 0.85rem;">
-            Receive notifications on new ADLC empirical datasets, open-source testbeds, and publication pre-prints.
+            Receive updates on open-source ADLC telemetry tools and research pre-prints.
           </div>
 
           <div v-if="!subscribed" style="display: flex; gap: 0.5rem;">

@@ -47,11 +47,15 @@ onUnmounted(() => {
 
       <!-- Desktop Navigation Menu -->
       <nav class="nav-menu">
+        <a href="#lead-researcher" class="nav-link">Jeremy Lankford</a>
         <a href="#how-it-works" class="nav-link">How it works</a>
         <a href="#our-work" class="nav-link">ADLC Studies</a>
         <a href="#client-services" class="nav-link">Free services</a>
         <a href="#batch-timeline" class="nav-link">Research cycle</a>
         <a href="#faqs" class="nav-link">FAQs</a>
+        <a href="http://jeremylankford.com" target="_blank" rel="noopener noreferrer" class="nav-link" style="color: #f52c68; font-weight: 600;">
+          jeremylankford.com ↗
+        </a>
       </nav>
 
       <!-- Desktop CTA Group -->
@@ -75,6 +79,8 @@ onUnmounted(() => {
 
     <!-- Mobile Drawer -->
     <div v-if="mobileMenuOpen" class="mobile-nav-drawer">
+      <a href="#lead-researcher" class="nav-link" @click="closeMobileMenu">Jeremy Lankford</a>
+      <a href="http://jeremylankford.com" target="_blank" rel="noopener noreferrer" class="nav-link" style="color: #f52c68; font-weight: 600;" @click="closeMobileMenu">jeremylankford.com ↗</a>
       <a href="#how-it-works" class="nav-link" @click="closeMobileMenu">How it works</a>
       <a href="#our-work" class="nav-link" @click="closeMobileMenu">ADLC Studies</a>
       <a href="#client-services" class="nav-link" @click="closeMobileMenu">Free services</a>

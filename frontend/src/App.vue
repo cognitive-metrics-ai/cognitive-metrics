@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import Navbar from './components/Navbar.vue'
 import HeroSection from './components/HeroSection.vue'
+import ResearcherProfileSection from './components/ResearcherProfileSection.vue'
 import HowItWorksSection from './components/HowItWorksSection.vue'
 import OurWorkSection from './components/OurWorkSection.vue'
 import SocialProofSection from './components/SocialProofSection.vue'
@@ -29,7 +30,10 @@ const onSelectService = (serviceId) => {
       <!-- Hero with Interactive Metric Engine -->
       <HeroSection />
 
-      <!-- How Develop for Good / Cognitive Metrics Works (3-step) -->
+      <!-- Lead Researcher & Architect Profile (Jeremy Lankford) -->
+      <ResearcherProfileSection />
+
+      <!-- How Academic Research Collaboration Works (3-step) -->
       <HowItWorksSection />
 
       <!-- Case Studies & Work with Modals -->
