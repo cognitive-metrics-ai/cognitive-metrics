@@ -240,10 +240,23 @@ p {
   box-shadow: var(--shadow-primary);
 }
 
+:root[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-primary,
+.dark-theme .btn-primary {
+  color: #06273f;
+  font-weight: 700;
+}
+
 .btn-primary:hover {
   background-color: var(--color-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 14px 28px -4px rgba(27, 108, 168, 0.45);
+}
+
+:root[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .btn-primary:hover,
+.dark-theme .btn-primary:hover {
+  color: #06273f;
 }
 
 .btn-primary:active {
