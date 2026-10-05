@@ -1,6 +1,11 @@
 <script setup>
 import { computed } from 'vue'
 import { currentTheme } from '../services/theme'
+import logoIcon from '../assets/logo-icon.png'
+import logoEmblemDark from '../assets/logo-emblem-dark.png'
+import logoEmblemLight from '../assets/logo-emblem-light.png'
+import logoDark from '../assets/logo-dark.png'
+import logoLight from '../assets/logo-light.png'
 
 const props = defineProps({
   variant: {
@@ -20,22 +25,22 @@ const props = defineProps({
 
 const logoSrc = computed(() => {
   if (props.variant === 'icon') {
-    return '/assets/logo-icon.png'
+    return logoIcon
   }
   if (props.variant === 'emblem-dark') {
-    return '/assets/logo-emblem-dark.png'
+    return logoEmblemDark
   }
   if (props.variant === 'emblem-light' || props.variant === 'emblem') {
-    return currentTheme.value === 'dark' ? '/assets/logo-emblem-light.png' : '/assets/logo-emblem-light.png'
+    return logoEmblemLight
   }
   if (props.variant === 'dark') {
-    return '/assets/logo-dark.png'
+    return logoDark
   }
   if (props.variant === 'light') {
-    return '/assets/logo-light.png'
+    return logoLight
   }
   // 'auto': In dark mode use bright/vibrant logo-light.png, in light mode use logo-dark.png or logo-light.png
-  return currentTheme.value === 'dark' ? '/assets/logo-light.png' : '/assets/logo-dark.png'
+  return currentTheme.value === 'dark' ? logoLight : logoDark
 })
 
 const heightStyle = computed(() => {
