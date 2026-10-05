@@ -49,7 +49,7 @@ const editForm = ref({
 // Comment Input Form
 const commentInput = ref({
   content: '',
-  comment_type: 'architect_note' // 'architect_note' | 'account_feedback' | 'phase_directive' | 'verification_signoff'
+  comment_type: 'architect_note' // 'architect_note' | 'project_feedback' | 'phase_directive' | 'verification_signoff'
 })
 
 const statusOptions = [
@@ -71,7 +71,7 @@ const phaseOptions = [
 
 const commentTypeOptions = [
   { value: 'architect_note', label: 'Architect Note', icon: '📝' },
-  { value: 'account_feedback', label: 'Account Feedback', icon: '💬' },
+  { value: 'project_feedback', label: 'Project Feedback', icon: '💬' },
   { value: 'phase_directive', label: 'Phase Directive', icon: '⚡' },
   { value: 'verification_signoff', label: 'Verification Sign-off', icon: '✅' }
 ]
@@ -192,7 +192,7 @@ const handleSaveProject = async () => {
   }
 }
 
-// Post Comment on Account / Project
+// Post Comment on Project
 const handlePostComment = async () => {
   if (!commentInput.value.content.trim() || !selectedProjectId.value) return
   isPostingComment.value = true
@@ -200,7 +200,7 @@ const handlePostComment = async () => {
 
   try {
     const payload = {
-      user_id: editForm.value.user_id || null,
+      user_id: props.user?.uid || null,
       author_name: props.user?.displayName || 'Jeremy Lankford',
       author_email: props.user?.email || 'jlankford@cognitivemetrics.org',
       author_role: 'Lead Architect',
@@ -220,7 +220,7 @@ const handlePostComment = async () => {
       }
     }
   } catch (err) {
-    errorMessage.value = err.message || 'Failed to post comment.'
+    errorMessage.value = err.message || 'Failed to post project comment.'
   } finally {
     isPostingComment.value = false
   }
@@ -284,7 +284,7 @@ onMounted(() => {
         </div>
         <h1 class="admin-title">Project & Account Administration</h1>
         <p class="admin-subtitle">
-          Manage ADLC lifecycle phases, update research project specifications, bind accounts at the database table level, and maintain the account audit comment stream.
+          Manage ADLC lifecycle phases, update research project specifications, bind accounts at the database table level, and maintain the project-level audit comment stream.
         </p>
 
         <!-- Quick Metrics Counter Strip -->
@@ -393,7 +393,7 @@ onMounted(() => {
                 :class="['tab-btn', { active: activeTab === 'comments' }]"
                 @click="activeTab = 'comments'"
               >
-                💬 Comments & Account Notes ({{ comments.length }})
+                💬 Project Comments & Log ({{ comments.length }})
               </button>
             </div>
           </div>
@@ -507,13 +507,13 @@ onMounted(() => {
             </form>
           </div>
 
-          <!-- TAB 2: Comment-Style Function on Account & Project -->
+          <!-- TAB 2: Project-Level Comments & Architect Log -->
           <div v-else-if="activeTab === 'comments'" class="tab-content comments-content">
             
             <!-- Comment Input Box -->
             <div class="comment-composer-box">
               <div class="composer-header">
-                <h4>Post Comment / Architect Note on Account</h4>
+                <h4>Post Comment / Architect Note on Project</h4>
                 <span class="author-tag">Author: Jeremy Lankford (Lead Architect)</span>
               </div>
 
@@ -534,14 +534,14 @@ onMounted(() => {
               <!-- Textarea -->
               <textarea 
                 v-model="commentInput.content" 
-                placeholder="Write an architectural audit note, feedback for the researcher account, verification milestone, or directive..."
+                placeholder="Write an architectural audit note, specification feedback, verification milestone, or directive for this project..."
                 rows="3"
                 class="form-textarea comment-textarea"
               ></textarea>
 
               <div class="composer-footer">
-                <span class="target-account-hint">
-                  Target Account: <strong>{{ editForm.user_email || editForm.user_id || 'Global Project Scope' }}</strong>
+                <span class="target-project-hint">
+                  Project Scope: <strong>{{ currentProject.title }} ({{ currentProject.id }})</strong>
                 </span>
                 <button 
                   @click="handlePostComment" 
@@ -549,19 +549,19 @@ onMounted(() => {
                   :disabled="isPostingComment || !commentInput.content.trim()"
                 >
                   <span v-if="isPostingComment">Posting...</span>
-                  <span v-else>💬 Post Comment to Account</span>
+                  <span v-else>💬 Post Comment to Project</span>
                 </button>
               </div>
             </div>
 
             <!-- Comments Stream List -->
             <div class="comments-stream-container">
-              <h4 class="stream-title">Chronological Account & Project Notes Stream</h4>
+              <h4 class="stream-title">Chronological Project Audit & Comments Stream</h4>
               
               <div v-if="comments.length === 0" class="no-comments-box">
                 <p>No comments or audit notes recorded on this project yet.</p>
                 <span style="font-size: 0.8125rem; color: var(--color-text-muted);">
-                  Use the composer above to log the first feedback note or phase directive.
+                  Use the composer above to log the first feedback note, phase directive, or milestone for {{ currentProject.title }}.
                 </span>
               </div>
 
@@ -1203,12 +1203,14 @@ onMounted(() => {
   gap: 0.75rem;
 }
 
-.target-account-hint {
+.target-account-hint,
+.target-project-hint {
   font-size: 0.8125rem;
   color: var(--color-text-muted);
 }
 
-.target-account-hint strong {
+.target-account-hint strong,
+.target-project-hint strong {
   color: var(--color-navy);
 }
 
@@ -1318,6 +1320,7 @@ onMounted(() => {
   color: var(--color-primary);
 }
 
+.comment-type-badge.project_feedback,
 .comment-type-badge.account_feedback {
   background-color: rgba(16, 185, 129, 0.1);
   color: #10b981;

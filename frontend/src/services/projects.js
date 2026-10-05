@@ -188,7 +188,7 @@ export async function fetchProjectComments(projectId) {
 }
 
 /**
- * Lead Architect: Post a comment, audit note, or directive on a project/account.
+ * Post a comment, audit note, directive, or feedback on a project.
  */
 export async function postProjectComment(projectId, commentData) {
   try {

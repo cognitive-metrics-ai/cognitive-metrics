@@ -523,7 +523,7 @@ def update_admin_project(
         
         audit_note = ProjectComment(
             project_id=project.id,
-            user_id=project.user_id,
+            user_id=None,
             author_name="Jeremy Lankford",
             author_role="Lead Architect",
             comment_type="phase_change" if phase_changed else "status_update",
@@ -550,7 +550,7 @@ def update_admin_project(
 
 @app.get("/api/projects/{project_id}/comments", response_model=List[ProjectCommentResponse])
 def get_project_comments(project_id: str, db: Session = Depends(get_db)):
-    """Retrieve all comments and architect notes on a project/account."""
+    """Retrieve all comments, directives, and architect notes for a specific project."""
     return db.query(ProjectComment).filter(
         ProjectComment.project_id == project_id
     ).order_by(desc(ProjectComment.created_at)).all()
@@ -561,7 +561,7 @@ def post_project_comment(
     comment_in: ProjectCommentCreate,
     db: Session = Depends(get_db)
 ):
-    """Post an architect note, status directive, or account feedback comment."""
+    """Post an architect note, directive, or feedback comment at the project level."""
     project = db.query(Project).filter(
         (Project.id == project_id) | (Project.slug == project_id)
     ).first()
@@ -570,7 +570,7 @@ def post_project_comment(
 
     new_comment = ProjectComment(
         project_id=project.id,
-        user_id=comment_in.user_id or project.user_id,
+        user_id=comment_in.user_id,
         author_name=comment_in.author_name or "Jeremy Lankford",
         author_email=comment_in.author_email,
         author_role=comment_in.author_role or "Lead Architect",

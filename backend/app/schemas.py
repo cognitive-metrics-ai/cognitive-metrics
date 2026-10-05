@@ -58,17 +58,17 @@ class ProjectResponse(ProjectBase):
 
 # --- Project Comment Schemas ---
 class ProjectCommentCreate(BaseModel):
-    user_id: Optional[str] = None
+    user_id: Optional[str] = None # Author's user ID (optional)
     author_name: str = "Jeremy Lankford"
     author_email: Optional[str] = None
     author_role: str = "Lead Architect"
-    comment_type: str = "architect_note" # architect_note, status_update, phase_change, directive, feedback
+    comment_type: str = "architect_note" # architect_note, status_update, phase_change, directive, project_feedback, question, verification_update
     content: str
 
 class ProjectCommentResponse(BaseModel):
     id: int
     project_id: str
-    user_id: Optional[str] = None
+    user_id: Optional[str] = None # Author's user ID
     author_name: str
     author_email: Optional[str] = None
     author_role: str

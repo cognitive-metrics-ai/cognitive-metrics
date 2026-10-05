@@ -1,7 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import BrandLogo from './BrandLogo.vue'
-import { fetchProjects, assignProjectToUser, DEFAULT_ADLC_PROJECTS } from '../services/projects'
+import {
+  fetchProjects,
+  assignProjectToUser,
+  DEFAULT_ADLC_PROJECTS,
+  fetchProjectComments,
+  postProjectComment
+} from '../services/projects'
 
 const props = defineProps({
   user: {
@@ -17,6 +23,14 @@ const selectedProjectId = ref('')
 const isLoading = ref(true)
 const exportSuccess = ref(false)
 
+// Project-level comments state
+const projectComments = ref([])
+const isLoadingComments = ref(false)
+const isPostingComment = ref(false)
+const commentError = ref('')
+const newCommentContent = ref('')
+const newCommentType = ref('project_note') // 'project_note' | 'question' | 'verification_update'
+
 // Display name format requested: [username]'s Projects
 const researcherDisplayName = computed(() => {
   if (props.user?.displayName) {
@@ -27,6 +41,23 @@ const researcherDisplayName = computed(() => {
   }
   return 'Researcher'
 })
+
+const loadProjectComments = async (projId) => {
+  if (!projId) {
+    projectComments.value = []
+    return
+  }
+  isLoadingComments.value = true
+  commentError.value = ''
+  try {
+    const list = await fetchProjectComments(projId)
+    projectComments.value = list || []
+  } catch (err) {
+    console.warn('Failed loading project comments:', err)
+  } finally {
+    isLoadingComments.value = false
+  }
+}
 
 const loadUserProjects = async () => {
   isLoading.value = true
@@ -39,11 +70,13 @@ const loadUserProjects = async () => {
       if (!exists) {
         selectedProjectId.value = data[0].id
       }
+      loadProjectComments(selectedProjectId.value)
     }
   } catch (err) {
     console.warn('Failed loading projects:', err)
     projects.value = DEFAULT_ADLC_PROJECTS
     selectedProjectId.value = DEFAULT_ADLC_PROJECTS[0].id
+    loadProjectComments(selectedProjectId.value)
   } finally {
     isLoading.value = false
   }
@@ -58,10 +91,60 @@ watch(() => props.user?.uid, () => {
   loadUserProjects()
 })
 
+watch(selectedProjectId, (newId) => {
+  if (newId) {
+    loadProjectComments(newId)
+  }
+})
+
 const currentProject = computed(() => {
   if (!projects.value.length) return null
   return projects.value.find(p => p.id === selectedProjectId.value) || projects.value[0]
 })
+
+const handlePostProjectComment = async () => {
+  if (!newCommentContent.value.trim() || !currentProject.value?.id) return
+  isPostingComment.value = true
+  commentError.value = ''
+
+  try {
+    const isArchitect = props.user?.email === 'jwlankford@gmail.com' || props.user?.email === 'jlankford@cognitivemetrics.org'
+    const payload = {
+      user_id: props.user?.uid || null,
+      author_name: props.user?.displayName || (props.user?.email ? props.user.email.split('@')[0] : 'Researcher'),
+      author_email: props.user?.email || null,
+      author_role: isArchitect ? 'Lead Architect' : 'Researcher / Collaborator',
+      comment_type: newCommentType.value,
+      content: newCommentContent.value.trim()
+    }
+
+    const created = await postProjectComment(currentProject.value.id, payload)
+    if (created) {
+      projectComments.value.unshift(created)
+      newCommentContent.value = ''
+    }
+  } catch (err) {
+    commentError.value = err.message || 'Failed to post comment to project.'
+  } finally {
+    isPostingComment.value = false
+  }
+}
+
+const formatCommentDate = (dateStr) => {
+  if (!dateStr) return 'Recently'
+  try {
+    const d = new Date(dateStr)
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch {
+    return dateStr
+  }
+}
 
 const handleExportData = () => {
   exportSuccess.value = true
@@ -366,6 +449,132 @@ const handleExportData = () => {
                 <button @click="handleExportData" class="btn btn-secondary" style="font-size: 0.825rem;">
                   Export Full JSONL Dataset
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project-Level Comments, Directives & Architecture Log Section -->
+        <div class="project-comments-card">
+          <div class="comments-card-header">
+            <div class="comments-header-info">
+              <div class="header-icon-box">💬</div>
+              <div>
+                <h3 class="detail-card-title">
+                  Project Comments & Architecture Log
+                  <span class="comment-count-chip">{{ projectComments.length }}</span>
+                </h3>
+                <span class="detail-card-sub">
+                  Project-level discussion, milestone directives, and verification rubrics for <strong>{{ currentProject.title }}</strong>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Comment Composer -->
+          <div class="project-composer-box">
+            <div class="composer-top-row">
+              <div class="composer-author-badge">
+                <span class="avatar-circle">
+                  {{ (researcherDisplayName || 'R').slice(0, 2).toUpperCase() }}
+                </span>
+                <span class="author-label">
+                  Posting as <strong>{{ researcherDisplayName }}</strong>
+                </span>
+              </div>
+
+              <!-- Comment Type Chips -->
+              <div class="comment-type-chips">
+                <button 
+                  type="button" 
+                  :class="['type-chip', { active: newCommentType === 'project_note' }]"
+                  @click="newCommentType = 'project_note'"
+                >
+                  📝 Project Note
+                </button>
+                <button 
+                  type="button" 
+                  :class="['type-chip', { active: newCommentType === 'question' }]"
+                  @click="newCommentType = 'question'"
+                >
+                  ❓ Technical Question
+                </button>
+                <button 
+                  type="button" 
+                  :class="['type-chip', { active: newCommentType === 'verification_update' }]"
+                  @click="newCommentType = 'verification_update'"
+                >
+                  ✅ Verification Update
+                </button>
+              </div>
+            </div>
+
+            <textarea 
+              v-model="newCommentContent"
+              :placeholder="`Write a project-level note, technical question, or verification update for ${currentProject.title}...`"
+              rows="3"
+              class="project-comment-textarea"
+            ></textarea>
+
+            <div v-if="commentError" class="comment-error-alert">
+              {{ commentError }}
+            </div>
+
+            <div class="composer-footer-row">
+              <span class="scope-indicator">
+                Project Scope: <strong>{{ currentProject.title }} ({{ currentProject.id }})</strong>
+              </span>
+              <button 
+                @click="handlePostProjectComment" 
+                class="btn btn-primary post-btn"
+                :disabled="isPostingComment || !newCommentContent.trim()"
+              >
+                <span v-if="isPostingComment">Posting...</span>
+                <span v-else>💬 Post Comment to Project</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chronological Project Comments Stream -->
+          <div class="project-comments-feed">
+            <div v-if="isLoadingComments" class="comments-loading">
+              <div class="spinner-small"></div>
+              <span>Loading project comments stream...</span>
+            </div>
+
+            <div v-else-if="projectComments.length === 0" class="no-comments-state">
+              <p>No project comments or architect directives logged yet for <strong>{{ currentProject.title }}</strong>.</p>
+              <span class="no-comments-sub">
+                Use the composer above to post the first comment or architectural inquiry on this project.
+              </span>
+            </div>
+
+            <div v-else class="comments-timeline">
+              <div v-for="c in projectComments" :key="c.id" class="project-comment-bubble">
+                <div class="comment-meta-bar">
+                  <div class="comment-author-info">
+                    <div class="comment-avatar">
+                      {{ (c.author_name || 'JL').slice(0, 2).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="comment-author-name">{{ c.author_name || 'Jeremy Lankford' }}</div>
+                      <div class="comment-author-role" :class="{ 'architect': c.author_role?.includes('Architect') }">
+                        {{ c.author_role || 'Researcher' }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="comment-meta-badges">
+                    <span :class="['comment-pill', c.comment_type]">
+                      {{ (c.comment_type || 'project_note').replace('_', ' ').toUpperCase() }}
+                    </span>
+                    <span class="comment-timestamp">{{ formatCommentDate(c.created_at) }}</span>
+                  </div>
+                </div>
+
+                <div class="comment-body">
+                  {{ c.content }}
+                </div>
               </div>
             </div>
           </div>
@@ -902,6 +1111,310 @@ const handleExportData = () => {
 
 .academic-seal-icon {
   font-size: 2.25rem;
+}
+
+/* Project Comments Section */
+.project-comments-card {
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  margin-bottom: 2.5rem;
+}
+
+.comments-card-header {
+  margin-bottom: 1.5rem;
+}
+
+.comments-header-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.comment-count-chip {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.project-composer-box {
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.composer-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.composer-author-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1B6CA8 0%, #4DA8DA 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.author-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.author-label strong {
+  color: var(--color-navy);
+}
+
+.comment-type-chips {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.type-chip {
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-white);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.type-chip:hover {
+  border-color: var(--color-primary);
+}
+
+.type-chip.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.project-comment-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-bg-white);
+  color: var(--color-text-main);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.project-comment-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(27, 108, 168, 0.12);
+}
+
+.comment-error-alert {
+  color: #ef4444;
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+}
+
+.composer-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.85rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.scope-indicator {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.scope-indicator strong {
+  color: var(--color-navy);
+}
+
+.post-btn {
+  padding: 0.55rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.comments-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.no-comments-state {
+  background-color: var(--color-bg-light);
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.no-comments-state p {
+  font-weight: 600;
+  color: var(--color-navy);
+  margin-bottom: 0.25rem;
+}
+
+.no-comments-sub {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.project-comment-bubble {
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-white);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  margin-bottom: 1rem;
+}
+
+.comment-author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1B6CA8 0%, #4DA8DA 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comment-author-name {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: var(--color-navy);
+}
+
+.comment-author-role {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.comment-author-role.architect {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.comment-meta-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.comment-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.comment-pill.project_feedback,
+.comment-pill.account_feedback {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.comment-pill.phase_change,
+.comment-pill.phase_directive {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
+.comment-pill.verification_signoff,
+.comment-pill.verification_update {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.comment-pill.question {
+  background-color: rgba(236, 72, 153, 0.1);
+  color: #ec4899;
+}
+
+.comment-timestamp {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.comment-body {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-main);
+  white-space: pre-wrap;
+  background-color: var(--color-bg-light);
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  margin-top: 0.85rem;
 }
 
 /* States */
