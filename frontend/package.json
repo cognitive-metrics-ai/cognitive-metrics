@@ -9,12 +9,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lucide/vue": "^1.52.0",
     "firebase": "^12.19.0",
-    "lucide-vue-next": "^1.0.0",
     "vue": "^3.5.42"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",
     "vite": "^8.3.0"
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.3": true,
+    "protobufjs@7.6.6": true
+  },
+  "overrides": {
+    "@grpc/grpc-js": "^1.14.5"
   }
 }

@@ -13,8 +13,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
+  'go-home',
   'open-auth',
   'submit-proposal',
+  'open-my-projects',
+  'open-admin-console',
   'open-approved-projects',
   'open-preferences',
   'logged-out'
@@ -43,6 +46,10 @@ const handleMobileAction = (action) => {
     emit('submit-proposal')
     const el = document.getElementById('submit-app')
     if (el) el.scrollIntoView({ behavior: 'smooth' })
+  } else if (action === 'my-projects') {
+    emit('open-my-projects')
+  } else if (action === 'admin-console') {
+    emit('open-admin-console')
   } else if (action === 'approved-projects') {
     emit('open-approved-projects')
   } else if (action === 'preferences') {
@@ -68,7 +75,7 @@ onUnmounted(() => {
   <header class="navbar" :style="{ boxShadow: isScrolled ? '0 4px 20px rgba(0, 0, 0, 0.12)' : 'none' }">
     <div class="container nav-container">
       <!-- Core Brand Logo -->
-      <a href="#" class="brand-link" aria-label="Cognitive Metrics Home">
+      <a href="#" class="brand-link" @click.prevent="emit('go-home')" aria-label="Cognitive Metrics Home">
         <div class="brand-logo-icon">
           <BrandLogo variant="emblem" :height="38" alt="Cognitive Metrics Emblem" />
         </div>
@@ -98,6 +105,8 @@ onUnmounted(() => {
           v-if="currentUser" 
           :user="currentUser" 
           @submit-proposal="emit('submit-proposal')"
+          @open-my-projects="emit('open-my-projects')"
+          @open-admin-console="emit('open-admin-console')"
           @open-approved-projects="emit('open-approved-projects')"
           @open-preferences="emit('open-preferences')"
           @logged-out="emit('logged-out')"
@@ -192,9 +201,11 @@ onUnmounted(() => {
       <!-- Logged In Mobile Actions -->
       <template v-if="currentUser">
         <div style="height: 1px; background: var(--color-border); margin: 0.5rem 0;"></div>
-        <a href="#submit-app" class="nav-link" @click="handleMobileAction('submit-proposal')">📝 Submit proposal</a>
-        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%;" @click="handleMobileAction('approved-projects')">
-          🔬 Approved projects
+        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%; font-weight: 600;" @click="handleMobileAction('my-projects')">
+          📂 My Projects
+        </button>
+        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%; font-weight: 700; color: #8b5cf6;" @click="handleMobileAction('admin-console')">
+          ⚡ Lead Architect Console
         </button>
         <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; color: #dc2626; width: 100%;" @click="handleMobileAction('logout')">
           🚪 Logout

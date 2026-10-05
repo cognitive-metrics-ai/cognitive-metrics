@@ -1,10 +1,18 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import BrandLogo from './BrandLogo.vue'
+import { fetchProjects, DEFAULT_ADLC_PROJECTS } from '../services/projects'
 
+const emit = defineEmits(['open-approved-projects'])
+
+const projectsList = ref(DEFAULT_ADLC_PROJECTS)
 const newsletterEmail = ref('')
 const subscribed = ref(false)
 const subscribing = ref(false)
+
+onMounted(async () => {
+  projectsList.value = await fetchProjects()
+})
 
 const handleSubscribe = async () => {
   if (!newsletterEmail.value || !newsletterEmail.value.includes('@')) return
@@ -43,6 +51,76 @@ const handleSubscribe = async () => {
         </div>
         <div style="font-size: 0.875rem; color: #94a3b8; max-width: 450px;">
           Empirical software testbeds, cognitive friction telemetry, and benchmark datasets for university research labs.
+        </div>
+      </div>
+
+      <!-- Current Projects Section (ADLC Development) -->
+      <div id="current-projects" class="footer-current-projects">
+        <div class="footer-projects-header">
+          <div>
+            <div class="footer-projects-badge">
+              <span class="pulse-dot"></span>
+              <span>Active Research & Development</span>
+            </div>
+            <h3 class="footer-projects-heading">
+              Current Projects Utilizing ADLC
+            </h3>
+          </div>
+          <p class="footer-projects-subtext">
+            Live software applications currently being engineered under the <strong>Agentic Development Life Cycle (ADLC)</strong> to capture empirical telemetry on autonomous code synthesis, verification gates, and human oversight.
+          </p>
+        </div>
+
+        <div class="footer-projects-cards">
+          <div 
+            v-for="project in projectsList" 
+            :key="project.id" 
+            class="footer-project-card"
+          >
+            <div class="footer-project-card-header">
+              <div 
+                class="footer-project-icon-box" 
+                :class="project.id === 'fluid-guardian' ? 'fluid-icon' : 'epms-icon'"
+              >
+                <!-- Fluid Guardian Icon -->
+                <svg v-if="project.id === 'fluid-guardian'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                </svg>
+                <!-- EPMS / Default Project Icon -->
+                <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div class="footer-project-title-wrap">
+                <h4 class="footer-project-name">{{ project.title }}</h4>
+                <span class="footer-project-domain">{{ project.domain }}</span>
+              </div>
+              <span 
+                class="footer-project-status" 
+                :class="project.id === 'fluid-guardian' ? 'adlc-status-fluid' : 'adlc-status-epms'"
+              >
+                {{ project.status_badge || 'ADLC Development' }}
+              </span>
+            </div>
+
+            <p class="footer-project-description">
+              {{ project.summary }}
+            </p>
+
+            <div v-if="project.tags && project.tags.length" class="footer-project-tags">
+              <span v-for="tag in project.tags" :key="tag" class="footer-tag">
+                {{ tag }}
+              </span>
+            </div>
+
+            <div class="footer-project-footer">
+              <span class="footer-project-meta"><strong>Framework:</strong> {{ project.framework || 'ADLC' }}</span>
+              <span class="footer-project-meta"><strong>Status:</strong> {{ project.status || 'Active' }}</span>
+            </div>
+          </div>
         </div>
       </div>
 

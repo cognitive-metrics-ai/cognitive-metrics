@@ -68,6 +68,7 @@ const handleSubmit = async () => {
   isSubmitting.value = true
 
   const payload = {
+    user_id: props.currentUser?.uid || null,
     organization_name: `${formData.institution_name} - ${formData.department_name || 'Academic Lab'}`,
     contact_name: formData.researcher_name,
     contact_email: formData.contact_email,

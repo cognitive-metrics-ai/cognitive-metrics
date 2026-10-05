@@ -30,7 +30,15 @@ const handleGoogleSignIn = async () => {
     emit('close')
   } catch (err) {
     console.error('Google Sign-In Error:', err)
-    errorMessage.value = err.message || 'Google Sign-In failed. Please try again.'
+    if (err.code === 'auth/popup-closed-by-user') {
+      errorMessage.value = 'Sign-in cancelled (popup was closed).'
+    } else if (err.code === 'auth/unauthorized-domain') {
+      errorMessage.value = 'Domain not authorized. Please add your current domain/localhost in Firebase Console (Authentication > Settings > Authorized domains).'
+    } else if (err.code === 'auth/operation-not-allowed') {
+      errorMessage.value = 'Google Sign-In is not enabled in Firebase Console. Go to Authentication > Sign-in method and enable Google.'
+    } else {
+      errorMessage.value = err.message || 'Google Sign-In failed. Please try again.'
+    }
   } finally {
     isLoading.value = false
   }
