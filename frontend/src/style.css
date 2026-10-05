@@ -1131,7 +1131,7 @@ p {
    Brand Logo Sprite Styles (using public/assets/brand_logo_map.png)
    ========================================================================== */
 .brand-logo-sprite {
-  background-image: url('/assets/brand_logo_map.png');
+  background-image: url('./assets/brand_logo_map.png');
   background-repeat: no-repeat;
   display: inline-block;
   vertical-align: middle;
