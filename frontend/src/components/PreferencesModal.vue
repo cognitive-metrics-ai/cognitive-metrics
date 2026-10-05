@@ -15,7 +15,7 @@ const saved = ref(false)
 const settings = reactive({
   displayName: props.user?.displayName || 'Academic Researcher',
   email: props.user?.email || 'researcher@university.edu',
-  institution: props.user?.institution || 'Stanford University',
+  institution: props.user?.institution || 'University of the Cumberlands',
   department: props.user?.department || 'Department of Computer Science',
   anonymizeSubjects: true,
   logMicroLatencies: true,

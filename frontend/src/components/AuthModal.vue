@@ -71,7 +71,7 @@ const handleDemoSignIn = async () => {
   isLoading.value = true
   errorMessage.value = ''
   try {
-    const demoUser = await signInWithEmail('dr.vance@stanford.edu', 'academicdemo123')
+    const demoUser = await signInWithEmail('dr.vance@ucumberlands.edu', 'academicdemo123')
     emit('auth-success', demoUser)
     emit('close')
   } catch (err) {
@@ -148,7 +148,7 @@ const handleDemoSignIn = async () => {
             type="text" 
             v-model="form.institution" 
             class="form-input" 
-            placeholder="e.g. Stanford University" 
+            placeholder="e.g. University of the Cumberlands" 
           />
         </div>
 

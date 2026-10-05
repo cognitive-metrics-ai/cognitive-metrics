@@ -193,7 +193,7 @@ const resetForm = () => {
                 type="text" 
                 v-model="formData.institution_name" 
                 class="form-input" 
-                placeholder="e.g. University of Washington / MIT CSAIL" 
+                placeholder="e.g. University of the Cumberlands" 
                 required 
               />
             </div>
@@ -218,7 +218,7 @@ const resetForm = () => {
                 type="email" 
                 v-model="formData.contact_email" 
                 class="form-input" 
-                placeholder="dreed@cs.washington.edu" 
+                placeholder="researcher@ucumberlands.edu" 
                 required 
               />
             </div>
@@ -230,7 +230,7 @@ const resetForm = () => {
                 type="url" 
                 v-model="formData.lab_website" 
                 class="form-input" 
-                placeholder="https://hci.stanford.edu/~researcher" 
+                placeholder="https://ucumberlands.edu/~researcher" 
               />
             </div>
 
