@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import BrandLogo from './BrandLogo.vue'
 
 const emit = defineEmits(['close', 'open-proposal'])
 
@@ -42,19 +43,22 @@ const handleGoToProposal = () => {
 </script>
 
 <template>
-  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(14, 27, 47, 0.75); backdrop-filter: blur(5px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="modal-content" style="background: #ffffff; border-radius: 18px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 2.5rem; position: relative;">
+  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+    <div class="modal-content" style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 18px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); padding: 2.5rem; position: relative;">
       <!-- Close Button -->
-      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">
+      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
         &times;
       </button>
 
-      <div style="margin-bottom: 2rem;">
-        <span class="section-label coral">Researcher Dashboard</span>
-        <h2 style="font-size: 1.75rem; margin-top: 0.25rem;">Approved Research Projects</h2>
-        <p style="font-size: 0.95rem; color: #64748b; margin-top: 0.35rem;">
-          Track your pro-bono experimental software testbeds, telemetry data streams, and ADLC milestones.
-        </p>
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+        <BrandLogo variant="icon" :height="48" alt="Cognitive Metrics Logo" style="border-radius: 12px; box-shadow: var(--shadow-md);" />
+        <div>
+          <span class="section-label coral">Researcher Dashboard</span>
+          <h2 style="font-size: 1.65rem; margin-top: 0.15rem; color: var(--color-navy);">Approved Research Projects</h2>
+          <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-top: 0.2rem;">
+            Track your pro-bono experimental software testbeds, telemetry data streams, and ADLC milestones.
+          </p>
+        </div>
       </div>
 
       <!-- Project Cards List -->
@@ -62,11 +66,11 @@ const handleGoToProposal = () => {
         <div 
           v-for="p in projects" 
           :key="p.id"
-          style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; transition: border-color 0.2s ease;"
+          style="background: var(--color-bg-light); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.5rem; transition: border-color 0.2s ease;"
         >
           <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
             <div>
-              <span style="font-family: monospace; font-size: 0.75rem; background: #e2e8f0; color: #334155; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">
+              <span style="font-family: monospace; font-size: 0.75rem; background: var(--color-border); color: var(--color-text-main); padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">
                 {{ p.id }}
               </span>
               <h3 style="font-size: 1.2rem; margin-top: 0.4rem; color: var(--color-navy);">{{ p.title }}</h3>

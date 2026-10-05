@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { logoutUser } from '../services/firebase'
+import { currentTheme, toggleTheme } from '../services/theme'
 
 const props = defineProps({
   user: {
@@ -58,6 +59,8 @@ const handleAction = (action) => {
     emit('open-approved-projects')
   } else if (action === 'preferences') {
     emit('open-preferences')
+  } else if (action === 'theme') {
+    toggleTheme()
   } else if (action === 'logout') {
     logoutUser()
     emit('logged-out')
@@ -102,14 +105,14 @@ const handleAction = (action) => {
     <div 
       v-if="menuOpen" 
       class="user-dropdown-menu"
-      style="position: absolute; top: calc(100% + 12px); right: 0; width: 260px; background: #ffffff; border-radius: 14px; box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; overflow: hidden; z-index: 1000; animation: fadeIn 0.15s ease;"
+      style="position: absolute; top: calc(100% + 12px); right: 0; width: 260px; background: var(--color-bg-white); border-radius: 14px; box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.1); border: 1px solid var(--color-border); overflow: hidden; z-index: 1000; animation: fadeIn 0.15s ease;"
     >
       <!-- User Info Header -->
-      <div style="padding: 1.15rem 1.25rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+      <div style="padding: 1.15rem 1.25rem; background: var(--color-bg-light); border-bottom: 1px solid var(--color-border);">
         <div style="font-weight: 700; color: var(--color-navy); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           {{ user.displayName || 'Academic Researcher' }}
         </div>
-        <div style="font-size: 0.8rem; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.4rem;">
+        <div style="font-size: 0.8rem; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.4rem;">
           {{ user.email }}
         </div>
         <span style="display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--color-primary); background: var(--color-primary-light); padding: 0.15rem 0.5rem; border-radius: 9999px;">
@@ -155,9 +158,34 @@ const handleAction = (action) => {
           <span>Preferences</span>
         </button>
 
-        <div style="height: 1px; background: #e2e8f0; margin: 0.4rem 0;"></div>
+        <!-- 4. Quick Theme Toggle -->
+        <button 
+          @click="handleAction('theme')"
+          class="dropdown-item"
+        >
+          <svg v-if="currentTheme === 'dark'" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg v-else width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span style="flex-grow: 1;">Mode</span>
+          <span style="font-size: 0.75rem; color: var(--color-primary); font-weight: 700; text-transform: capitalize;">
+            {{ currentTheme }}
+          </span>
+        </button>
 
-        <!-- 4. Logout -->
+        <div style="height: 1px; background: var(--color-border); margin: 0.4rem 0;"></div>
+
+        <!-- 5. Logout -->
         <button 
           @click="handleAction('logout')"
           class="dropdown-item logout"

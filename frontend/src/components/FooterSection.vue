@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import BrandLogo from './BrandLogo.vue'
 
 const newsletterEmail = ref('')
 const subscribed = ref(false)
@@ -31,6 +32,20 @@ const handleSubscribe = async () => {
 <template>
   <footer class="footer">
     <div class="container">
+      <!-- Footer Brand Identity Header -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; padding-bottom: 2.5rem; margin-bottom: 3rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <BrandLogo variant="emblem" :height="46" alt="Cognitive Metrics Emblem" />
+          <div>
+            <div style="font-size: 1.35rem; font-weight: 800; color: #ffffff; letter-spacing: -0.01em;">Cognitive Metrics</div>
+            <div style="font-size: 0.8125rem; font-weight: 600; color: var(--color-sky); text-transform: uppercase; letter-spacing: 0.08em;">Academic ADLC Research Initiative</div>
+          </div>
+        </div>
+        <div style="font-size: 0.875rem; color: #94a3b8; max-width: 450px;">
+          Empirical software testbeds, cognitive friction telemetry, and benchmark datasets for university research labs.
+        </div>
+      </div>
+
       <div class="footer-grid">
         <!-- Col 1: Academic Inquiries -->
         <div>

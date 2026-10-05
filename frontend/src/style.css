@@ -41,6 +41,39 @@
   --shadow-primary: 0 10px 25px -5px rgba(27, 108, 168, 0.35);
 }
 
+/* Dark Theme Variables */
+:root[data-theme="dark"],
+[data-theme="dark"],
+.dark-theme {
+  --color-navy: #f8fafc;
+  --color-navy-dark: #050b14;
+  --color-navy-light: #cbd5e1;
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-primary-light: rgba(56, 189, 248, 0.14);
+  --color-sky: #0284c7;
+  --color-sky-light: rgba(2, 132, 199, 0.16);
+  --color-sky-hover: #38bdf8;
+  
+  --color-blue: #38bdf8;
+  --color-blue-light: #132238;
+  --color-blue-dark: #0f172a;
+  --color-text-main: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-bg-light: #0b1322;
+  --color-bg-white: #0f1b2d;
+  --color-border: #1e2f47;
+  --color-border-hover: #334d70;
+  --color-accent-amber: #fbbf24;
+  --color-accent-green: #34d399;
+  
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 10px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.65);
+  --shadow-xl: 0 20px 35px -5px rgba(0, 0, 0, 0.85);
+  --shadow-primary: 0 10px 25px -5px rgba(56, 189, 248, 0.25);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -54,11 +87,15 @@ html {
   background-color: var(--color-bg-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 body {
   line-height: 1.6;
   overflow-x: hidden;
+  background-color: var(--color-bg-white);
+  color: var(--color-text-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ==========================================================================
@@ -256,6 +293,11 @@ p {
   transition: all 0.25s ease;
 }
 
+[data-theme="dark"] .navbar {
+  background-color: rgba(15, 27, 45, 0.92);
+  border-bottom: 1px solid rgba(30, 47, 71, 0.8);
+}
+
 .nav-container {
   display: flex;
   align-items: center;
@@ -275,15 +317,18 @@ p {
 }
 
 .brand-logo-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0A3D62 0%, #1B6CA8 50%, #4DA8DA 100%);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: 0 4px 12px rgba(27, 108, 168, 0.35);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.brand-link:hover .brand-logo-icon {
+  transform: scale(1.05);
 }
 
 .nav-menu {
@@ -383,7 +428,7 @@ p {
 
 /* Hero Graphic / Interactive Mockup */
 .hero-visual-card {
-  background: #ffffff;
+  background: var(--color-bg-white);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-xl);
@@ -392,7 +437,7 @@ p {
 }
 
 .mockup-header {
-  background: #f8fafc;
+  background: var(--color-bg-light);
   border-bottom: 1px solid var(--color-border);
   padding: 0.85rem 1.25rem;
   display: flex;
@@ -447,7 +492,8 @@ p {
   text-align: center;
   padding: 2.25rem 1.75rem;
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
   transition: transform 0.2s ease;
 }
 
@@ -477,7 +523,7 @@ p {
 
 /* Case Study Cards */
 .case-card {
-  background: #ffffff;
+  background: var(--color-bg-white);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   overflow: hidden;
@@ -495,7 +541,7 @@ p {
 
 .case-image-wrapper {
   height: 220px;
-  background: #eef2f6;
+  background: var(--color-bg-light);
   position: relative;
   overflow: hidden;
 }
@@ -531,7 +577,7 @@ p {
 
 /* Testimonial Quote */
 .quote-box {
-  background: #ffffff;
+  background: var(--color-bg-white);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
@@ -584,7 +630,7 @@ p {
 }
 
 .logo-badge-item {
-  background: #ffffff;
+  background: var(--color-bg-white);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 1rem;
@@ -593,7 +639,7 @@ p {
   justify-content: center;
   font-weight: 700;
   font-size: 0.95rem;
-  color: #475569;
+  color: var(--color-text-main);
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
@@ -606,7 +652,7 @@ p {
 
 /* Service Cards */
 .service-card {
-  background: #ffffff;
+  background: var(--color-bg-white);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   padding: 2.25rem;
@@ -651,7 +697,7 @@ p {
 
 /* Timeline Table */
 .timeline-table {
-  background: #ffffff;
+  background: var(--color-bg-white);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   overflow: hidden;
@@ -705,7 +751,7 @@ p {
    Proposal Form Section (#submit-app)
    ========================================================================== */
 .proposal-box {
-  background: #ffffff;
+  background: var(--color-bg-white);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-xl);
@@ -750,7 +796,7 @@ p {
   font-family: inherit;
   font-size: 0.95rem;
   color: var(--color-text-main);
-  background-color: #ffffff;
+  background-color: var(--color-bg-white);
   transition: all 0.15s ease;
 }
 
@@ -775,7 +821,7 @@ p {
   padding: 1rem;
   cursor: pointer;
   transition: all 0.15s ease;
-  background: #ffffff;
+  background: var(--color-bg-white);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -832,7 +878,7 @@ p {
 .faq-item {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--color-bg-white);
   overflow: hidden;
   transition: all 0.2s ease;
 }
@@ -1059,7 +1105,7 @@ p {
     flex-direction: column;
     padding: 1.5rem;
     gap: 1rem;
-    background: #ffffff;
+    background: var(--color-bg-white);
     border-bottom: 1px solid var(--color-border);
   }
   
@@ -1079,4 +1125,47 @@ p {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
+}
+
+/* ==========================================================================
+   Brand Logo Sprite Styles (using public/assets/brand_logo_map.png)
+   ========================================================================== */
+.brand-logo-sprite {
+  background-image: url('/assets/brand_logo_map.png');
+  background-repeat: no-repeat;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: 1536px 1024px;
+}
+
+.brand-logo-sprite.sprite-dark {
+  width: 328px;
+  height: 315px;
+  background-position: -80px -324px;
+}
+
+.brand-logo-sprite.sprite-light {
+  width: 328px;
+  height: 315px;
+  background-position: -591px -324px;
+}
+
+.brand-logo-sprite.sprite-icon {
+  width: 247px;
+  height: 237px;
+  background-position: -1175px -359px;
+}
+
+/* Dark theme specific input and component adjustments */
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .form-select:focus,
+[data-theme="dark"] .form-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+}
+
+[data-theme="dark"] .modal-content {
+  background: var(--color-bg-white);
+  color: var(--color-text-main);
+  border: 1px solid var(--color-border);
 }

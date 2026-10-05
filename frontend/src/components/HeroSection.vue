@@ -74,9 +74,9 @@ const runTelemetrySimulation = () => {
 
           <div class="mockup-body">
             <!-- Active Research Study Banner -->
-            <div style="background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0; margin-bottom: 1.25rem;">
+            <div style="background: var(--color-bg-light); border-radius: 12px; padding: 1.25rem; border: 1px solid var(--color-border); margin-bottom: 1.25rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em;">Current Research Study</span>
+                <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-muted); letter-spacing: 0.05em;">Current Research Study</span>
                 <span style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; font-weight: 700; color: var(--color-primary); background: var(--color-primary-light); padding: 0.2rem 0.6rem; border-radius: 9999px;">
                   <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-primary);"></span>
                   Active Protocol
@@ -85,32 +85,32 @@ const runTelemetrySimulation = () => {
               <div style="font-size: 1.1rem; font-weight: 700; color: var(--color-navy); margin-bottom: 0.25rem;">
                 Agentic Lifecycle & Cognitive Workload in Software Synthesis
               </div>
-              <div style="font-size: 0.85rem; color: #64748b;">
+              <div style="font-size: 0.85rem; color: var(--color-text-muted);">
                 Principal Investigator Lab · Non-Commercial Empirical Testbed
               </div>
             </div>
 
             <!-- Dynamic Metrics Grid -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-              <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; background: #ffffff;">
-                <div style="font-size: 0.72rem; color: #64748b; font-weight: 700;">AUTONOMY RATIO</div>
+              <div style="border: 1px solid var(--color-border); border-radius: 10px; padding: 1rem; background: var(--color-bg-white);">
+                <div style="font-size: 0.72rem; color: var(--color-text-muted); font-weight: 700;">AUTONOMY RATIO</div>
                 <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary); margin: 0.2rem 0;">{{ autonomyScore }}%</div>
                 <div style="font-size: 0.75rem; color: #10b981; font-weight: 600;">Autonomous step execution</div>
               </div>
-              <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; background: #ffffff;">
-                <div style="font-size: 0.72rem; color: #64748b; font-weight: 700;">COGNITIVE FRICTION (CFI)</div>
+              <div style="border: 1px solid var(--color-border); border-radius: 10px; padding: 1rem; background: var(--color-bg-white);">
+                <div style="font-size: 0.72rem; color: var(--color-text-muted); font-weight: 700;">COGNITIVE FRICTION (CFI)</div>
                 <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-sky); margin: 0.2rem 0;">{{ frictionIndex }}</div>
-                <div style="font-size: 0.75rem; color: #64748b;">Low mental handover load</div>
+                <div style="font-size: 0.75rem; color: var(--color-text-muted);">Low mental handover load</div>
               </div>
             </div>
 
             <!-- Telemetry Trace Status -->
-            <div style="background: #f1f5f9; border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
-              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">
+            <div style="background: var(--color-bg-light); border: 1px solid var(--color-border); border-radius: 8px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 0.4rem;">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">{{ telemetryStatus }}</span>
                 <span>{{ telemetryProgress }}%</span>
               </div>
-              <div style="height: 6px; width: 100%; background: #e2e8f0; border-radius: 9999px; overflow: hidden;">
+              <div style="height: 6px; width: 100%; background: var(--color-border); border-radius: 9999px; overflow: hidden;">
                 <div :style="{ width: `${telemetryProgress}%`, background: 'linear-gradient(90deg, #1B6CA8, #4DA8DA)' }" style="height: 100%; transition: width 0.3s ease;"></div>
               </div>
             </div>

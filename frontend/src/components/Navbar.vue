@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import UserMenu from './UserMenu.vue'
+import BrandLogo from './BrandLogo.vue'
 import { logoutUser } from '../services/firebase'
+import { currentTheme, toggleTheme } from '../services/theme'
 
 const props = defineProps({
   currentUser: {
@@ -45,6 +47,8 @@ const handleMobileAction = (action) => {
     emit('open-approved-projects')
   } else if (action === 'preferences') {
     emit('open-preferences')
+  } else if (action === 'theme') {
+    toggleTheme()
   } else if (action === 'logout') {
     logoutUser()
     emit('logged-out')
@@ -61,16 +65,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="navbar" :style="{ boxShadow: isScrolled ? '0 4px 20px rgba(0, 0, 0, 0.06)' : 'none' }">
+  <header class="navbar" :style="{ boxShadow: isScrolled ? '0 4px 20px rgba(0, 0, 0, 0.12)' : 'none' }">
     <div class="container nav-container">
-      <!-- Brand Logo -->
-      <a href="#" class="brand-link">
+      <!-- Core Brand Logo -->
+      <a href="#" class="brand-link" aria-label="Cognitive Metrics Home">
         <div class="brand-logo-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
-            <path d="M12 6v6l4 2"/>
-            <circle cx="12" cy="12" r="3" fill="currentColor"/>
-          </svg>
+          <BrandLogo variant="emblem" :height="38" alt="Cognitive Metrics Emblem" />
         </div>
         <div style="display: flex; flex-direction: column; line-height: 1.15;">
           <span>Cognitive Metrics</span>
@@ -91,6 +91,29 @@ onUnmounted(() => {
 
       <!-- Desktop CTA & User Account Group -->
       <div class="nav-cta-group">
+        <!-- Quick Dark/Light Mode Toggle Button -->
+        <button 
+          @click="toggleTheme" 
+          class="theme-toggle-nav-btn" 
+          :title="currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+          :aria-label="currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+        >
+          <svg v-if="currentTheme === 'dark'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
         <a href="#submit-app" class="btn btn-primary">Submit proposal</a>
 
         <!-- If User Logged In: Avatar with User Menu -->
@@ -103,15 +126,28 @@ onUnmounted(() => {
           @logged-out="emit('logged-out')"
         />
 
-        <!-- If Logged Out: Sign In Button -->
-        <button 
-          v-else 
-          @click="emit('open-auth')" 
-          class="btn btn-secondary" 
-          style="font-size: 0.875rem; padding: 0.55rem 1.25rem;"
-        >
-          Sign In
-        </button>
+        <!-- If Logged Out: Preferences & Sign In Buttons -->
+        <div v-else style="display: flex; align-items: center; gap: 0.5rem;">
+          <button 
+            @click="emit('open-preferences')" 
+            class="btn btn-secondary" 
+            style="font-size: 0.875rem; padding: 0.55rem 0.9rem;"
+            title="Open Researcher Preferences"
+            aria-label="Open Researcher Preferences"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+          <button 
+            @click="emit('open-auth')" 
+            class="btn btn-secondary" 
+            style="font-size: 0.875rem; padding: 0.55rem 1.25rem;"
+          >
+            Sign In
+          </button>
+        </div>
       </div>
 
       <!-- Mobile Hamburger Button -->
@@ -131,9 +167,38 @@ onUnmounted(() => {
     <!-- Mobile Drawer -->
     <div v-if="mobileMenuOpen" class="mobile-nav-drawer">
       <!-- User Profile Header in Mobile Drawer -->
-      <div v-if="currentUser" style="padding: 0.75rem 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 0.5rem;">
+      <div v-if="currentUser" style="padding: 0.75rem 0; border-bottom: 1px solid var(--color-border); margin-bottom: 0.5rem;">
         <div style="font-weight: 700; color: var(--color-navy);">{{ currentUser.displayName || 'Academic Researcher' }}</div>
-        <div style="font-size: 0.8rem; color: #64748b;">{{ currentUser.email }}</div>
+        <div style="font-size: 0.8rem; color: var(--color-text-muted);">{{ currentUser.email }}</div>
+      </div>
+
+      <!-- Quick Theme Switcher in Mobile Drawer -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid var(--color-border);">
+        <span style="font-size: 0.9rem; font-weight: 600; color: var(--color-navy);">Theme</span>
+        <button 
+          @click="handleMobileAction('theme')" 
+          class="theme-toggle-nav-btn" 
+          style="display: inline-flex;"
+          :aria-label="currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+        >
+          <span style="font-size: 0.8rem; margin-right: 0.4rem; font-weight: 600; color: var(--color-text-main);">
+            {{ currentTheme === 'dark' ? 'Dark' : 'Light' }}
+          </span>
+          <svg v-if="currentTheme === 'dark'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
       </div>
 
       <a href="#how-it-works" class="nav-link" @click="closeMobileMenu">How it works</a>
@@ -142,15 +207,17 @@ onUnmounted(() => {
       <a href="#batch-timeline" class="nav-link" @click="closeMobileMenu">Research cycle</a>
       <a href="#faqs" class="nav-link" @click="closeMobileMenu">FAQs</a>
 
+      <!-- Quick Preferences Button (Always Available) -->
+      <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%; display: flex; align-items: center; gap: 0.5rem;" @click="handleMobileAction('preferences')">
+        ⚙️ Preferences & Theme
+      </button>
+
       <!-- Logged In Mobile Actions -->
       <template v-if="currentUser">
-        <div style="height: 1px; background: #e2e8f0; margin: 0.5rem 0;"></div>
+        <div style="height: 1px; background: var(--color-border); margin: 0.5rem 0;"></div>
         <a href="#submit-app" class="nav-link" @click="handleMobileAction('submit-proposal')">📝 Submit proposal</a>
         <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%;" @click="handleMobileAction('approved-projects')">
           🔬 Approved projects
-        </button>
-        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%;" @click="handleMobileAction('preferences')">
-          ⚙️ Preferences
         </button>
         <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; color: #dc2626; width: 100%;" @click="handleMobileAction('logout')">
           🚪 Logout
@@ -165,3 +232,26 @@ onUnmounted(() => {
     </div>
   </header>
 </template>
+
+<style scoped>
+.theme-toggle-nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-white);
+  color: var(--color-text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-nav-btn:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: rotate(15deg);
+}
+</style>
