@@ -25,6 +25,12 @@ dist-ssr/
 build/
 *.egg-info/
 
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+
 # Environment files
 .env
 .env.local

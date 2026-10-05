@@ -10,7 +10,14 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['submit-proposal', 'open-approved-projects', 'open-preferences', 'logged-out'])
+const emit = defineEmits([
+  'submit-proposal',
+  'open-my-projects',
+  'open-admin-console',
+  'open-approved-projects',
+  'open-preferences',
+  'logged-out'
+])
 
 const menuOpen = ref(false)
 const menuRef = ref(null)
@@ -55,6 +62,10 @@ const handleAction = (action) => {
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' })
     }
+  } else if (action === 'my-projects') {
+    emit('open-my-projects')
+  } else if (action === 'admin-console') {
+    emit('open-admin-console')
   } else if (action === 'approved-projects') {
     emit('open-approved-projects')
   } else if (action === 'preferences') {
@@ -134,19 +145,33 @@ const handleAction = (action) => {
           <span>Submit proposal</span>
         </button>
 
-        <!-- 2. Approved projects -->
+        <!-- 2. My Projects -->
         <button 
-          @click="handleAction('approved-projects')"
+          @click="handleAction('my-projects')"
           class="dropdown-item"
         >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
             <polyline points="9 13 12 16 17 11"></polyline>
           </svg>
-          <span>Approved projects</span>
+          <span style="font-weight: 600;">My Projects</span>
         </button>
 
-        <!-- 3. Preferences -->
+        <!-- 3. Lead Architect Console -->
+        <button 
+          @click="handleAction('admin-console')"
+          class="dropdown-item"
+          style="background-color: rgba(139, 92, 246, 0.06);"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <span style="font-weight: 700; color: #8b5cf6;">Lead Architect Console</span>
+        </button>
+
+        <!-- 4. Preferences -->
         <button 
           @click="handleAction('preferences')"
           class="dropdown-item"

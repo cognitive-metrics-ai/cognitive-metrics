@@ -18,7 +18,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ''
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || import.meta.env.VITE_MEASUREMENT_ID || ''
 }
 
 // Check if valid Firebase configuration is present
@@ -69,17 +69,7 @@ export const signInWithGoogle = async () => {
     return result.user
   }
   
-  // Demo Mode Google Simulation
-  const mockUser = {
-    uid: 'google-demo-user-123',
-    displayName: 'Academic Researcher',
-    email: 'researcher@university.edu',
-    photoURL: null,
-    institution: 'Research University',
-    department: 'Computer Science & AI Lab'
-  }
-  saveLocalUser(mockUser)
-  return mockUser
+  throw new Error('Firebase credentials not configured. Please set VITE_FIREBASE_* variables in .env.local to open the Google sign-in dialog.')
 }
 
 export const signInWithEmail = async (email, password) => {
@@ -136,7 +126,14 @@ export const subscribeToAuthChanges = (callback) => {
       if (user) {
         callback(user)
       } else {
-        callback(getSavedLocalUser())
+        // Clear old mock session if switching from unconfigured to configured Firebase
+        const localUser = getSavedLocalUser()
+        if (localUser && localUser.uid?.startsWith('google-demo-user')) {
+          saveLocalUser(null)
+          callback(null)
+        } else {
+          callback(localUser)
+        }
       }
     })
   }

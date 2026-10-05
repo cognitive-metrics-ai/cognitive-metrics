@@ -1,33 +1,55 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import BrandLogo from './BrandLogo.vue'
+import { fetchProjects, assignProjectToUser, DEFAULT_ADLC_PROJECTS } from '../services/projects'
+
+const props = defineProps({
+  user: {
+    type: Object,
+    default: null
+  }
+})
 
 const emit = defineEmits(['close', 'open-proposal'])
 
 const downloaded = ref(false)
+const claimingId = ref(null)
+const projectsList = ref([])
+const isLoading = ref(true)
 
-const projects = [
-  {
-    id: 'PROP-ADLC-9042',
-    title: 'Human-in-the-Loop ADLC Code Synthesis Testbed',
-    venue: 'Target: ICSE / CHI 2027',
-    status: 'Approved · Implementation Active',
-    statusClass: 'status-active',
-    traces: '14,290 trace events',
-    leadArchitect: 'Jeremy Lankford',
-    summary: 'Full-stack experimental IDE testbed measuring developer cognitive load, latency, and autonomous agent handoff dynamics.'
-  },
-  {
-    id: 'PROP-ADLC-8411',
-    title: 'Clinical Diagnostic Agent Verification Protocol',
-    venue: 'Target: JAMIA / AMIA 2027',
-    status: 'Protocol Scoped · Pending Pilot',
-    statusClass: 'status-scoped',
-    traces: '3,100 trace events',
-    leadArchitect: 'Jeremy Lankford',
-    summary: 'Multi-agent orchestration testbed evaluating physician trust calibration and double-blind verification safety rubrics.'
+const loadProjects = async () => {
+  isLoading.value = true
+  try {
+    const data = await fetchProjects(props.user?.uid || null)
+    projectsList.value = data
+  } catch (err) {
+    projectsList.value = DEFAULT_ADLC_PROJECTS
+  } finally {
+    isLoading.value = false
   }
-]
+}
+
+onMounted(() => {
+  loadProjects()
+})
+
+watch(() => props.user?.uid, () => {
+  loadProjects()
+})
+
+const handleClaimProject = async (project) => {
+  if (!props.user?.uid) return
+  claimingId.value = project.id
+  try {
+    const updated = await assignProjectToUser(project.id, props.user.uid, props.user.email || '')
+    if (updated) {
+      project.user_id = props.user.uid
+      project.user_email = props.user.email || ''
+    }
+  } finally {
+    claimingId.value = null
+  }
+}
 
 const handleDownloadDataset = () => {
   downloaded.value = true
@@ -44,13 +66,13 @@ const handleGoToProposal = () => {
 
 <template>
   <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="modal-content" style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 18px; max-width: 680px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); padding: 2.5rem; position: relative;">
+    <div class="modal-content" style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 18px; max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); padding: 2.5rem; position: relative;">
       <!-- Close Button -->
       <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
         &times;
       </button>
 
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
         <BrandLogo variant="icon" :height="48" alt="Cognitive Metrics Logo" style="border-radius: 12px; box-shadow: var(--shadow-md);" />
         <div>
           <span class="section-label coral">Researcher Dashboard</span>
@@ -61,10 +83,27 @@ const handleGoToProposal = () => {
         </div>
       </div>
 
+      <!-- User ID Badge Banner -->
+      <div v-if="props.user" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; background: var(--color-primary-light); border: 1px solid rgba(27, 108, 168, 0.2); padding: 0.65rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-weight: 700; color: var(--color-primary);">Signed User ID:</span>
+          <code style="font-family: monospace; background: #ffffff; padding: 0.15rem 0.45rem; border-radius: 4px; border: 1px solid var(--color-border); color: #0f172a; font-size: 0.8rem;">
+            {{ props.user.uid }}
+          </code>
+        </div>
+        <span v-if="props.user.email" style="color: var(--color-text-muted); font-size: 0.8rem;">
+          {{ props.user.email }}
+        </span>
+      </div>
+
       <!-- Project Cards List -->
-      <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
+      <div v-if="isLoading" style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
+        Loading user projects from Neon DB...
+      </div>
+
+      <div v-else style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
         <div 
-          v-for="p in projects" 
+          v-for="p in projectsList" 
           :key="p.id"
           style="background: var(--color-bg-light); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.5rem; transition: border-color 0.2s ease;"
         >
@@ -76,9 +115,19 @@ const handleGoToProposal = () => {
               <h3 style="font-size: 1.2rem; margin-top: 0.4rem; color: var(--color-navy);">{{ p.title }}</h3>
             </div>
             
-            <span style="font-size: 0.75rem; font-weight: 700; color: #059669; background: #d1fae5; padding: 0.25rem 0.65rem; border-radius: 9999px;">
-              {{ p.status }}
-            </span>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <!-- Tied to Current User Badge -->
+              <span 
+                v-if="props.user && p.user_id === props.user.uid" 
+                style="font-size: 0.75rem; font-weight: 700; color: #1e40af; background: #dbeafe; border: 1px solid #bfdbfe; padding: 0.25rem 0.65rem; border-radius: 9999px;"
+              >
+                ✓ Tied to Your ID
+              </span>
+
+              <span style="font-size: 0.75rem; font-weight: 700; color: #059669; background: #d1fae5; padding: 0.25rem 0.65rem; border-radius: 9999px;">
+                {{ p.status }}
+              </span>
+            </div>
           </div>
 
           <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem;">
@@ -86,27 +135,41 @@ const handleGoToProposal = () => {
           </p>
 
           <div style="display: flex; gap: 1.5rem; font-size: 0.8rem; color: #475569; margin-bottom: 1rem; flex-wrap: wrap;">
-            <div><strong>Target:</strong> {{ p.venue }}</div>
-            <div><strong>Lead Architect:</strong> {{ p.leadArchitect }}</div>
-            <div><strong>Recorded Data:</strong> {{ p.traces }}</div>
+            <div><strong>Target:</strong> {{ p.target_venue || p.domain || 'ADLC Research' }}</div>
+            <div><strong>Lead Architect:</strong> {{ p.lead_architect || 'Jeremy Lankford' }}</div>
+            <div><strong>Recorded Data:</strong> {{ (p.traces_count || 15000).toLocaleString() }} trace events</div>
           </div>
 
-          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+          <!-- Project Actions / User Tying -->
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button 
+                @click="handleDownloadDataset" 
+                class="btn btn-secondary" 
+                style="font-size: 0.8rem; padding: 0.45rem 0.9rem;"
+              >
+                {{ downloaded ? '✓ Exporting JSONL...' : '📥 Export Anonymized Telemetry' }}
+              </button>
+              <a 
+                href="#lead-researcher" 
+                @click="emit('close')" 
+                class="btn btn-secondary" 
+                style="font-size: 0.8rem; padding: 0.45rem 0.9rem; text-decoration: none;"
+              >
+                Contact Lead Architect
+              </a>
+            </div>
+
+            <!-- Tying Action Button -->
             <button 
-              @click="handleDownloadDataset" 
-              class="btn btn-secondary" 
-              style="font-size: 0.8rem; padding: 0.45rem 0.9rem;"
+              v-if="props.user && p.user_id !== props.user.uid" 
+              @click="handleClaimProject(p)"
+              :disabled="claimingId === p.id"
+              class="btn btn-primary"
+              style="font-size: 0.775rem; padding: 0.4rem 0.75rem;"
             >
-              {{ downloaded ? '✓ Exporting JSONL...' : '📥 Export Anonymized Telemetry' }}
+              {{ claimingId === p.id ? 'Tying to ID...' : '🔗 Tie to My User ID' }}
             </button>
-            <a 
-              href="#lead-researcher" 
-              @click="emit('close')" 
-              class="btn btn-secondary" 
-              style="font-size: 0.8rem; padding: 0.45rem 0.9rem; text-decoration: none;"
-            >
-              Contact Lead Architect
-            </a>
           </div>
         </div>
       </div>
