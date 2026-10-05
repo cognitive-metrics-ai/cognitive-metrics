@@ -53,33 +53,33 @@ const universities = [
         </div>
 
         <div class="grid-3-col">
-          <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem;">
+          <div style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm); transition: all 0.2s ease;">
             <div style="width: 50px; height: 50px; border-radius: 10px; background: var(--color-blue-light); color: var(--color-blue); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
               </svg>
             </div>
-            <h4 style="margin-bottom: 0.75rem;">Academic & Non-Commercial</h4>
-            <p style="font-size: 0.95rem;">
+            <h4 style="margin-bottom: 0.75rem; color: var(--color-navy); font-weight: 700;">Academic & Non-Commercial</h4>
+            <p style="font-size: 0.95rem; color: var(--color-text-muted);">
               Projects must be explicitly for academic research, PhD dissertations, or non-commercial scientific inquiry. We do not take on business ventures, commercial SaaS, or startup consulting.
             </p>
           </div>
 
-          <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem;">
+          <div style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm); transition: all 0.2s ease;">
             <div style="width: 50px; height: 50px; border-radius: 10px; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
             </div>
-            <h4 style="margin-bottom: 0.75rem;">ADLC & Cognitive Focus</h4>
-            <p style="font-size: 0.95rem;">
+            <h4 style="margin-bottom: 0.75rem; color: var(--color-navy); font-weight: 700;">ADLC & Cognitive Focus</h4>
+            <p style="font-size: 0.95rem; color: var(--color-text-muted);">
               The study must examine questions relevant to the <strong>Agentic Development Life Cycle (ADLC)</strong>, human-agent delegation, cognitive workload, or benchmark metrics in autonomous systems.
             </p>
           </div>
 
-          <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem;">
+          <div style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm); transition: all 0.2s ease;">
             <div style="width: 50px; height: 50px; border-radius: 10px; background: var(--color-blue-light); color: var(--color-blue); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="18" cy="5" r="3"></circle>
@@ -89,8 +89,8 @@ const universities = [
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
               </svg>
             </div>
-            <h4 style="margin-bottom: 0.75rem;">Open Science & Dissemination</h4>
-            <p style="font-size: 0.95rem;">
+            <h4 style="margin-bottom: 0.75rem; color: var(--color-navy); font-weight: 700;">Open Science & Dissemination</h4>
+            <p style="font-size: 0.95rem; color: var(--color-text-muted);">
               The research team agrees to collaborative publication of empirical findings and anonymized telemetry datasets to advance peer-reviewed scientific understanding.
             </p>
           </div>
@@ -121,7 +121,7 @@ const universities = [
   border-radius: var(--radius-md);
   max-width: 440px;
   width: 100%;
-  background: #ffffff;
+  background: var(--color-bg-white);
   transition: all 0.2s ease;
 }
 

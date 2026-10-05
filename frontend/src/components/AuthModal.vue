@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive } from 'vue'
+import BrandLogo from './BrandLogo.vue'
 import {
   signInWithGoogle,
   signInWithEmail,
@@ -83,19 +84,22 @@ const handleDemoSignIn = async () => {
 </script>
 
 <template>
-  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(14, 27, 47, 0.75); backdrop-filter: blur(5px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="modal-content" style="background: #ffffff; border-radius: 18px; max-width: 480px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 2.5rem; position: relative;">
+  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+    <div class="modal-content" style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 18px; max-width: 480px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); padding: 2.5rem; position: relative;">
       <!-- Close Button -->
-      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">
+      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
         &times;
       </button>
 
       <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="margin-bottom: 0.85rem; display: flex; justify-content: center;">
+          <BrandLogo variant="emblem" :height="54" alt="Cognitive Metrics Logo" />
+        </div>
         <span class="section-label coral">Researcher Portal</span>
-        <h2 style="font-size: 1.75rem; margin-top: 0.25rem;">
+        <h2 style="font-size: 1.65rem; margin-top: 0.25rem; color: var(--color-navy);">
           {{ isSignUp ? 'Create Researcher Account' : 'Sign In to Cognitive Metrics' }}
         </h2>
-        <p style="font-size: 0.9rem; margin-top: 0.35rem;">
+        <p style="font-size: 0.9rem; margin-top: 0.35rem; color: var(--color-text-muted);">
           Access your approved ADLC testbeds, telemetry data, and research proposals.
         </p>
       </div>

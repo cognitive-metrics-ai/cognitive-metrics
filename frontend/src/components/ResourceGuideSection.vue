@@ -20,7 +20,7 @@ const closeGuide = () => {
         <h2>Research frameworks & telemetry standards</h2>
       </div>
 
-      <div style="background: #ffffff; border-radius: 16px; border: 1px solid var(--color-border); box-shadow: var(--shadow-md); overflow: hidden; display: grid; grid-template-columns: 1fr 1.3fr; gap: 2.5rem; align-items: center; padding: 2.5rem;">
+      <div style="background: var(--color-bg-white); border-radius: 16px; border: 1px solid var(--color-border); box-shadow: var(--shadow-md); overflow: hidden; display: grid; grid-template-columns: 1fr 1.3fr; gap: 2.5rem; align-items: center; padding: 2.5rem;">
         <!-- Left Book Mockup Graphic -->
         <div style="background: linear-gradient(135deg, #0A3D62 0%, #1B6CA8 100%); border-radius: 12px; padding: 3rem 2rem; color: white; text-align: center; box-shadow: 0 15px 30px rgba(10, 61, 98, 0.3);">
           <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #4DA8DA; letter-spacing: 0.15em; margin-bottom: 1rem;">
@@ -71,15 +71,15 @@ const closeGuide = () => {
     </div>
 
     <!-- Guide Summary Modal -->
-    <div v-if="showGuideModal" class="modal-backdrop" @click="closeGuide" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-      <div class="modal-content" @click.stop style="background: #ffffff; border-radius: 16px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 2.5rem; position: relative;">
-        <button @click="closeGuide" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">
+    <div v-if="showGuideModal" class="modal-backdrop" @click="closeGuide" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+      <div class="modal-content" @click.stop style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 16px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 2.5rem; position: relative;">
+        <button @click="closeGuide" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
           &times;
         </button>
 
         <span class="section-label coral">Academic Overview</span>
-        <h2 style="font-size: 1.6rem; margin-bottom: 1rem;">The ADLC Research Framework</h2>
-        <div style="font-size: 0.95rem; color: #475569; line-height: 1.65; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.6rem; margin-bottom: 1rem; color: var(--color-navy);">The ADLC Research Framework</h2>
+        <div style="font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.65; margin-bottom: 1.5rem;">
           <p style="margin-bottom: 1rem;">
             This publication outlines our standardized telemetry architecture for human-subject and automated benchmarking in ADLC environments. By instrumenting micro-interaction events alongside model reasoning steps, researchers can objectively measure cognitive overhead, trust calibration, and autonomous fidelity.
           </p>

@@ -1,5 +1,7 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { currentTheme, setTheme } from '../services/theme'
+import BrandLogo from './BrandLogo.vue'
 
 const props = defineProps({
   user: {
@@ -17,6 +19,7 @@ const settings = reactive({
   email: props.user?.email || 'researcher@university.edu',
   institution: props.user?.institution || 'University of the Cumberlands',
   department: props.user?.department || 'Department of Computer Science',
+  theme: props.user?.theme || currentTheme.value || 'light',
   anonymizeSubjects: true,
   logMicroLatencies: true,
   autoExportTelemetry: true,
@@ -24,7 +27,21 @@ const settings = reactive({
   notifyPapers: false
 })
 
+onMounted(() => {
+  if (props.user?.theme) {
+    settings.theme = props.user.theme
+  } else {
+    settings.theme = currentTheme.value
+  }
+})
+
+const selectTheme = (newTheme) => {
+  settings.theme = newTheme
+  setTheme(newTheme)
+}
+
 const handleSave = () => {
+  setTheme(settings.theme)
   saved.value = true
   emit('saved', { ...props.user, ...settings })
   setTimeout(() => {
@@ -35,29 +52,94 @@ const handleSave = () => {
 </script>
 
 <template>
-  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(14, 27, 47, 0.75); backdrop-filter: blur(5px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="modal-content" style="background: #ffffff; border-radius: 18px; max-width: 580px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 2.5rem; position: relative;">
+  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
+    <div class="modal-content" style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 18px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); padding: 2.5rem; position: relative;">
       <!-- Close Button -->
-      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">
+      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
         &times;
       </button>
 
-      <div style="margin-bottom: 2rem;">
-        <span class="section-label coral">Account Settings</span>
-        <h2 style="font-size: 1.75rem; margin-top: 0.25rem;">Researcher Preferences</h2>
-        <p style="font-size: 0.95rem; color: #64748b; margin-top: 0.35rem;">
-          Configure your academic affiliation, telemetry logging schema, and notification preferences.
-        </p>
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+        <BrandLogo variant="icon" :height="48" alt="Cognitive Metrics Logo" style="border-radius: 12px; box-shadow: var(--shadow-md);" />
+        <div>
+          <span class="section-label coral">Account & System Settings</span>
+          <h2 style="font-size: 1.65rem; margin-top: 0.15rem; color: var(--color-navy);">Researcher Preferences</h2>
+          <p style="font-size: 0.9rem; color: var(--color-text-muted); margin-top: 0.2rem;">
+            Configure interface appearance, academic identity, and ADLC telemetry schema.
+          </p>
+        </div>
       </div>
 
-      <div v-if="saved" style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 0.85rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; font-weight: 600; text-align: center;">
+      <div v-if="saved" style="background: rgba(16, 185, 129, 0.12); border: 1px solid var(--color-accent-green); color: var(--color-accent-green); padding: 0.85rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; font-weight: 600; text-align: center;">
         ✓ Preferences saved successfully!
       </div>
 
       <form @submit.prevent="handleSave">
-        <!-- Profile Info -->
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+        <!-- Appearance & Theme Selector -->
+        <div style="margin-bottom: 2rem;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 0.75rem; color: var(--color-navy); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <span>Interface Appearance</span>
+            <span style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--color-primary); letter-spacing: 0.05em;">
+              Current: {{ settings.theme === 'dark' ? 'Dark Mode' : 'Light Mode' }}
+            </span>
+          </h4>
+          
+          <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 1rem;">
+            Toggle between light and dark display modes for telemetry dashboards and data logs.
+          </p>
+
+          <div class="theme-toggle-grid">
+            <!-- Light Mode Option -->
+            <button 
+              type="button" 
+              class="theme-card-btn" 
+              :class="{ active: settings.theme === 'light' }"
+              @click="selectTheme('light')"
+            >
+              <div class="theme-icon-circle light">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-title">Light Mode</div>
+                <div class="theme-card-desc">Day reading & high contrast</div>
+              </div>
+              <span v-if="settings.theme === 'light'" class="theme-pill active">Active</span>
+            </button>
+
+            <!-- Dark Mode Option -->
+            <button 
+              type="button" 
+              class="theme-card-btn" 
+              :class="{ active: settings.theme === 'dark' }"
+              @click="selectTheme('dark')"
+            >
+              <div class="theme-icon-circle dark">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-title">Dark Mode</div>
+                <div class="theme-card-desc">Low-light laboratory telemetry</div>
+              </div>
+              <span v-if="settings.theme === 'dark'" class="theme-pill active">Active</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Academic Identity -->
+        <div style="margin-bottom: 1.75rem;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
             Academic Identity
           </h4>
 
@@ -69,7 +151,7 @@ const handleSave = () => {
 
             <div class="form-group">
               <label class="form-label">Institutional Email</label>
-              <input type="email" v-model="settings.email" class="form-input" disabled style="background: #f8fafc; color: #64748b;" />
+              <input type="email" v-model="settings.email" class="form-input" disabled style="background: var(--color-bg-light); color: var(--color-text-muted);" />
             </div>
 
             <div class="form-group">
@@ -85,23 +167,23 @@ const handleSave = () => {
         </div>
 
         <!-- Telemetry & Privacy -->
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+        <div style="margin-bottom: 1.75rem;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
             ADLC Telemetry & IRB Privacy Defaults
           </h4>
 
           <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem;">
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; color: var(--color-text-main);">
               <input type="checkbox" v-model="settings.anonymizeSubjects" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Automatically anonymize and hash human participant IDs in telemetry logs</span>
             </label>
 
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; color: var(--color-text-main);">
               <input type="checkbox" v-model="settings.logMicroLatencies" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Record millisecond-level cognitive pauses & prompt-edit latencies</span>
             </label>
 
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; color: var(--color-text-main);">
               <input type="checkbox" v-model="settings.autoExportTelemetry" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Auto-generate JSONL and Parquet exports upon study trial completion</span>
             </label>
@@ -110,24 +192,24 @@ const handleSave = () => {
 
         <!-- Notifications -->
         <div style="margin-bottom: 2rem;">
-          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem;">
+          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
             Notifications
           </h4>
 
           <div style="display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem;">
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; color: var(--color-text-main);">
               <input type="checkbox" v-model="settings.notifyMilestones" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Email notifications when testbed milestones or PRD reviews complete</span>
             </label>
 
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; color: var(--color-text-main);">
               <input type="checkbox" v-model="settings.notifyPapers" style="width: 18px; height: 18px; accent-color: var(--color-primary);" />
               <span>Receive pre-print announcements and new open-source ADLC benchmark releases</span>
             </label>
           </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid #e2e8f0; padding-top: 1.25rem;">
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--color-border); padding-top: 1.25rem;">
           <button type="button" @click="emit('close')" class="btn btn-secondary">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Preferences</button>
         </div>
@@ -135,3 +217,102 @@ const handleSave = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.theme-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.theme-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-white);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  position: relative;
+  color: var(--color-text-main);
+}
+
+.theme-card-btn:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-card-btn.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.theme-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.theme-icon-circle.light {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.theme-icon-circle.dark {
+  background: #1e293b;
+  color: #38bdf8;
+}
+
+.theme-card-btn.active .theme-icon-circle.light {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+.theme-card-btn.active .theme-icon-circle.dark {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.theme-card-info {
+  flex-grow: 1;
+}
+
+.theme-card-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-navy);
+}
+
+.theme-card-desc {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+.theme-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  color: #ffffff;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+@media (max-width: 520px) {
+  .theme-toggle-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
