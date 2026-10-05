@@ -1,4 +1,6 @@
 <script setup>
+import researcherPhoto from '../assets/jeremy-lankford.png'
+
 const socialLinks = [
   {
     name: 'Personal Website',
@@ -46,11 +48,17 @@ const socialLinks = [
         <div style="display: grid; grid-template-columns: 240px 1fr; gap: 3rem; align-items: center;">
           <!-- Profile Badge / Avatar Column -->
           <div style="text-align: center;">
-            <div style="width: 170px; height: 170px; border-radius: 50%; background: linear-gradient(135deg, #1B6CA8 0%, #4DA8DA 100%); padding: 5px; margin: 0 auto 1.25rem auto; box-shadow: 0 10px 30px rgba(27, 108, 168, 0.4);">
-              <div style="width: 100%; height: 100%; border-radius: 50%; background: #0A3D62; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <span style="font-size: 3rem; font-weight: 800; font-family: var(--font-heading); color: #ffffff; letter-spacing: -0.05em;">JL</span>
-                <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #4DA8DA; letter-spacing: 0.1em; margin-top: -4px;">RESEARCHER</span>
+            <div style="position: relative; width: 170px; height: 170px; margin: 0 auto 1.25rem auto;">
+              <div style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #1B6CA8 0%, #4DA8DA 100%); padding: 4px; box-shadow: 0 10px 30px rgba(27, 108, 168, 0.4); overflow: hidden;">
+                <img 
+                  :src="researcherPhoto" 
+                  alt="Jeremy Lankford - Lead Researcher" 
+                  style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;"
+                />
               </div>
+              <span style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: #0A3D62; color: #4DA8DA; border: 1.5px solid #1B6CA8; padding: 2px 10px; border-radius: 9999px; letter-spacing: 0.12em; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.35);">
+                RESEARCHER
+              </span>
             </div>
             
             <a 
