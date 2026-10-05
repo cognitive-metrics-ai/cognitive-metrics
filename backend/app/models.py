@@ -62,16 +62,16 @@ class Project(Base):
     comments = relationship("ProjectComment", back_populates="project", cascade="all, delete-orphan", order_by="desc(ProjectComment.created_at)")
 
 class ProjectComment(Base):
-    """Architect audit notes, status update directives, and account comments."""
+    """Architect audit notes, status update directives, and project-level comments."""
     __tablename__ = "project_comments"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     project_id = Column(String(64), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, index=True)
-    user_id = Column(String(128), index=True, nullable=True) # Account user ID being commented on
+    user_id = Column(String(128), index=True, nullable=True) # Author user ID who posted the comment
     author_name = Column(String(255), default="Jeremy Lankford")
     author_email = Column(String(255), nullable=True)
     author_role = Column(String(100), default="Lead Architect")
-    comment_type = Column(String(50), default="architect_note") # architect_note, status_update, phase_change, directive, feedback
+    comment_type = Column(String(50), default="architect_note") # architect_note, status_update, phase_change, directive, project_feedback, question
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
