@@ -143,6 +143,16 @@ const handleGoToProposal = () => {
           <!-- Project Actions / User Tying -->
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <a 
+                v-if="p.production_url" 
+                :href="p.production_url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+                style="font-size: 0.8rem; padding: 0.45rem 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; background-color: #059669; border-color: #059669;"
+              >
+                🚀 Launch Live App
+              </a>
               <button 
                 @click="handleDownloadDataset" 
                 class="btn btn-secondary" 

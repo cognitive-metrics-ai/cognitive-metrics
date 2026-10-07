@@ -286,14 +286,49 @@ const handleExportData = () => {
               <span class="project-id-tag">{{ currentProject.id }}</span>
               <span class="project-status-tag">{{ currentProject.status || 'Active · ADLC Development' }}</span>
               <span class="project-domain-tag">{{ currentProject.domain }}</span>
+              <a 
+                v-if="currentProject.production_url" 
+                :href="currentProject.production_url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="project-live-tag"
+                title="Application is live in production"
+              >
+                ● Live Production
+              </a>
             </div>
 
             <div class="hero-action-buttons">
+              <a 
+                v-if="currentProject.production_url" 
+                :href="currentProject.production_url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="btn btn-primary action-btn launch-app-btn"
+              >
+                <span>🚀 Launch Live App</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </a>
+
+              <a 
+                v-if="currentProject.repo_url" 
+                :href="currentProject.repo_url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="btn btn-secondary action-btn"
+              >
+                <span>💻 Source Repo</span>
+              </a>
+
               <button 
                 @click="handleExportData" 
                 class="btn btn-secondary action-btn"
               >
-                {{ exportSuccess ? '✓ Telemetry Exported' : '📥 Export Anonymized Telemetry' }}
+                {{ exportSuccess ? '✓ Telemetry Exported' : '📥 Export Telemetry' }}
               </button>
             </div>
           </div>
@@ -848,6 +883,56 @@ const handleExportData = () => {
   color: var(--color-text-muted);
   padding: 0.25rem 0.65rem;
   border-radius: 9999px;
+}
+
+.project-live-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.project-live-tag:hover {
+  background: #a7f3d0;
+  color: #047857;
+}
+
+.hero-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.launch-app-btn {
+  background-color: #059669;
+  border-color: #059669;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+
+.launch-app-btn:hover {
+  background-color: #047857;
+  border-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
 }
 
 .project-headline {

@@ -76,6 +76,7 @@ async def lifespan(app: FastAPI):
             conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS user_email VARCHAR(255);"))
             conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT true;"))
             conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS phase VARCHAR(100) DEFAULT 'Phase 1: Agentic Specification';"))
+            conn.execute(text("ALTER TABLE projects ADD COLUMN IF NOT EXISTS production_url VARCHAR(500);"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS ix_projects_user_id ON projects (user_id);"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS ix_project_comments_project_id ON project_comments (project_id);"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS ix_project_comments_user_id ON project_comments (user_id);"))
@@ -466,6 +467,7 @@ def get_admin_projects(db: Session = Depends(get_db)):
             "tags": p.tags or [],
             "repo_url": p.repo_url,
             "demo_url": p.demo_url,
+            "production_url": p.production_url,
             "is_active": p.is_active,
             "is_public": p.is_public,
             "user_id": p.user_id,
