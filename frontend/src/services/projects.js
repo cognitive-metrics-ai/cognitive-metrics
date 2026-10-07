@@ -19,7 +19,10 @@ export const DEFAULT_ADLC_PROJECTS = [
     lead_architect: 'Jeremy Lankford',
     traces_count: 22400,
     target_venue: 'Clinical Fluid Monitoring · ADLC Research',
-    tags: ['Clinical Telemetry', 'Agentic Synthesis', 'Safety Verification', 'Trace Logging']
+    tags: ['Clinical Telemetry', 'Agentic Synthesis', 'Safety Verification', 'Trace Logging'],
+    repo_url: 'https://github.com/cognitive-metrics-ai/fluid-guardian',
+    demo_url: null,
+    production_url: 'https://fluid-guardian.cognitivemetrics.app/'
   },
   {
     id: 'employee-performance-management',
@@ -33,7 +36,10 @@ export const DEFAULT_ADLC_PROJECTS = [
     lead_architect: 'Jeremy Lankford',
     traces_count: 16850,
     target_venue: 'Enterprise Systems · ADLC Architecture',
-    tags: ['Enterprise Architecture', 'Multi-Agent Orchestration', 'Cognitive Profiling', 'ADLC Telemetry']
+    tags: ['Enterprise Architecture', 'Multi-Agent Orchestration', 'Cognitive Profiling', 'ADLC Telemetry'],
+    repo_url: 'https://github.com/cognitive-metrics-ai/epms',
+    demo_url: null,
+    production_url: null
   }
 ]
 

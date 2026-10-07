@@ -51,6 +51,7 @@ class Project(Base):
     tags = Column(JSON, default=list)
     repo_url = Column(String(500), nullable=True)
     demo_url = Column(String(500), nullable=True)
+    production_url = Column(String(500), nullable=True)
     is_active = Column(Boolean, default=True)
     is_public = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

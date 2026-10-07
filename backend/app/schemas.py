@@ -21,6 +21,7 @@ class ProjectBase(BaseModel):
     tags: List[str] = Field(default_factory=list)
     repo_url: Optional[str] = None
     demo_url: Optional[str] = None
+    production_url: Optional[str] = None
     is_active: bool = True
     is_public: bool = True
 
@@ -45,6 +46,7 @@ class ProjectUpdate(BaseModel):
     tags: Optional[List[str]] = None
     repo_url: Optional[str] = None
     demo_url: Optional[str] = None
+    production_url: Optional[str] = None
     is_active: Optional[bool] = None
     is_public: Optional[bool] = None
 

@@ -21,6 +21,7 @@ INITIAL_PROJECTS = [
         "tags": ["Clinical Telemetry", "Agentic Synthesis", "Safety Verification", "Trace Logging"],
         "repo_url": "https://github.com/cognitive-metrics-ai/fluid-guardian",
         "demo_url": None,
+        "production_url": "https://fluid-guardian.cognitivemetrics.app/",
         "is_active": True
     },
     {
@@ -39,6 +40,7 @@ INITIAL_PROJECTS = [
         "tags": ["Enterprise Architecture", "Multi-Agent Orchestration", "Cognitive Profiling", "ADLC Telemetry"],
         "repo_url": "https://github.com/cognitive-metrics-ai/epms",
         "demo_url": None,
+        "production_url": None,
         "is_active": True
     },
     {
@@ -57,6 +59,7 @@ INITIAL_PROJECTS = [
         "tags": ["ADLC Metrics", "Cognitive Load", "FastAPI", "Vue 3", "Eye-Tracking Hook"],
         "repo_url": None,
         "demo_url": None,
+        "production_url": None,
         "is_active": True
     },
     {
@@ -75,12 +78,13 @@ INITIAL_PROJECTS = [
         "tags": ["Clinical ADLC", "Multi-Agent Systems", "Safety Auditing", "Python"],
         "repo_url": None,
         "demo_url": None,
+        "production_url": None,
         "is_active": True
     }
 ]
 
 def seed_initial_projects(db: Session):
-    """Seed initial project records if the table is empty."""
+    """Seed initial project records if the table is empty, and ensure default URLs are populated."""
     existing_count = db.query(Project).count()
     if existing_count == 0:
         logger.info("Projects table is empty. Seeding initial ADLC projects into database...")
@@ -90,4 +94,9 @@ def seed_initial_projects(db: Session):
         db.commit()
         logger.info("Successfully seeded %d projects.", len(INITIAL_PROJECTS))
     else:
-        logger.info("Database already contains %d projects. Skipping seed.", existing_count)
+        logger.info("Database already contains %d projects. Checking for missing production_url...", existing_count)
+        fg = db.query(Project).filter(Project.id == "fluid-guardian").first()
+        if fg and not fg.production_url:
+            fg.production_url = "https://fluid-guardian.cognitivemetrics.app/"
+            db.commit()
+            logger.info("Updated fluid-guardian with default production_url.")

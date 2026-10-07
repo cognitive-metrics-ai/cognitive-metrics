@@ -41,6 +41,9 @@ const editForm = ref({
   user_email: '',
   lead_architect: 'Jeremy Lankford',
   framework: 'Agentic Development Life Cycle (ADLC)',
+  production_url: '',
+  repo_url: '',
+  demo_url: '',
   summary: '',
   description: '',
   is_public: true
@@ -115,6 +118,9 @@ const selectProject = async (projId) => {
       user_email: proj.user_email || '',
       lead_architect: proj.lead_architect || 'Jeremy Lankford',
       framework: proj.framework || 'Agentic Development Life Cycle (ADLC)',
+      production_url: proj.production_url || '',
+      repo_url: proj.repo_url || '',
+      demo_url: proj.demo_url || '',
       summary: proj.summary || '',
       description: proj.description || '',
       is_public: proj.is_public !== false
@@ -485,7 +491,36 @@ onMounted(() => {
                 </div>
               </div>
 
-              <!-- Row 5: Project Summary -->
+              <!-- Row 5: Application Deployment & Repository URLs -->
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label class="form-label">
+                    <span>🚀 Production Application URL</span>
+                  </label>
+                  <input 
+                    v-model="editForm.production_url" 
+                    type="url" 
+                    placeholder="https://fluid-guardian.cognitivemetrics.app" 
+                    class="form-input" 
+                  />
+                  <p class="field-hint">Live deployed application URL for researchers to launch</p>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">
+                    <span>💻 Source Repository URL</span>
+                  </label>
+                  <input 
+                    v-model="editForm.repo_url" 
+                    type="url" 
+                    placeholder="https://github.com/cognitive-metrics-ai/..." 
+                    class="form-input" 
+                  />
+                  <p class="field-hint">Public or private Git repository link</p>
+                </div>
+              </div>
+
+              <!-- Row 6: Project Summary -->
               <div class="form-group">
                 <label class="form-label">Executive Summary</label>
                 <textarea v-model="editForm.summary" rows="3" class="form-textarea" required></textarea>
