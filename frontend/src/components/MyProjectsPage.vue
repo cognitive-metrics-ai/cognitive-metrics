@@ -204,9 +204,6 @@ const handleExportData = () => {
       <div class="projects-header-block">
         <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.5rem;">
           <span class="section-label coral">Researcher Workspace</span>
-          <span v-if="props.user" class="user-id-pill">
-            ID: {{ props.user.uid }}
-          </span>
         </div>
         
         <h1 class="projects-page-title">
@@ -713,17 +710,6 @@ const handleExportData = () => {
   max-width: 760px;
   line-height: 1.6;
   margin: 0;
-}
-
-.user-id-pill {
-  font-family: monospace;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-  padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(27, 108, 168, 0.2);
 }
 
 /* Selector Bar */
