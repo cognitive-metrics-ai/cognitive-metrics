@@ -28,8 +28,9 @@ const currentUser = ref(null)
 const preselectedService = ref('')
 
 const resolveCurrentPage = () => {
-  if (window.location.hash === '#admin-console') return 'admin-console'
-  if (window.location.hash === '#my-projects') return 'my-projects'
+  const hash = window.location.hash || ''
+  if (hash.startsWith('#admin-console')) return 'admin-console'
+  if (hash.startsWith('#my-projects')) return 'my-projects'
   return 'home'
 }
 
@@ -72,7 +73,7 @@ const navigateToAdminConsole = () => {
 
 const navigateToHome = () => {
   currentPage.value = 'home'
-  if (window.location.hash === '#my-projects' || window.location.hash === '#admin-console') {
+  if (window.location.hash.startsWith('#my-projects') || window.location.hash.startsWith('#admin-console')) {
     window.location.hash = ''
   }
 }

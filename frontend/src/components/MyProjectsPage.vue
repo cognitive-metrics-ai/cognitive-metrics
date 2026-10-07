@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import BrandLogo from './BrandLogo.vue'
 import {
   fetchProjects,
@@ -19,9 +19,10 @@ const props = defineProps({
 const emit = defineEmits(['go-home', 'submit-proposal'])
 
 const projects = ref([])
-const selectedProjectId = ref('')
+const selectedProjectId = ref(null)
 const isLoading = ref(true)
 const exportSuccess = ref(false)
+const searchQuery = ref('')
 
 // Project-level comments state
 const projectComments = ref([])
@@ -41,6 +42,61 @@ const researcherDisplayName = computed(() => {
   }
   return 'Researcher'
 })
+
+const filteredProjects = computed(() => {
+  if (!searchQuery.value.trim()) return projects.value
+  const q = searchQuery.value.toLowerCase().trim()
+  return projects.value.filter(p => {
+    const titleMatch = (p.title || '').toLowerCase().includes(q)
+    const domainMatch = (p.domain || '').toLowerCase().includes(q)
+    const idMatch = (p.id || '').toLowerCase().includes(q)
+    const summaryMatch = (p.summary || '').toLowerCase().includes(q)
+    const tagsMatch = Array.isArray(p.tags) && p.tags.some(t => t.toLowerCase().includes(q))
+    return titleMatch || domainMatch || idMatch || summaryMatch || tagsMatch
+  })
+})
+
+const parseHashProjectId = () => {
+  const hash = window.location.hash || ''
+  if (!hash.startsWith('#my-projects')) return null
+  const queryIndex = hash.indexOf('?')
+  if (queryIndex !== -1) {
+    const params = new URLSearchParams(hash.slice(queryIndex + 1))
+    return params.get('id') || params.get('project')
+  }
+  const parts = hash.replace(/^#my-projects\/?/, '').split('/')
+  if (parts[0] && parts[0].trim()) {
+    return decodeURIComponent(parts[0].trim())
+  }
+  return null
+}
+
+const syncProjectFromHash = () => {
+  const hashId = parseHashProjectId()
+  if (hashId && projects.value.some(p => p.id === hashId)) {
+    selectedProjectId.value = hashId
+    loadProjectComments(hashId)
+  } else {
+    selectedProjectId.value = null
+  }
+}
+
+const openProjectDetails = (projId) => {
+  selectedProjectId.value = projId
+  window.location.hash = `#my-projects?id=${encodeURIComponent(projId)}`
+  loadProjectComments(projId)
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const closeProjectDetails = () => {
+  selectedProjectId.value = null
+  window.location.hash = '#my-projects'
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const handleHashChange = () => {
+  syncProjectFromHash()
+}
 
 const loadProjectComments = async (projId) => {
   if (!projId) {
@@ -63,28 +119,25 @@ const loadUserProjects = async () => {
   isLoading.value = true
   try {
     const data = await fetchProjects(props.user?.uid || null)
-    projects.value = data
-    if (data && data.length > 0) {
-      // Keep existing selection if valid, else select first
-      const exists = data.some(p => p.id === selectedProjectId.value)
-      if (!exists) {
-        selectedProjectId.value = data[0].id
-      }
-      loadProjectComments(selectedProjectId.value)
-    }
+    projects.value = data && data.length ? data : DEFAULT_ADLC_PROJECTS
+    syncProjectFromHash()
   } catch (err) {
     console.warn('Failed loading projects:', err)
     projects.value = DEFAULT_ADLC_PROJECTS
-    selectedProjectId.value = DEFAULT_ADLC_PROJECTS[0].id
-    loadProjectComments(selectedProjectId.value)
+    syncProjectFromHash()
   } finally {
     isLoading.value = false
   }
 }
 
 onMounted(() => {
+  window.addEventListener('hashchange', handleHashChange)
   loadUserProjects()
   window.scrollTo({ top: 0, behavior: 'smooth' })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleHashChange)
 })
 
 watch(() => props.user?.uid, () => {
@@ -93,13 +146,17 @@ watch(() => props.user?.uid, () => {
 
 watch(selectedProjectId, (newId) => {
   if (newId) {
+    const currentHashId = parseHashProjectId()
+    if (newId !== currentHashId) {
+      window.location.hash = `#my-projects?id=${encodeURIComponent(newId)}`
+    }
     loadProjectComments(newId)
   }
 })
 
 const currentProject = computed(() => {
-  if (!projects.value.length) return null
-  return projects.value.find(p => p.id === selectedProjectId.value) || projects.value[0]
+  if (!selectedProjectId.value || !projects.value.length) return null
+  return projects.value.find(p => p.id === selectedProjectId.value) || null
 })
 
 const handlePostProjectComment = async () => {
@@ -200,82 +257,236 @@ const handleExportData = () => {
     </div>
 
     <div class="container projects-main-container">
-      <!-- Page Header: [username]'s Projects -->
-      <div class="projects-header-block">
-        <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.5rem;">
-          <span class="section-label coral">Researcher Workspace</span>
-        </div>
-        
-        <h1 class="projects-page-title">
-          {{ researcherDisplayName }}'s Projects
-        </h1>
-
-        <p class="projects-page-subtitle">
-          Manage your active software testbeds developed under the <strong>Agentic Development Life Cycle (ADLC)</strong>. Review live telemetry data streams, cognitive metric benchmarks, and verification rubrics.
-        </p>
+      <!-- Loading State -->
+      <div v-if="isLoading" class="loading-state-card">
+        <div class="spinner"></div>
+        <p>Loading projects from Neon PostgreSQL...</p>
       </div>
 
-      <!-- Project Selection Dropdown Bar -->
-      <div class="project-selector-card">
-        <div class="selector-content-row">
-          <div class="selector-left-group">
-            <label for="project-dropdown" class="selector-label">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              <span>Select Active Project:</span>
-            </label>
+      <!-- VIEW 1: Overview Cards Grid (Three per view) -->
+      <div v-else-if="!selectedProjectId" class="projects-overview-section">
+        <!-- Page Header: [username]'s Projects -->
+        <div class="projects-header-block">
+          <div class="header-pre-badge">
+            <span class="section-label coral">Researcher Workspace</span>
+            <span class="projects-count-pill">{{ projects.length }} Active {{ projects.length === 1 ? 'Testbed' : 'Testbeds' }}</span>
+          </div>
+          
+          <div class="overview-title-row">
+            <div>
+              <h1 class="projects-page-title">
+                {{ researcherDisplayName }}'s Projects
+              </h1>
+              <p class="projects-page-subtitle">
+                Manage your active software testbeds developed under the <strong>Agentic Development Life Cycle (ADLC)</strong>. Select any card to open the dedicated project page with live telemetry data streams, cognitive metric benchmarks, and verification rubrics.
+              </p>
+            </div>
 
-            <!-- Dropdown of user projects -->
-            <div class="select-wrapper">
-              <select 
-                id="project-dropdown"
-                v-model="selectedProjectId" 
-                class="project-dropdown-select"
+            <div class="overview-cta-group">
+              <button 
+                @click="emit('submit-proposal')" 
+                class="btn btn-primary overview-propose-btn"
               >
-                <option 
-                  v-for="p in projects" 
-                  :key="p.id" 
-                  :value="p.id"
-                >
-                  {{ p.title }} ({{ p.status_badge || 'Active ADLC' }})
-                </option>
-              </select>
-              <div class="select-arrow">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="6 9 12 15 18 9"></polyline>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-              </div>
+                <span>Propose New Testbed</span>
+              </button>
             </div>
           </div>
+        </div>
 
-          <div class="selector-right-actions">
-            <!-- Table-Level Status Badge -->
+        <!-- Filter & Database Status Bar -->
+        <div class="overview-toolbar">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              v-model="searchQuery" 
+              type="text" 
+              placeholder="Filter projects by title, domain, or tag..." 
+              class="overview-search-input"
+            />
+            <button 
+              v-if="searchQuery" 
+              @click="searchQuery = ''" 
+              class="search-clear-btn"
+              aria-label="Clear filter"
+            >
+              &times;
+            </button>
+          </div>
+
+          <div class="toolbar-meta">
+            <span class="filter-count-label">
+              Showing <strong>{{ filteredProjects.length }}</strong> of {{ projects.length }} testbeds
+            </span>
             <span class="ownership-badge owned" title="Managed directly in Neon PostgreSQL database">
               ✓ Database Active
             </span>
+          </div>
+        </div>
 
-            <!-- Submit New Proposal CTA -->
+        <!-- Filter Empty State -->
+        <div v-if="filteredProjects.length === 0 && projects.length > 0" class="empty-filter-card">
+          <div class="empty-icon">🔍</div>
+          <h3>No projects match "{{ searchQuery }}"</h3>
+          <p>Try clearing your search query or searching for a different keyword or domain.</p>
+          <button @click="searchQuery = ''" class="btn btn-secondary" style="margin-top: 1rem;">
+            Clear Filter
+          </button>
+        </div>
+
+        <!-- Overview Cards Grid (Three per view) -->
+        <div v-else-if="filteredProjects.length > 0" class="projects-grid">
+          <div 
+            v-for="p in filteredProjects" 
+            :key="p.id" 
+            class="project-overview-card"
+            @click="openProjectDetails(p.id)"
+            tabindex="0"
+            role="button"
+            :aria-label="`Open details for ${p.title}`"
+            @keydown.enter="openProjectDetails(p.id)"
+          >
+            <!-- Card Top Meta -->
+            <div class="card-top-row">
+              <span class="card-id-badge">{{ p.id }}</span>
+              <div class="card-status-badges">
+                <span v-if="p.production_url" class="card-live-badge" title="Live production application">
+                  <span class="live-pulse"></span>
+                  Live App
+                </span>
+                <span class="card-status-badge">
+                  {{ p.status_badge || p.status || 'Active ADLC' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Domain category -->
+            <div class="card-domain-label">{{ p.domain || 'ADLC Research Testbed' }}</div>
+
+            <!-- Title -->
+            <h3 class="card-title">{{ p.title }}</h3>
+
+            <!-- Summary with 3-line clamp -->
+            <p class="card-summary">{{ p.summary }}</p>
+
+            <!-- Metrics / Telemetry Specs Strip -->
+            <div class="card-specs-strip">
+              <div class="spec-item" title="Structured telemetry event traces recorded">
+                <svg class="spec-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                </svg>
+                <span class="spec-text"><strong>{{ (p.traces_count || 15000).toLocaleString() }}</strong> traces</span>
+              </div>
+              <div class="spec-item" title="Target Research Venue">
+                <svg class="spec-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span class="spec-text">{{ p.target_venue ? p.target_venue.split('·')[0].trim() : 'ADLC Research' }}</span>
+              </div>
+            </div>
+
+            <!-- Tech tags -->
+            <div v-if="p.tags && p.tags.length" class="card-tags-row">
+              <span v-for="tag in p.tags.slice(0, 3)" :key="tag" class="card-tag-pill">
+                {{ tag }}
+              </span>
+              <span v-if="p.tags.length > 3" class="card-tag-more">
+                +{{ p.tags.length - 3 }}
+              </span>
+            </div>
+
+            <!-- Card Footer -->
+            <div class="card-footer">
+              <div class="card-lead-architect">
+                <span class="lead-avatar">{{ (p.lead_architect || 'JL').slice(0, 2).toUpperCase() }}</span>
+                <span class="lead-name">{{ p.lead_architect || 'Jeremy Lankford' }}</span>
+              </div>
+
+              <span class="view-details-cta">
+                <span>View Details</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="cta-arrow">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty Projects State -->
+        <div v-else class="empty-state-card">
+          <div class="empty-icon">📁</div>
+          <h3>No projects found</h3>
+          <p>You do not currently have any active testbeds associated with this account.</p>
+          <button @click="emit('submit-proposal')" class="btn btn-primary" style="margin-top: 1rem;">
+            Submit ADLC Research Proposal ($0 Cost)
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW 2: Project Full-Page Detail View (when selectedProjectId is set) -->
+      <div v-else-if="currentProject" class="project-detail-layout">
+        
+        <!-- Dedicated Breadcrumb & Details Navigation Bar -->
+        <div class="details-top-nav-card">
+          <div class="details-nav-left">
+            <button @click="closeProjectDetails" class="back-to-all-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span>Back to All Projects</span>
+            </button>
+
+            <div class="details-breadcrumb">
+              <span class="breadcrumb-root" @click="closeProjectDetails">Projects</span>
+              <span class="breadcrumb-sep">/</span>
+              <span class="breadcrumb-active">{{ currentProject.title }}</span>
+            </div>
+          </div>
+
+          <div class="details-nav-right">
+            <!-- Quick Switcher Dropdown -->
+            <div class="quick-switch-wrapper">
+              <label for="quick-switch-select" class="quick-switch-label">Switch Project:</label>
+              <div class="select-wrapper-compact">
+                <select 
+                  id="quick-switch-select"
+                  v-model="selectedProjectId" 
+                  class="quick-switch-select"
+                >
+                  <option 
+                    v-for="p in projects" 
+                    :key="p.id" 
+                    :value="p.id"
+                  >
+                    {{ p.title }}
+                  </option>
+                </select>
+                <div class="select-arrow-compact">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
             <button 
               @click="emit('submit-proposal')" 
               class="btn btn-primary"
-              style="font-size: 0.875rem; padding: 0.6rem 1.15rem;"
+              style="font-size: 0.85rem; padding: 0.55rem 1.15rem;"
             >
               + Propose New Testbed
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="loading-state-card">
-        <div class="spinner"></div>
-        <p>Loading project details from Neon PostgreSQL...</p>
-      </div>
-
-      <!-- Project Full-Page Detail View -->
-      <div v-else-if="currentProject" class="project-detail-layout">
-        
         <!-- Project Hero Card -->
         <div class="project-detail-hero">
           <div class="hero-top-meta">
@@ -630,14 +841,29 @@ const handleExportData = () => {
           </a>
         </div>
 
+        <!-- Bottom Return to Overview Bar -->
+        <div class="details-bottom-bar">
+          <button @click="closeProjectDetails" class="btn btn-secondary back-bottom-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to All Projects Overview</span>
+          </button>
+
+          <button @click="emit('submit-proposal')" class="btn btn-primary">
+            + Propose Another Testbed
+          </button>
+        </div>
+
       </div>
 
-      <!-- Empty State -->
+      <!-- Fallback when project ID not found -->
       <div v-else class="empty-state-card">
-        <h3>No projects found</h3>
-        <p>You do not currently have any active testbeds associated with this account.</p>
-        <button @click="emit('submit-proposal')" class="btn btn-primary" style="margin-top: 1rem;">
-          Submit ADLC Research Proposal ($0 Cost)
+        <h3>Project not found</h3>
+        <p>The requested project ID could not be found or is not associated with this account.</p>
+        <button @click="closeProjectDetails" class="btn btn-primary" style="margin-top: 1rem;">
+          Back to All Projects
         </button>
       </div>
 
@@ -712,84 +938,124 @@ const handleExportData = () => {
   margin: 0;
 }
 
-/* Selector Bar */
-.project-selector-card {
-  background: var(--color-bg-white);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.25rem 1.5rem;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 2rem;
+/* Overview Section */
+.projects-overview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.selector-content-row {
+.header-pre-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.projects-count-pill {
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border-radius: 9999px;
+  border: 1px solid rgba(27, 108, 168, 0.2);
+}
+
+.overview-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.overview-propose-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  padding: 0.7rem 1.35rem;
+  white-space: nowrap;
+}
+
+/* Toolbar & Filter Bar */
+.overview-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.25rem;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
-.selector-left-group {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-grow: 1;
-  flex-wrap: wrap;
-}
-
-.selector-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--color-navy);
-}
-
-.select-wrapper {
+.search-input-wrapper {
   position: relative;
-  min-width: 340px;
   flex-grow: 1;
   max-width: 480px;
+  min-width: 260px;
 }
 
-.project-dropdown-select {
+.search-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.overview-search-input {
   width: 100%;
-  appearance: none;
-  background: var(--color-bg-light);
+  padding: 0.65rem 2.2rem 0.65rem 2.4rem;
   border: 1.5px solid var(--color-border);
-  padding: 0.75rem 2.5rem 0.75rem 1rem;
   border-radius: var(--radius-sm);
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-navy);
-  cursor: pointer;
+  background: var(--color-bg-light);
+  font-size: 0.9rem;
+  color: var(--color-text-main);
   transition: all 0.2s ease;
   outline: none;
+  box-sizing: border-box;
 }
 
-.project-dropdown-select:hover,
-.project-dropdown-select:focus {
+.overview-search-input:focus {
   border-color: var(--color-primary);
   background: var(--color-bg-white);
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
-.select-arrow {
+.search-clear-btn {
   position: absolute;
-  right: 1rem;
+  right: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  pointer-events: none;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.toolbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-count-label {
+  font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
-.selector-right-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  flex-wrap: wrap;
+.filter-count-label strong {
+  color: var(--color-navy);
 }
 
 .ownership-badge {
@@ -805,9 +1071,418 @@ const handleExportData = () => {
   border: 1px solid #bbf7d0;
 }
 
-.claim-btn {
+.empty-filter-card {
+  background: var(--color-bg-white);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 3.5rem 2rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* =========================================================
+   3-PER-VIEW OVERVIEW CARDS GRID
+   ========================================================= */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 1120px) {
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.project-overview-card {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  outline: none;
+}
+
+.project-overview-card:hover,
+.project-overview-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--color-primary);
+  box-shadow: 0 16px 32px rgba(27, 108, 168, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.card-id-badge {
+  font-family: monospace;
+  font-size: 0.725rem;
+  font-weight: 700;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  color: var(--color-navy);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.card-status-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.card-status-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+}
+
+.card-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  padding: 0.18rem 0.55rem;
+  border-radius: 9999px;
+}
+
+.live-pulse {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.card-domain-label {
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.card-title {
+  font-size: 1.225rem;
+  font-weight: 700;
+  color: var(--color-navy);
+  margin: 0 0 0.65rem 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  transition: color 0.15s ease;
+}
+
+.project-overview-card:hover .card-title {
+  color: var(--color-primary);
+}
+
+.card-summary {
+  font-size: 0.885rem;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0 0 1rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-specs-strip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.65rem 0.85rem;
+  background: var(--color-bg-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.85rem;
+  font-size: 0.775rem;
+  color: #334155;
+}
+
+.spec-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.spec-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.spec-text strong {
+  color: var(--color-navy);
+}
+
+.card-tags-row {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.card-tag-pill {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+.card-tag-more {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  padding: 0.15rem 0.35rem;
+}
+
+.card-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  gap: 0.75rem;
+}
+
+.card-lead-architect {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.775rem;
+  color: var(--color-text-muted);
+}
+
+.lead-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1B6CA8 0%, #4DA8DA 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lead-name {
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+.view-details-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.825rem;
-  padding: 0.5rem 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  transition: all 0.15s ease;
+}
+
+.cta-arrow {
+  transition: transform 0.2s ease;
+}
+
+.project-overview-card:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+/* =========================================================
+   PROJECT DETAILS PAGE NAVIGATION BAR
+   ========================================================= */
+.details-top-nav-card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 0.25rem;
+}
+
+.details-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.back-to-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--color-primary-light);
+  border: 1px solid rgba(27, 108, 168, 0.2);
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.back-to-all-btn:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.details-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-root {
+  color: var(--color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.breadcrumb-root:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-sep {
+  color: var(--color-text-muted);
+}
+
+.breadcrumb-active {
+  font-weight: 700;
+  color: var(--color-navy);
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.details-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.quick-switch-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-switch-label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.select-wrapper-compact {
+  position: relative;
+  min-width: 220px;
+}
+
+.quick-switch-select {
+  width: 100%;
+  appearance: none;
+  background: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  padding: 0.45rem 2rem 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--color-navy);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.quick-switch-select:focus,
+.quick-switch-select:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-white);
+}
+
+.select-arrow-compact {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-muted);
+}
+
+.details-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.back-bottom-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
 }
 
 /* Detail Layout */
