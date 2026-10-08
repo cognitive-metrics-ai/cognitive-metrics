@@ -100,3 +100,26 @@ def seed_initial_projects(db: Session):
             fg.production_url = "https://fluid-guardian.cognitivemetrics.app/"
             db.commit()
             logger.info("Updated fluid-guardian with default production_url.")
+
+def seed_initial_users(db: Session):
+    """Seed or update Lead Architect Jeremy Lankford in the users table."""
+    from .models import User
+    admin = db.query(User).filter(User.email == "jwlankford@gmail.com").first()
+    if not admin:
+        admin = User(
+            id="Jq4WTmNLN9XbtDqZsbIesLWCTTn1",
+            email="jwlankford@gmail.com",
+            display_name="Jeremy Lankford",
+            role="lead_architect",
+            institution="Cognitive Metrics Research Lab",
+            department="AI & Systems Architecture"
+        )
+        db.add(admin)
+        db.commit()
+        logger.info("Seeded Lead Architect Jeremy Lankford into users table.")
+    elif admin.role != "lead_architect":
+        admin.role = "lead_architect"
+        if not admin.display_name:
+            admin.display_name = "Jeremy Lankford"
+        db.commit()
+        logger.info("Updated Jeremy Lankford role to lead_architect in users table.")

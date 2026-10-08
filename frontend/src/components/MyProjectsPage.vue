@@ -119,11 +119,15 @@ const loadUserProjects = async () => {
   isLoading.value = true
   try {
     const data = await fetchProjects(props.user?.uid || null)
-    projects.value = data && data.length ? data : DEFAULT_ADLC_PROJECTS
+    if (props.user?.uid) {
+      projects.value = Array.isArray(data) ? data : []
+    } else {
+      projects.value = data && data.length ? data : DEFAULT_ADLC_PROJECTS
+    }
     syncProjectFromHash()
   } catch (err) {
     console.warn('Failed loading projects:', err)
-    projects.value = DEFAULT_ADLC_PROJECTS
+    projects.value = props.user?.uid ? [] : DEFAULT_ADLC_PROJECTS
     syncProjectFromHash()
   } finally {
     isLoading.value = false
@@ -269,7 +273,9 @@ const handleExportData = () => {
         <div class="projects-header-block">
           <div class="header-pre-badge">
             <span class="section-label coral">Researcher Workspace</span>
-            <span class="projects-count-pill">{{ projects.length }} Active {{ projects.length === 1 ? 'Testbed' : 'Testbeds' }}</span>
+            <span class="projects-count-pill" :class="{ 'empty-pill': projects.length === 0 }">
+              {{ projects.length > 0 ? `${projects.length} Active ${projects.length === 1 ? 'Testbed' : 'Testbeds'}` : 'No Projects' }}
+            </span>
           </div>
           
           <div class="overview-title-row">
@@ -322,7 +328,12 @@ const handleExportData = () => {
 
           <div class="toolbar-meta">
             <span class="filter-count-label">
-              Showing <strong>{{ filteredProjects.length }}</strong> of {{ projects.length }} testbeds
+              <template v-if="projects.length > 0">
+                Showing <strong>{{ filteredProjects.length }}</strong> of {{ projects.length }} testbeds
+              </template>
+              <template v-else>
+                No Projects
+              </template>
             </span>
             <span class="ownership-badge owned" title="Managed directly in Neon PostgreSQL database">
               ✓ Database Active
@@ -422,8 +433,8 @@ const handleExportData = () => {
         <!-- Empty Projects State -->
         <div v-else class="empty-state-card">
           <div class="empty-icon">📁</div>
-          <h3>No projects found</h3>
-          <p>You do not currently have any active testbeds associated with this account.</p>
+          <h3>No Projects</h3>
+          <p>You do not currently have any active testbeds assigned to this account.</p>
           <button @click="emit('submit-proposal')" class="btn btn-primary" style="margin-top: 1rem;">
             Submit ADLC Research Proposal ($0 Cost)
           </button>
@@ -960,6 +971,12 @@ const handleExportData = () => {
   color: var(--color-primary);
   border-radius: 9999px;
   border: 1px solid rgba(27, 108, 168, 0.2);
+}
+
+.projects-count-pill.empty-pill {
+  background: var(--color-bg-light, #f1f5f9);
+  color: var(--color-text-muted, #64748b);
+  border-color: var(--color-border, #cbd5e1);
 }
 
 .overview-title-row {

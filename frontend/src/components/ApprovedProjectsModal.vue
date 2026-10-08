@@ -21,9 +21,13 @@ const loadProjects = async () => {
   isLoading.value = true
   try {
     const data = await fetchProjects(props.user?.uid || null)
-    projectsList.value = data
+    if (props.user?.uid) {
+      projectsList.value = Array.isArray(data) ? data : []
+    } else {
+      projectsList.value = data || []
+    }
   } catch (err) {
-    projectsList.value = DEFAULT_ADLC_PROJECTS
+    projectsList.value = props.user?.uid ? [] : DEFAULT_ADLC_PROJECTS
   } finally {
     isLoading.value = false
   }
@@ -99,6 +103,18 @@ const handleGoToProposal = () => {
       <!-- Project Cards List -->
       <div v-if="isLoading" style="text-align: center; padding: 2rem; color: var(--color-text-muted);">
         Loading user projects from Neon DB...
+      </div>
+
+      <!-- Empty State for signed in user with no assigned projects -->
+      <div v-else-if="projectsList.length === 0" style="text-align: center; padding: 3rem 1.5rem; background: var(--color-bg-light); border: 1px dashed var(--color-border); border-radius: 14px; margin-bottom: 2rem;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📁</div>
+        <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--color-navy); margin-bottom: 0.5rem;">No Projects</h3>
+        <p style="color: var(--color-text-muted); font-size: 0.9rem; max-width: 440px; margin: 0 auto 1.5rem auto;">
+          You do not currently have any active testbeds assigned to your account in the database.
+        </p>
+        <button @click="handleGoToProposal" class="btn btn-primary" style="font-size: 0.875rem;">
+          Submit ADLC Research Proposal ($0 Cost)
+        </button>
       </div>
 
       <div v-else style="display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 2rem;">
