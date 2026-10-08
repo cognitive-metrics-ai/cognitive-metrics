@@ -6,7 +6,8 @@ import {
   updateAdminProject,
   fetchProjectComments,
   postProjectComment,
-  fetchRegisteredUsers
+  fetchRegisteredUsers,
+  DEFAULT_REGISTERED_USERS
 } from '../services/projects'
 
 const props = defineProps({
@@ -21,7 +22,7 @@ const emit = defineEmits(['go-home', 'open-my-projects'])
 // State
 const projects = ref([])
 const selectedProjectId = ref('')
-const users = ref([])
+const users = ref(DEFAULT_REGISTERED_USERS)
 const comments = ref([])
 const isLoading = ref(true)
 const isSaving = ref(false)
@@ -29,7 +30,9 @@ const isPostingComment = ref(false)
 const saveSuccessMessage = ref('')
 const errorMessage = ref('')
 const searchQuery = ref('')
-const activeTab = ref('controls') // 'controls' | 'comments'
+const activeTab = ref('controls') // 'controls' | 'comments' | 'users'
+const userSearchQuery = ref('')
+const isRefreshingUsers = ref(false)
 
 // Form State for Selected Project
 const editForm = ref({
@@ -89,13 +92,21 @@ const loadData = async () => {
       fetchRegisteredUsers()
     ])
     projects.value = projs || []
-    users.value = userList || []
+    
+    // Ensure Jeremy Lankford (Lead Architect) is always present in users list
+    const resolvedUsers = (userList && userList.length > 0) ? [...userList] : [...DEFAULT_REGISTERED_USERS]
+    const hasJeremy = resolvedUsers.some(u => u.email === 'jwlankford@gmail.com' || u.id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1')
+    if (!hasJeremy) {
+      resolvedUsers.unshift(DEFAULT_REGISTERED_USERS[0])
+    }
+    users.value = resolvedUsers
 
     if (projects.value.length > 0 && !selectedProjectId.value) {
       selectProject(projects.value[0].id)
     }
   } catch (err) {
     errorMessage.value = 'Failed to load project database. Please check Neon DB connection.'
+    users.value = DEFAULT_REGISTERED_USERS
   } finally {
     isLoading.value = false
   }
@@ -109,13 +120,17 @@ const selectProject = async (projId) => {
 
   const proj = projects.value.find(p => p.id === projId)
   if (proj) {
+    const isJeremyArchitect = proj.lead_architect && proj.lead_architect.toLowerCase().includes('jeremy')
+    const defaultUserId = isJeremyArchitect ? 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1' : ''
+    const defaultUserEmail = defaultUserId ? 'jwlankford@gmail.com' : ''
+
     editForm.value = {
       title: proj.title || '',
       domain: proj.domain || '',
       status: proj.status || 'Active · ADLC Development',
       phase: proj.phase || 'Phase 1: Agentic Specification & Requirements',
-      user_id: proj.user_id || '',
-      user_email: proj.user_email || '',
+      user_id: proj.user_id || defaultUserId,
+      user_email: proj.user_email || defaultUserEmail,
       lead_architect: proj.lead_architect || 'Jeremy Lankford',
       framework: proj.framework || 'Agentic Development Life Cycle (ADLC)',
       production_url: proj.production_url || '',
@@ -151,6 +166,60 @@ const filteredProjects = computed(() => {
     (p.domain && p.domain.toLowerCase().includes(q)) ||
     (p.user_email && p.user_email.toLowerCase().includes(q))
   )
+})
+
+// Filtered users list based on user search query
+const filteredUsers = computed(() => {
+  if (!userSearchQuery.value.trim()) return users.value
+  const q = userSearchQuery.value.toLowerCase()
+  return users.value.filter(u =>
+    (u.display_name && u.display_name.toLowerCase().includes(q)) ||
+    (u.email && u.email.toLowerCase().includes(q)) ||
+    (u.role && u.role.toLowerCase().includes(q)) ||
+    (u.id && u.id.toLowerCase().includes(q)) ||
+    (u.institution && u.institution.toLowerCase().includes(q)) ||
+    (u.department && u.department.toLowerCase().includes(q))
+  )
+})
+
+// Helper to get projects bound to a specific user
+const getProjectsForUser = (user) => {
+  if (!user) return []
+  return projects.value.filter(p =>
+    (p.user_id && p.user_id === user.id) ||
+    (p.user_email && user.email && p.user_email.toLowerCase() === user.email.toLowerCase())
+  )
+}
+
+// Quick action to assign a user to the currently selected project
+const assignUserToSelectedProject = (user) => {
+  if (!user) return
+  editForm.value.user_id = user.id
+  editForm.value.user_email = user.email || ''
+  activeTab.value = 'controls'
+  saveSuccessMessage.value = `Account "${user.display_name || user.email}" selected. Click "Save Project & Phase Updates" to persist.`
+}
+
+// Re-fetch users from the database API
+const refreshUserData = async () => {
+  isRefreshingUsers.value = true
+  try {
+    const userList = await fetchRegisteredUsers()
+    const resolvedUsers = (userList && userList.length > 0) ? [...userList] : [...DEFAULT_REGISTERED_USERS]
+    const hasJeremy = resolvedUsers.some(u => u.email === 'jwlankford@gmail.com' || u.id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1')
+    if (!hasJeremy) {
+      resolvedUsers.unshift(DEFAULT_REGISTERED_USERS[0])
+    }
+    users.value = resolvedUsers
+  } catch (err) {
+    console.warn('Failed to refresh registered users:', err)
+  } finally {
+    isRefreshingUsers.value = false
+  }
+}
+
+watch(() => props.user, () => {
+  loadData()
 })
 
 // Handle Account Selection from dropdown
@@ -299,9 +368,9 @@ onMounted(() => {
             <div class="metric-num">{{ projects.length }}</div>
             <div class="metric-lbl">Total Database Projects</div>
           </div>
-          <div class="metric-box">
+          <div class="metric-box clickable-metric" @click="activeTab = 'users'" title="Click to view User Accounts Table">
             <div class="metric-num">{{ users.length }}</div>
-            <div class="metric-lbl">Registered Accounts</div>
+            <div class="metric-lbl">Registered Accounts ↗</div>
           </div>
           <div class="metric-box">
             <div class="metric-num">{{ comments.length }}</div>
@@ -352,7 +421,7 @@ onMounted(() => {
           <div class="project-items-list">
             <div 
               v-for="p in filteredProjects" 
-              :key="p.id"
+              :key="p.id" 
               :class="['project-sidebar-card', { active: p.id === selectedProjectId }]"
               @click="selectProject(p.id)"
             >
@@ -368,7 +437,7 @@ onMounted(() => {
               </div>
               <div class="proj-account-line">
                 <span class="account-icon">👤</span>
-                <span class="account-text">{{ p.user_email || p.user_id || 'Unassigned / Open Testbed' }}</span>
+                <span class="account-text">{{ p.user_email === 'jwlankford@gmail.com' ? 'Jeremy Lankford (Lead Architect)' : (p.user_email || p.user_id || 'Unassigned / Open Testbed') }}</span>
               </div>
             </div>
 
@@ -400,6 +469,12 @@ onMounted(() => {
                 @click="activeTab = 'comments'"
               >
                 💬 Project Comments & Log ({{ comments.length }})
+              </button>
+              <button 
+                :class="['tab-btn', { active: activeTab === 'users' }]"
+                @click="activeTab = 'users'"
+              >
+                👥 User Accounts Table ({{ users.length }})
               </button>
             </div>
           </div>
@@ -442,10 +517,10 @@ onMounted(() => {
                 <div class="form-row-2">
                   <div class="form-group">
                     <label class="form-label">Assign to Registered User Account</label>
-                    <select :value="editForm.user_id" @change="handleAccountSelection" class="form-select">
+                    <select v-model="editForm.user_id" @change="handleAccountSelection" class="form-select">
                       <option value="">-- Open ADLC Testbed (No Specific Owner) --</option>
                       <option v-for="u in users" :key="u.id" :value="u.id">
-                        {{ u.display_name || u.email }} ({{ u.email }})
+                        {{ u.display_name || u.email }} ({{ u.email }}){{ (u.role === 'lead_architect' || u.email === 'jwlankford@gmail.com') ? ' — Lead Architect' : '' }}
                       </option>
                     </select>
                   </div>
@@ -629,6 +704,137 @@ onMounted(() => {
 
             </div>
 
+          </div>
+
+          <!-- TAB 3: User Accounts Table (PostgreSQL users Table View) -->
+          <div v-if="activeTab === 'users'" class="tab-content users-content">
+            <div class="users-header-card">
+              <div class="users-header-info">
+                <div class="db-badge">
+                  <span class="live-dot"></span>
+                  <span>Neon Database Table: <code>users</code></span>
+                </div>
+                <h3>Registered User Accounts Table</h3>
+                <p class="users-subtitle">
+                  Users registered via Google Sign-In, institutional credentials, or Lead Architect provisioning. Directly tied to PostgreSQL relational records.
+                </p>
+              </div>
+              <div class="users-header-actions">
+                <button 
+                  type="button" 
+                  @click="refreshUserData" 
+                  :disabled="isRefreshingUsers"
+                  class="refresh-users-btn"
+                >
+                  <span :class="['refresh-icon', { spinning: isRefreshingUsers }]">↻</span>
+                  <span>{{ isRefreshingUsers ? 'Refreshing...' : 'Refresh Users' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="users-filter-bar">
+              <div class="search-input-wrap">
+                <span class="search-icon">🔍</span>
+                <input 
+                  v-model="userSearchQuery" 
+                  type="text" 
+                  placeholder="Filter users by name, email, role, or UID..." 
+                  class="users-search-input"
+                />
+              </div>
+              <span class="users-count-tag">Showing {{ filteredUsers.length }} of {{ users.length }} registered accounts</span>
+            </div>
+
+            <!-- User Data Table -->
+            <div class="users-table-scroll">
+              <table class="users-data-table">
+                <thead>
+                  <tr>
+                    <th>User & Name</th>
+                    <th>Email Address</th>
+                    <th>Role</th>
+                    <th>User ID (UID)</th>
+                    <th>Institution & Dept</th>
+                    <th>Registered</th>
+                    <th>Bound Projects</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr 
+                    v-for="u in filteredUsers" 
+                    :key="u.id" 
+                    :class="{ 'highlight-lead': u.role === 'lead_architect' || u.email === 'jwlankford@gmail.com' }"
+                  >
+                    <td class="user-identity-cell">
+                      <div 
+                        class="user-avatar-circle" 
+                        :style="{ background: (u.role === 'lead_architect' || u.email === 'jwlankford@gmail.com') ? 'linear-gradient(135deg, #f97316, #ea580c)' : 'linear-gradient(135deg, #0284c7, #2563eb)' }"
+                      >
+                        {{ (u.display_name || u.email || 'U').slice(0, 2).toUpperCase() }}
+                      </div>
+                      <div class="user-name-group">
+                        <span class="user-display-name">{{ u.display_name || 'Academic Researcher' }}</span>
+                        <span v-if="u.role === 'lead_architect' || u.email === 'jwlankford@gmail.com'" class="lead-pill">Lead Architect</span>
+                      </div>
+                    </td>
+                    <td class="user-email-cell">
+                      <a :href="'mailto:' + u.email" class="email-link">{{ u.email }}</a>
+                    </td>
+                    <td>
+                      <span :class="['role-chip', (u.role === 'lead_architect' || u.email === 'jwlankford@gmail.com') ? 'lead' : 'researcher']">
+                        {{ (u.role === 'lead_architect' || u.email === 'jwlankford@gmail.com') ? 'Lead Architect' : (u.role || 'Researcher') }}
+                      </span>
+                    </td>
+                    <td class="user-uid-cell">
+                      <code class="uid-tag" :title="u.id">{{ u.id }}</code>
+                    </td>
+                    <td class="user-affil-cell">
+                      <span class="affil-text">{{ u.institution || 'Cognitive Metrics Lab' }}</span>
+                      <span class="dept-text" v-if="u.department">{{ u.department }}</span>
+                    </td>
+                    <td class="user-date-cell">
+                      {{ formatDate(u.created_at) }}
+                    </td>
+                    <td class="user-projects-cell">
+                      <div v-if="getProjectsForUser(u).length > 0" class="assigned-chips-wrap">
+                        <span 
+                          v-for="p in getProjectsForUser(u)" 
+                          :key="p.id" 
+                          class="project-assignment-chip"
+                          @click="selectProject(p.id); activeTab = 'controls'"
+                          :title="'Click to manage ' + p.title"
+                        >
+                          📌 {{ p.title }}
+                        </span>
+                      </div>
+                      <span v-else class="unassigned-text">None</span>
+                    </td>
+                    <td class="user-actions-cell" style="text-align: right;">
+                      <button 
+                        type="button" 
+                        class="btn-assign-quick"
+                        @click="assignUserToSelectedProject(u)"
+                        :title="'Assign ' + (u.display_name || u.email) + ' to current project'"
+                      >
+                        Assign to Project
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr v-if="filteredUsers.length === 0">
+                    <td colspan="8" class="no-records-cell">
+                      No user accounts found matching "{{ userSearchQuery }}".
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="users-footer-note">
+              <span>💡 When any researcher or collaborator logs in with Google, they are automatically persisted into the PostgreSQL <code>users</code> table and listed here for project assignment.</span>
+            </div>
           </div>
 
         </div>
@@ -1385,5 +1591,354 @@ onMounted(() => {
   padding: 0.85rem 1rem;
   border-radius: 8px;
   border: 1px solid var(--color-border);
+}
+
+/* User Accounts Table Tab Styles */
+.clickable-metric {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.clickable-metric:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(27, 108, 168, 0.15);
+  border-color: var(--color-primary);
+}
+
+.users-content {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.users-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.users-header-info h3 {
+  margin: 0.35rem 0 0.25rem 0;
+  font-size: 1.25rem;
+  color: var(--color-navy);
+}
+
+.users-subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.db-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.12);
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.refresh-users-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-main);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.refresh-users-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.refresh-icon {
+  font-size: 1.1rem;
+  display: inline-block;
+}
+
+.refresh-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.users-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  opacity: 0.6;
+}
+
+.users-search-input {
+  width: 100%;
+  padding: 0.6rem 0.85rem 0.6rem 2.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background-color: var(--color-bg-white);
+  color: var(--color-text-main);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.users-search-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(27, 108, 168, 0.15);
+}
+
+.users-count-tag {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.users-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background-color: var(--color-bg-white);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.users-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.users-data-table thead th {
+  background-color: #f8fafc;
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.users-data-table tbody td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.users-data-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.users-data-table tbody tr.highlight-lead {
+  background-color: #fffbeb;
+}
+
+.users-data-table tbody tr.highlight-lead:hover {
+  background-color: #fef3c7;
+}
+
+.user-identity-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.user-display-name {
+  font-weight: 600;
+  color: var(--color-navy);
+}
+
+.lead-pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ea580c;
+  background-color: #ffedd5;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.email-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.email-link:hover {
+  text-decoration: underline;
+}
+
+.role-chip {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+}
+
+.role-chip.lead {
+  color: #9a3412;
+  background-color: #ffedd5;
+  border: 1px solid #fed7aa;
+}
+
+.role-chip.researcher {
+  color: #0369a1;
+  background-color: #e0f2fe;
+  border: 1px solid #bae6fd;
+}
+
+.uid-tag {
+  font-family: monospace;
+  font-size: 0.75rem;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  color: #475569;
+  display: inline-block;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-affil-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.affil-text {
+  font-weight: 500;
+  color: var(--color-text-main);
+}
+
+.dept-text {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.user-date-cell {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.assigned-chips-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.project-assignment-chip {
+  font-size: 0.75rem;
+  background-color: #e0e7ff;
+  color: #3730a3;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.project-assignment-chip:hover {
+  background-color: #c7d2fe;
+  transform: translateY(-1px);
+}
+
+.unassigned-text {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.btn-assign-quick {
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-assign-quick:hover {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.no-records-cell {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.users-footer-note {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  background-color: #f8fafc;
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  border: 1px dashed var(--color-border);
 }
 </style>

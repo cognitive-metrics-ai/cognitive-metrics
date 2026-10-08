@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { logoutUser } from '../services/firebase'
 import { currentTheme, toggleTheme } from '../services/theme'
+import { fetchProjects } from '../services/projects'
 
 const props = defineProps({
   user: {
@@ -46,8 +47,28 @@ const handleClickOutside = (e) => {
   }
 }
 
+const userProjectsCount = ref(null)
+
+const loadUserProjectsCount = async () => {
+  if (!props.user?.uid) {
+    userProjectsCount.value = null
+    return
+  }
+  try {
+    const list = await fetchProjects(props.user.uid)
+    userProjectsCount.value = Array.isArray(list) ? list.length : 0
+  } catch {
+    userProjectsCount.value = 0
+  }
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  loadUserProjectsCount()
+})
+
+watch(() => props.user?.uid, () => {
+  loadUserProjectsCount()
 })
 
 onUnmounted(() => {
@@ -154,7 +175,21 @@ const handleAction = (action) => {
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
             <polyline points="9 13 12 16 17 11"></polyline>
           </svg>
-          <span style="font-weight: 600;">My Projects</span>
+          <span style="font-weight: 600; flex-grow: 1;">My Projects</span>
+          <span 
+            v-if="userProjectsCount !== null" 
+            :style="{
+              fontSize: '0.72rem',
+              fontWeight: '600',
+              padding: '0.15rem 0.5rem',
+              borderRadius: '9999px',
+              backgroundColor: userProjectsCount > 0 ? '#dbeafe' : 'var(--color-bg-light, #f1f5f9)',
+              color: userProjectsCount > 0 ? '#1e40af' : 'var(--color-text-muted, #64748b)',
+              border: '1px solid ' + (userProjectsCount > 0 ? '#bfdbfe' : 'var(--color-border, #cbd5e1)')
+            }"
+          >
+            {{ userProjectsCount > 0 ? `${userProjectsCount} Active` : 'No Projects' }}
+          </span>
         </button>
 
         <!-- 3. Lead Architect Console -->
