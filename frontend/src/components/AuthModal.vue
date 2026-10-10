@@ -7,6 +7,7 @@ import {
   signUpWithEmail,
   isFirebaseConfigured
 } from '../services/firebase'
+import { syncUserWithBackend } from '../services/projects'
 
 const emit = defineEmits(['close', 'auth-success'])
 
@@ -26,6 +27,13 @@ const handleGoogleSignIn = async () => {
   errorMessage.value = ''
   try {
     const user = await signInWithGoogle()
+    if (user) {
+      try {
+        await syncUserWithBackend(user)
+      } catch (syncErr) {
+        console.warn('Backend sync warning on Google Sign-In:', syncErr)
+      }
+    }
     emit('auth-success', user)
     emit('close')
   } catch (err) {
@@ -65,6 +73,17 @@ const handleSubmit = async () => {
     } else {
       user = await signInWithEmail(form.email, form.password)
     }
+    if (user) {
+      try {
+        await syncUserWithBackend({
+          ...user,
+          displayName: form.displayName || user.displayName,
+          institution: form.institution || user.institution
+        })
+      } catch (syncErr) {
+        console.warn('Backend sync warning on Email Auth:', syncErr)
+      }
+    }
     emit('auth-success', user)
     emit('close')
   } catch (err) {
@@ -81,6 +100,13 @@ const handleDemoSignIn = async () => {
   errorMessage.value = ''
   try {
     const demoUser = await signInWithEmail('dr.vance@ucumberlands.edu', 'academicdemo123')
+    if (demoUser) {
+      try {
+        await syncUserWithBackend(demoUser)
+      } catch (syncErr) {
+        console.warn('Backend sync warning on Demo Sign-In:', syncErr)
+      }
+    }
     emit('auth-success', demoUser)
     emit('close')
   } catch (err) {

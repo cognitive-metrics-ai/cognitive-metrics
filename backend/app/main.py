@@ -7,7 +7,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Depends, Query, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, text
+from sqlalchemy import desc, text, func, or_
 
 from .database import engine, Base, get_db, SessionLocal, DATABASE_URL
 from .models import Project, Proposal, NewsletterSubscriber, User, UserProject, ProjectComment
@@ -83,10 +83,10 @@ async def lifespan(app: FastAPI):
             conn.execute(text("ALTER TABLE proposals ADD COLUMN IF NOT EXISTS user_id VARCHAR(128);"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS ix_proposals_user_id ON proposals (user_id);"))
             conn.commit()
-        # Seed sole user Jeremy Lankford and initial projects if needed
+        # Seed initial projects and users if empty
         with SessionLocal() as db:
-            seed_initial_users(db)
             seed_initial_projects(db)
+            seed_initial_users(db)
         logger.info("Database initialized successfully.")
     except Exception as e:
         logger.error("Database initialization error: %s", e)
@@ -149,16 +149,26 @@ def get_projects(
     if active_only:
         query = query.filter(Project.is_active == True)
     if user_id:
-        # Filter projects owned by this user or shared projects
-        query = query.filter(
-            (Project.user_id == user_id) | (Project.is_public == True)
-        )
+        junction_ids = [
+            r[0] for r in db.query(UserProject.project_id).filter(UserProject.user_id == user_id).all()
+        ]
+        user_rec = db.query(User).filter(User.id == user_id).first()
+        user_email = user_rec.email if user_rec else None
+
+        conditions = [Project.user_id == user_id]
+        if junction_ids:
+            conditions.append(Project.id.in_(junction_ids))
+        if user_email:
+            conditions.append(Project.user_email == user_email)
+
+        from sqlalchemy import or_
+        query = query.filter(or_(*conditions))
     return query.order_by(desc(Project.created_at)).all()
 
 @app.get("/api/users/{user_id}/projects", response_model=List[ProjectResponse])
 def get_user_projects(
     user_id: str,
-    include_shared: bool = Query(True, description="Include shared ADLC baseline testbeds if user has no assigned projects"),
+    include_shared: bool = Query(False, description="Include shared ADLC baseline testbeds if user has no assigned projects"),
     db: Session = Depends(get_db)
 ):
     """Retrieve all projects tied to a user at the database table level (direct ownership or junction table)."""
@@ -187,51 +197,77 @@ def get_user_projects(
     if user_projects or not include_shared:
         return user_projects
 
-    # If user has no assigned projects yet in the tables, return baseline ADLC testbeds
-    return db.query(Project).filter(
-        (Project.user_id.is_(None)) | (Project.user_id == user_id),
-        Project.is_active == True
-    ).order_by(desc(Project.created_at)).all()
+    return []
 
 @app.post("/api/users/sync", response_model=UserResponse)
 def sync_user(payload: UserSyncRequest, db: Session = Depends(get_db)):
     """Automatically records or updates user in the database users table and associates pre-tied projects."""
-    user = db.query(User).filter(User.id == payload.id).first()
-    if not user:
-        # Check by email in case user was pre-seeded
-        user = db.query(User).filter(User.email == payload.email).first()
-        if user:
-            user.id = payload.id # Upgrade to real provider UID
-    if not user:
-        user = User(
-            id=payload.id,
-            email=payload.email,
-            display_name=payload.display_name,
-            institution=payload.institution,
-            department=payload.department
-        )
-        db.add(user)
-    else:
-        if payload.display_name:
-            user.display_name = payload.display_name
-        if payload.institution:
-            user.institution = payload.institution
-        if payload.department:
-            user.department = payload.department
+    logger.info("Syncing user with PostgreSQL users table: %s (%s)", payload.id, payload.email)
+    try:
+        user = db.query(User).filter(User.id == payload.id).first()
+        if not user and payload.email:
+            # Check by email in case user was pre-seeded
+            user = db.query(User).filter(func.lower(User.email) == func.lower(payload.email)).first()
+            if user and user.id != payload.id:
+                try:
+                    user.id = payload.id # Upgrade to real provider UID
+                    db.flush()
+                except Exception as id_err:
+                    logger.warning("Could not mutate primary key id directly, continuing with existing user record: %s", id_err)
+                
+        clean_email = payload.email.strip().lower() if payload.email else ""
+        is_lead = clean_email in ["jwlankford@gmail.com", "jlankford@cognitivemetrics.org"]
 
-    # Auto-link any projects tied to this user's email at the table level
-    pre_assigned = db.query(Project).filter(Project.user_email == payload.email).all()
-    for proj in pre_assigned:
-        if not proj.user_id:
-            proj.user_id = user.id
-        # Also ensure junction record in user_projects table
-        link = db.query(UserProject).filter(UserProject.user_id == user.id, UserProject.project_id == proj.id).first()
-        if not link:
-            db.add(UserProject(user_id=user.id, project_id=proj.id, role="lead_architect"))
+        if not user:
+            display_name = payload.display_name
+            if not display_name and payload.email:
+                display_name = payload.email.split('@')[0]
+            if is_lead and not display_name:
+                display_name = "Jeremy Lankford"
 
-    db.commit()
-    db.refresh(user)
-    return user
+            user = User(
+                id=payload.id,
+                email=payload.email,
+                display_name=display_name,
+                role="lead_architect" if is_lead else "researcher",
+                institution=payload.institution,
+                department=payload.department
+            )
+            db.add(user)
+            logger.info("Successfully registered user in users table: %s (%s)", user.id, user.email)
+        else:
+            if is_lead:
+                user.role = "lead_architect"
+                if not user.display_name or user.display_name == user.email.split('@')[0]:
+                    user.display_name = "Jeremy Lankford"
+            if payload.display_name and (not user.display_name or user.display_name == user.email.split('@')[0] or is_lead):
+                user.display_name = payload.display_name
+            if payload.email and payload.email != user.email:
+                user.email = payload.email
+            if payload.institution and not user.institution:
+                user.institution = payload.institution
+            if payload.department and not user.department:
+                user.department = payload.department
+
+        # Auto-link any projects tied to this user's email at the table level
+        if payload.email:
+            pre_assigned = db.query(Project).filter(func.lower(Project.user_email) == func.lower(payload.email)).all()
+            for proj in pre_assigned:
+                if not proj.user_id:
+                    proj.user_id = user.id
+                # Also ensure junction record in user_projects table
+                link = db.query(UserProject).filter(UserProject.user_id == user.id, UserProject.project_id == proj.id).first()
+                if not link:
+                    role = "lead_architect" if is_lead else "collaborator"
+                    db.add(UserProject(user_id=user.id, project_id=proj.id, role=role))
+
+        db.commit()
+        db.refresh(user)
+        return user
+    except Exception as e:
+        db.rollback()
+        logger.error("Failed to sync user with PostgreSQL: %s", e)
+        raise HTTPException(status_code=500, detail=f"Database user sync failed: {str(e)}")
 
 @app.post("/api/user-projects", status_code=status.HTTP_201_CREATED)
 def tie_user_project_at_table_level(
@@ -441,28 +477,26 @@ def subscribe_newsletter(request: NewsletterRequest, db: Session = Depends(get_d
 
 @app.get("/api/admin/users", response_model=List[UserResponse])
 def get_all_registered_users(db: Session = Depends(get_db)):
-    """List registered users for assignment in the Lead Architect console.
-    Jeremy Lankford is the sole registered user in the system.
-    """
-    jeremy = db.query(User).filter(
-        (User.id == "jeremy-lankford") | 
-        (User.email == "jwlankford@gmail.com") |
-        (User.email == "jlankford@cognitivemetrics.org") |
-        (User.display_name == "Jeremy Lankford")
-    ).first()
-    if not jeremy:
-        jeremy = User(
-            id="jeremy-lankford",
+    """List registered users for assignment in the Lead Architect console."""
+    # Ensure Lead Architect Jeremy Lankford is registered and has lead_architect role
+    admin = db.query(User).filter(User.email == "jwlankford@gmail.com").first()
+    if not admin:
+        admin = User(
+            id="Jq4WTmNLN9XbtDqZsbIesLWCTTn1",
             email="jwlankford@gmail.com",
             display_name="Jeremy Lankford",
             role="lead_architect",
-            institution="Cognitive Metrics",
-            department="ADLC Architecture"
+            institution="Cognitive Metrics Research Lab",
+            department="AI & Systems Architecture"
         )
-        db.add(jeremy)
+        db.add(admin)
         db.commit()
-        db.refresh(jeremy)
-    return [jeremy]
+    elif admin.role != "lead_architect":
+        admin.role = "lead_architect"
+        if not admin.display_name:
+            admin.display_name = "Jeremy Lankford"
+        db.commit()
+    return db.query(User).order_by(desc(User.created_at)).all()
 
 @app.get("/api/admin/projects")
 def get_admin_projects(db: Session = Depends(get_db)):

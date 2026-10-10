@@ -48,10 +48,14 @@ const handleHashChange = () => {
 
 onMounted(() => {
   window.addEventListener('hashchange', handleHashChange)
-  unsubscribeAuth = subscribeToAuthChanges((user) => {
+  unsubscribeAuth = subscribeToAuthChanges(async (user) => {
     currentUser.value = user
     if (user) {
-      syncUserWithBackend(user)
+      try {
+        await syncUserWithBackend(user)
+      } catch (err) {
+        console.warn('Backend sync warning on auth state change:', err)
+      }
     }
   })
 })
@@ -82,9 +86,16 @@ const onSelectService = (serviceId) => {
   preselectedService.value = serviceId
 }
 
-const handleAuthSuccess = (user) => {
+const handleAuthSuccess = async (user) => {
   currentUser.value = user
   showAuthModal.value = false
+  if (user) {
+    try {
+      await syncUserWithBackend(user)
+    } catch (err) {
+      console.warn('Backend sync warning on auth success:', err)
+    }
+  }
 }
 
 const handleLoggedOut = () => {

@@ -5,13 +5,15 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
-// Sole registered user default
+// Default registered Lead Architect user
 export const DEFAULT_REGISTERED_USERS = [
   {
-    id: 'jeremy-lankford',
-    display_name: 'Jeremy Lankford',
+    id: 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1',
     email: 'jwlankford@gmail.com',
-    role: 'lead_architect'
+    display_name: 'Jeremy Lankford',
+    role: 'lead_architect',
+    institution: 'Cognitive Metrics Research Lab',
+    department: 'AI & Systems Architecture'
   }
 ]
 
@@ -27,7 +29,7 @@ export const DEFAULT_ADLC_PROJECTS = [
     summary: 'Safety-critical clinical fluid monitoring and volume telemetry application developed using autonomous agent workflows with human-in-the-loop verification under the ADLC protocol.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
-    user_id: 'jeremy-lankford',
+    user_id: 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1',
     user_email: 'jwlankford@gmail.com',
     traces_count: 22400,
     target_venue: 'Clinical Fluid Monitoring · ADLC Research',
@@ -46,7 +48,7 @@ export const DEFAULT_ADLC_PROJECTS = [
     summary: 'Full-lifecycle workforce evaluation, goal tracking, and review platform engineered utilizing multi-agent ADLC orchestration and empirical cognitive friction profiling.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
-    user_id: 'jeremy-lankford',
+    user_id: 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1',
     user_email: 'jwlankford@gmail.com',
     traces_count: 16850,
     target_venue: 'Enterprise Systems · ADLC Architecture',
@@ -66,8 +68,6 @@ export const DEFAULT_ADLC_PROJECTS = [
     description: 'Designed and engineered an experimental IDE testbed measuring developer cognitive load, interruption recovery latency, and task completion fidelity during autonomous agent code synthesis.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
-    user_id: 'jeremy-lankford',
-    user_email: 'jwlankford@gmail.com',
     traces_count: 14290,
     target_venue: 'Target: ICSE / CHI 2027',
     tags: ['ADLC Metrics', 'Cognitive Load', 'FastAPI', 'Vue 3', 'Eye-Tracking Hook'],
@@ -86,8 +86,6 @@ export const DEFAULT_ADLC_PROJECTS = [
     description: 'Multi-agent orchestration testbed allowing medical researchers to evaluate physician trust calibration, cognitive friction, and autonomous verification protocols in healthcare workflows.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
-    user_id: 'jeremy-lankford',
-    user_email: 'jwlankford@gmail.com',
     traces_count: 3100,
     target_venue: 'Target: JAMIA / AMIA 2027',
     tags: ['Clinical ADLC', 'Multi-Agent Systems', 'Safety Auditing', 'Python'],
@@ -113,14 +111,21 @@ export async function fetchProjects(userId = null) {
     })
     if (res.ok) {
       const data = await res.json()
-      if (Array.isArray(data) && data.length > 0) {
-        return data
+      if (Array.isArray(data)) {
+        if (userId) {
+          // For a signed-in user, return their actual assigned projects (empty [] if none assigned)
+          return data
+        }
+        if (data.length > 0) {
+          return data
+        }
       }
     }
   } catch (err) {
     console.info('Backend API offline or unreachable; using local ADLC projects cache.')
   }
-  return DEFAULT_ADLC_PROJECTS
+  // For a signed-in user, never inject default projects if user has no assigned projects
+  return userId ? [] : DEFAULT_ADLC_PROJECTS
 }
 
 /**
@@ -169,22 +174,28 @@ export async function fetchUserProposals(userId) {
 export async function syncUserWithBackend(user) {
   if (!user || !user.uid) return null
   try {
+    const displayName = user.displayName || (user.email ? user.email.split('@')[0] : '')
     const res = await fetch(`${API_BASE_URL}/api/users/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: user.uid,
         email: user.email || `${user.uid}@researcher.local`,
-        display_name: user.displayName || '',
+        display_name: displayName,
         institution: user.institution || '',
         department: user.department || ''
       })
     })
     if (res.ok) {
-      return await res.json()
+      const data = await res.json()
+      console.info('User successfully synced with backend PostgreSQL users table:', data.email)
+      return data
+    } else {
+      const errText = await res.text().catch(() => '')
+      console.warn('Backend user sync returned error:', res.status, errText)
     }
   } catch (err) {
-    console.info('Backend unreachable for user sync; proceeding offline.')
+    console.warn('Backend unreachable for user sync:', err)
   }
   return null
 }
@@ -224,6 +235,9 @@ export async function updateAdminProject(projectId, updateData) {
     throw new Error(errData.detail || 'Failed to update project.')
   } catch (err) {
     console.error('Error updating project:', err)
+    if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+      throw new Error(`Cannot reach backend server at ${API_BASE_URL}. Ensure the backend service is running on port 8000.`)
+    }
     throw err
   }
 }
@@ -270,7 +284,6 @@ export async function postProjectComment(projectId, commentData) {
 
 /**
  * Lead Architect: Fetch registered users for project assignment dropdown.
- * Jeremy Lankford is the sole registered user.
  */
 export async function fetchRegisteredUsers() {
   try {
@@ -281,15 +294,15 @@ export async function fetchRegisteredUsers() {
     if (res.ok) {
       const data = await res.json()
       if (Array.isArray(data) && data.length > 0) {
-        const jeremyOnly = data.filter(u => 
-          (u.display_name && u.display_name.toLowerCase().includes('jeremy')) ||
-          (u.email && (u.email.toLowerCase().includes('jlankford') || u.email.toLowerCase().includes('jwlankford')))
-        )
-        return jeremyOnly.length > 0 ? jeremyOnly : DEFAULT_REGISTERED_USERS
+        const hasJeremy = data.some(u => u.email === 'jwlankford@gmail.com' || u.id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1')
+        if (!hasJeremy) {
+          data.unshift(DEFAULT_REGISTERED_USERS[0])
+        }
+        return data
       }
     }
   } catch (err) {
-    console.warn('Failed to fetch registered users:', err)
+    console.warn('Failed to fetch registered users; using fallback.')
   }
   return DEFAULT_REGISTERED_USERS
 }
