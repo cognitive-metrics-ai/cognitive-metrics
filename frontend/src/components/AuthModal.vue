@@ -118,12 +118,13 @@ const handleDemoSignIn = async () => {
 </script>
 
 <template>
-  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="modal-content" style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 18px; max-width: 480px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); padding: 2.5rem; position: relative;">
-      <!-- Close Button -->
-      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
-        &times;
-      </button>
+  <Teleport to="body">
+    <div class="modal-backdrop" @click.self="emit('close')">
+      <div class="modal-content" style="max-width: 480px;">
+        <!-- Close Button -->
+        <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);" aria-label="Close dialog">
+          &times;
+        </button>
 
       <div style="text-align: center; margin-bottom: 2rem;">
         <div style="margin-bottom: 0.85rem; display: flex; justify-content: center;">
@@ -251,4 +252,5 @@ const handleDemoSignIn = async () => {
       </div>
     </div>
   </div>
+  </Teleport>
 </template>

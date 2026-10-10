@@ -208,6 +208,7 @@ const scrollToProposal = () => {
       v-if="showPreferencesModal" 
       :user="currentUser" 
       @close="showPreferencesModal = false" 
+      @open-auth="showPreferencesModal = false; showAuthModal = true"
       @saved="handlePreferencesSaved" 
     />
   </div>

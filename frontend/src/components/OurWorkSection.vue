@@ -98,29 +98,31 @@ const closeModal = () => {
     </div>
 
     <!-- Case Study Detail Modal -->
-    <div v-if="activeCase" class="modal-backdrop" @click="closeModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-      <div class="modal-content" @click.stop style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 16px; max-width: 640px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); padding: 2.5rem; position: relative;">
-        <button @click="closeModal" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
-          &times;
-        </button>
+    <Teleport to="body">
+      <div v-if="activeCase" class="modal-backdrop" @click="closeModal">
+        <div class="modal-content" @click.stop style="max-width: 640px;">
+          <button @click="closeModal" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);" aria-label="Close modal">
+            &times;
+          </button>
 
-        <span class="section-label coral">{{ activeCase.client }}</span>
-        <h2 style="font-size: 1.75rem; margin-bottom: 1rem; color: var(--color-navy);">{{ activeCase.title }}</h2>
-        <div style="background: var(--color-primary-light); color: var(--color-primary); font-weight: 700; padding: 0.6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem;">
-          Research Milestone: {{ activeCase.impact }}
-        </div>
+          <span class="section-label coral">{{ activeCase.client }}</span>
+          <h2 style="font-size: 1.75rem; margin-bottom: 1rem; color: var(--color-navy);">{{ activeCase.title }}</h2>
+          <div style="background: var(--color-primary-light); color: var(--color-primary); font-weight: 700; padding: 0.6rem 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem;">
+            Research Milestone: {{ activeCase.impact }}
+          </div>
 
-        <h4 style="margin-bottom: 0.5rem; color: var(--color-navy);">Experimental Objective</h4>
-        <p style="margin-bottom: 1.5rem; color: var(--color-text-muted);">{{ activeCase.description }}</p>
+          <h4 style="margin-bottom: 0.5rem; color: var(--color-navy);">Experimental Objective</h4>
+          <p style="margin-bottom: 1.5rem; color: var(--color-text-muted);">{{ activeCase.description }}</p>
 
-        <h4 style="margin-bottom: 0.5rem;">Technical Implementation ($0 Development Expenses)</h4>
-        <p style="margin-bottom: 1.75rem;">{{ activeCase.fullStory }}</p>
+          <h4 style="margin-bottom: 0.5rem;">Technical Implementation ($0 Development Expenses)</h4>
+          <p style="margin-bottom: 1.75rem;">{{ activeCase.fullStory }}</p>
 
-        <div style="display: flex; gap: 1rem;">
-          <a href="#submit-app" @click="closeModal" class="btn btn-primary" style="flex: 1;">Propose Your Research Project</a>
-          <button @click="closeModal" class="btn btn-secondary">Close</button>
+          <div style="display: flex; gap: 1rem;">
+            <a href="#submit-app" @click="closeModal" class="btn btn-primary" style="flex: 1;">Propose Your Research Project</a>
+            <button @click="closeModal" class="btn btn-secondary">Close</button>
+          </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </section>
 </template>

@@ -118,8 +118,8 @@ onUnmounted(() => {
             @click="emit('open-preferences')" 
             class="btn btn-secondary" 
             style="font-size: 0.875rem; padding: 0.55rem 0.9rem;"
-            title="Open Researcher Preferences"
-            aria-label="Open Researcher Preferences"
+            title="Researcher Settings & Preferences"
+            aria-label="Researcher Settings & Preferences"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"></circle>
