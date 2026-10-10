@@ -5,6 +5,16 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
+// Sole registered user default
+export const DEFAULT_REGISTERED_USERS = [
+  {
+    id: 'jeremy-lankford',
+    display_name: 'Jeremy Lankford',
+    email: 'jwlankford@gmail.com',
+    role: 'lead_architect'
+  }
+]
+
 // Default fallback projects for offline / standalone preview
 export const DEFAULT_ADLC_PROJECTS = [
   {
@@ -17,6 +27,8 @@ export const DEFAULT_ADLC_PROJECTS = [
     summary: 'Safety-critical clinical fluid monitoring and volume telemetry application developed using autonomous agent workflows with human-in-the-loop verification under the ADLC protocol.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
+    user_id: 'jeremy-lankford',
+    user_email: 'jwlankford@gmail.com',
     traces_count: 22400,
     target_venue: 'Clinical Fluid Monitoring · ADLC Research',
     tags: ['Clinical Telemetry', 'Agentic Synthesis', 'Safety Verification', 'Trace Logging'],
@@ -34,6 +46,8 @@ export const DEFAULT_ADLC_PROJECTS = [
     summary: 'Full-lifecycle workforce evaluation, goal tracking, and review platform engineered utilizing multi-agent ADLC orchestration and empirical cognitive friction profiling.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
+    user_id: 'jeremy-lankford',
+    user_email: 'jwlankford@gmail.com',
     traces_count: 16850,
     target_venue: 'Enterprise Systems · ADLC Architecture',
     tags: ['Enterprise Architecture', 'Multi-Agent Orchestration', 'Cognitive Profiling', 'ADLC Telemetry'],
@@ -52,6 +66,8 @@ export const DEFAULT_ADLC_PROJECTS = [
     description: 'Designed and engineered an experimental IDE testbed measuring developer cognitive load, interruption recovery latency, and task completion fidelity during autonomous agent code synthesis.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
+    user_id: 'jeremy-lankford',
+    user_email: 'jwlankford@gmail.com',
     traces_count: 14290,
     target_venue: 'Target: ICSE / CHI 2027',
     tags: ['ADLC Metrics', 'Cognitive Load', 'FastAPI', 'Vue 3', 'Eye-Tracking Hook'],
@@ -70,6 +86,8 @@ export const DEFAULT_ADLC_PROJECTS = [
     description: 'Multi-agent orchestration testbed allowing medical researchers to evaluate physician trust calibration, cognitive friction, and autonomous verification protocols in healthcare workflows.',
     framework: 'Agentic Development Life Cycle (ADLC)',
     lead_architect: 'Jeremy Lankford',
+    user_id: 'jeremy-lankford',
+    user_email: 'jwlankford@gmail.com',
     traces_count: 3100,
     target_venue: 'Target: JAMIA / AMIA 2027',
     tags: ['Clinical ADLC', 'Multi-Agent Systems', 'Safety Auditing', 'Python'],
@@ -252,6 +270,7 @@ export async function postProjectComment(projectId, commentData) {
 
 /**
  * Lead Architect: Fetch registered users for project assignment dropdown.
+ * Jeremy Lankford is the sole registered user.
  */
 export async function fetchRegisteredUsers() {
   try {
@@ -260,10 +279,17 @@ export async function fetchRegisteredUsers() {
       headers: { 'Content-Type': 'application/json' }
     })
     if (res.ok) {
-      return await res.json()
+      const data = await res.json()
+      if (Array.isArray(data) && data.length > 0) {
+        const jeremyOnly = data.filter(u => 
+          (u.display_name && u.display_name.toLowerCase().includes('jeremy')) ||
+          (u.email && (u.email.toLowerCase().includes('jlankford') || u.email.toLowerCase().includes('jwlankford')))
+        )
+        return jeremyOnly.length > 0 ? jeremyOnly : DEFAULT_REGISTERED_USERS
+      }
     }
   } catch (err) {
     console.warn('Failed to fetch registered users:', err)
   }
-  return []
+  return DEFAULT_REGISTERED_USERS
 }

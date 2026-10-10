@@ -10,7 +10,12 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close', 'saved'])
+const emit = defineEmits(['close', 'saved', 'open-auth'])
+
+const handleSignInClick = () => {
+  emit('close')
+  emit('open-auth')
+}
 
 const saved = ref(false)
 
@@ -52,12 +57,13 @@ const handleSave = () => {
 </script>
 
 <template>
-  <div class="modal-backdrop" @click.self="emit('close')" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(10, 20, 35, 0.8); backdrop-filter: blur(6px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 1.5rem;">
-    <div class="modal-content" style="background: var(--color-bg-white); border: 1px solid var(--color-border); border-radius: 18px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); padding: 2.5rem; position: relative;">
-      <!-- Close Button -->
-      <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);">
-        &times;
-      </button>
+  <Teleport to="body">
+    <div class="modal-backdrop" @click.self="emit('close')">
+      <div class="modal-content" style="max-width: 600px;">
+        <!-- Close Button -->
+        <button @click="emit('close')" style="position: absolute; top: 1.25rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-text-muted);" aria-label="Close preferences">
+          &times;
+        </button>
 
       <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
         <BrandLogo variant="icon" :height="48" alt="Cognitive Metrics Logo" style="border-radius: 12px; box-shadow: var(--shadow-md);" />
@@ -139,9 +145,47 @@ const handleSave = () => {
 
         <!-- Academic Identity -->
         <div style="margin-bottom: 1.75rem;">
-          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
-            Academic Identity
+          <h4 style="font-size: 1.05rem; margin-bottom: 1rem; color: var(--color-navy); border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <span>Academic Identity</span>
+            <span v-if="props.user?.uid" style="font-size: 0.75rem; color: var(--color-accent-green); font-weight: 700;">
+              ✓ Signed In
+            </span>
+            <span v-else style="font-size: 0.75rem; color: var(--color-primary); font-weight: 700;">
+              Guest Session
+            </span>
           </h4>
+
+          <!-- Account Sign-In Callout if Logged Out -->
+          <div v-if="!props.user?.uid" style="background: var(--color-primary-light); border: 1px solid rgba(27, 108, 168, 0.25); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <div style="font-weight: 700; color: var(--color-navy); font-size: 0.95rem; margin-bottom: 0.2rem;">
+                Sign In to Researcher Account
+              </div>
+              <div style="font-size: 0.85rem; color: var(--color-text-muted);">
+                Sign in to link research proposals, custom telemetry schemas, and approved testbeds to your institutional email.
+              </div>
+            </div>
+            <button 
+              type="button" 
+              class="btn btn-primary" 
+              style="font-size: 0.875rem; padding: 0.55rem 1.15rem; white-space: nowrap;"
+              @click="handleSignInClick"
+            >
+              Sign In Now
+            </button>
+          </div>
+
+          <!-- Authenticated Account Details -->
+          <div v-else style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 10px; padding: 0.65rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent-green);"></span>
+              <span style="font-weight: 700; color: var(--color-navy);">Signed In Account:</span>
+              <span style="color: var(--color-primary); font-weight: 600;">{{ props.user.email }}</span>
+            </div>
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-accent-green); background: rgba(16, 185, 129, 0.15); padding: 0.15rem 0.55rem; border-radius: 9999px;">
+              Active
+            </span>
+          </div>
 
           <div class="form-grid">
             <div class="form-group">
@@ -216,6 +260,7 @@ const handleSave = () => {
       </form>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <style scoped>

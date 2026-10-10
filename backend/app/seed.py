@@ -16,6 +16,8 @@ INITIAL_PROJECTS = [
         "description": "The fluid-guardian application serves as an experimental testbed for hospital patient fluid intake/output monitoring, designed from ground up using the Agentic Development Life Cycle (ADLC). It logs developer cognitive load, agent task delegation traces, and multi-tier verification safety rubrics.",
         "framework": "Agentic Development Life Cycle (ADLC)",
         "lead_architect": "Jeremy Lankford",
+        "user_id": "jeremy-lankford",
+        "user_email": "jwlankford@gmail.com",
         "traces_count": 22400,
         "target_venue": "Clinical Fluid Monitoring · ADLC Research",
         "tags": ["Clinical Telemetry", "Agentic Synthesis", "Safety Verification", "Trace Logging"],
@@ -35,6 +37,8 @@ INITIAL_PROJECTS = [
         "description": "Constructed to evaluate multi-agent architectural coordination on enterprise CRUD and analytical workflows. It measures latency overhead, agent verification gates, and cognitive fatigue during high-velocity software cycles under ADLC methodologies.",
         "framework": "Agentic Development Life Cycle (ADLC)",
         "lead_architect": "Jeremy Lankford",
+        "user_id": "jeremy-lankford",
+        "user_email": "jwlankford@gmail.com",
         "traces_count": 16850,
         "target_venue": "Enterprise Systems · ADLC Architecture",
         "tags": ["Enterprise Architecture", "Multi-Agent Orchestration", "Cognitive Profiling", "ADLC Telemetry"],
@@ -54,6 +58,8 @@ INITIAL_PROJECTS = [
         "description": "Designed and engineered an experimental IDE testbed measuring developer cognitive load, interruption recovery latency, and task completion fidelity during autonomous agent code synthesis.",
         "framework": "Agentic Development Life Cycle (ADLC)",
         "lead_architect": "Jeremy Lankford",
+        "user_id": "jeremy-lankford",
+        "user_email": "jwlankford@gmail.com",
         "traces_count": 14290,
         "target_venue": "Target: ICSE / CHI 2027",
         "tags": ["ADLC Metrics", "Cognitive Load", "FastAPI", "Vue 3", "Eye-Tracking Hook"],
@@ -73,6 +79,8 @@ INITIAL_PROJECTS = [
         "description": "Multi-agent orchestration testbed allowing medical researchers to evaluate physician trust calibration, cognitive friction, and autonomous verification protocols in healthcare workflows.",
         "framework": "Agentic Development Life Cycle (ADLC)",
         "lead_architect": "Jeremy Lankford",
+        "user_id": "jeremy-lankford",
+        "user_email": "jwlankford@gmail.com",
         "traces_count": 3100,
         "target_venue": "Target: JAMIA / AMIA 2027",
         "tags": ["Clinical ADLC", "Multi-Agent Systems", "Safety Auditing", "Python"],
@@ -83,8 +91,34 @@ INITIAL_PROJECTS = [
     }
 ]
 
+def seed_initial_users(db: Session):
+    """Seed Jeremy Lankford as the sole registered user in the database."""
+    from .models import User
+    jeremy = db.query(User).filter(
+        (User.id == "jeremy-lankford") | 
+        (User.email == "jwlankford@gmail.com") |
+        (User.email == "jlankford@cognitivemetrics.org") |
+        (User.display_name == "Jeremy Lankford")
+    ).first()
+    if not jeremy:
+        jeremy = User(
+            id="jeremy-lankford",
+            email="jwlankford@gmail.com",
+            display_name="Jeremy Lankford",
+            role="lead_architect",
+            institution="Cognitive Metrics",
+            department="ADLC Architecture"
+        )
+        db.add(jeremy)
+        db.commit()
+        logger.info("Successfully seeded Jeremy Lankford as sole user.")
+    else:
+        if jeremy.display_name != "Jeremy Lankford":
+            jeremy.display_name = "Jeremy Lankford"
+            db.commit()
+
 def seed_initial_projects(db: Session):
-    """Seed initial project records if the table is empty, and ensure default URLs are populated."""
+    """Seed initial project records if the table is empty, and ensure default URLs and owner assignments are populated."""
     existing_count = db.query(Project).count()
     if existing_count == 0:
         logger.info("Projects table is empty. Seeding initial ADLC projects into database...")
@@ -94,9 +128,14 @@ def seed_initial_projects(db: Session):
         db.commit()
         logger.info("Successfully seeded %d projects.", len(INITIAL_PROJECTS))
     else:
-        logger.info("Database already contains %d projects. Checking for missing production_url...", existing_count)
+        logger.info("Database already contains %d projects. Checking for missing production_url or user assignment...", existing_count)
         fg = db.query(Project).filter(Project.id == "fluid-guardian").first()
         if fg and not fg.production_url:
             fg.production_url = "https://fluid-guardian.cognitivemetrics.app/"
-            db.commit()
-            logger.info("Updated fluid-guardian with default production_url.")
+        for p in db.query(Project).all():
+            if not p.user_id:
+                p.user_id = "jeremy-lankford"
+            if not p.user_email:
+                p.user_email = "jwlankford@gmail.com"
+        db.commit()
+        logger.info("Updated projects with default production_url and Jeremy Lankford assignment.")

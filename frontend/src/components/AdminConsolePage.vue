@@ -18,10 +18,17 @@ const props = defineProps({
 
 const emit = defineEmits(['go-home', 'open-my-projects'])
 
+const defaultJeremyUser = {
+  id: 'jeremy-lankford',
+  display_name: 'Jeremy Lankford',
+  email: 'jwlankford@gmail.com',
+  role: 'lead_architect'
+}
+
 // State
 const projects = ref([])
 const selectedProjectId = ref('')
-const users = ref([])
+const users = ref([defaultJeremyUser])
 const comments = ref([])
 const isLoading = ref(true)
 const isSaving = ref(false)
@@ -37,8 +44,8 @@ const editForm = ref({
   domain: '',
   status: 'Active · ADLC Development',
   phase: 'Phase 1: Agentic Specification & Requirements',
-  user_id: '',
-  user_email: '',
+  user_id: 'jeremy-lankford',
+  user_email: 'jwlankford@gmail.com',
   lead_architect: 'Jeremy Lankford',
   framework: 'Agentic Development Life Cycle (ADLC)',
   production_url: '',
@@ -89,7 +96,7 @@ const loadData = async () => {
       fetchRegisteredUsers()
     ])
     projects.value = projs || []
-    users.value = userList || []
+    users.value = (userList && userList.length > 0) ? userList : [defaultJeremyUser]
 
     if (projects.value.length > 0 && !selectedProjectId.value) {
       selectProject(projects.value[0].id)
@@ -109,13 +116,15 @@ const selectProject = async (projId) => {
 
   const proj = projects.value.find(p => p.id === projId)
   if (proj) {
+    const defaultUid = users.value[0]?.id || props.user?.uid || 'jeremy-lankford'
+    const defaultEmail = users.value[0]?.email || props.user?.email || 'jwlankford@gmail.com'
     editForm.value = {
       title: proj.title || '',
       domain: proj.domain || '',
       status: proj.status || 'Active · ADLC Development',
       phase: proj.phase || 'Phase 1: Agentic Specification & Requirements',
-      user_id: proj.user_id || '',
-      user_email: proj.user_email || '',
+      user_id: proj.user_id || defaultUid,
+      user_email: proj.user_email || defaultEmail,
       lead_architect: proj.lead_architect || 'Jeremy Lankford',
       framework: proj.framework || 'Agentic Development Life Cycle (ADLC)',
       production_url: proj.production_url || '',
@@ -160,10 +169,27 @@ const handleAccountSelection = (e) => {
   const chosenUser = users.value.find(u => u.id === chosenUid)
   if (chosenUser) {
     editForm.value.user_email = chosenUser.email
-  } else if (!chosenUid) {
-    editForm.value.user_email = ''
+  } else {
+    editForm.value.user_email = props.user?.email || 'jwlankford@gmail.com'
   }
 }
+
+watch(() => props.user, (newUser) => {
+  if (newUser) {
+    const activeUid = newUser.uid || 'jeremy-lankford'
+    const activeEmail = newUser.email || 'jwlankford@gmail.com'
+    users.value = [{
+      id: activeUid,
+      display_name: 'Jeremy Lankford',
+      email: activeEmail,
+      role: 'lead_architect'
+    }]
+    if (!editForm.value.user_id || editForm.value.user_id === 'jeremy-lankford') {
+      editForm.value.user_id = activeUid
+      editForm.value.user_email = activeEmail
+    }
+  }
+}, { immediate: true })
 
 // Save Project Updates as Lead Architect
 const handleSaveProject = async () => {
@@ -368,7 +394,7 @@ onMounted(() => {
               </div>
               <div class="proj-account-line">
                 <span class="account-icon">👤</span>
-                <span class="account-text">{{ p.user_email || p.user_id || 'Unassigned / Open Testbed' }}</span>
+                <span class="account-text">{{ p.user_email || 'jwlankford@gmail.com' }}</span>
               </div>
             </div>
 
@@ -443,9 +469,8 @@ onMounted(() => {
                   <div class="form-group">
                     <label class="form-label">Assign to Registered User Account</label>
                     <select :value="editForm.user_id" @change="handleAccountSelection" class="form-select">
-                      <option value="">-- Open ADLC Testbed (No Specific Owner) --</option>
                       <option v-for="u in users" :key="u.id" :value="u.id">
-                        {{ u.display_name || u.email }} ({{ u.email }})
+                        Jeremy Lankford
                       </option>
                     </select>
                   </div>
@@ -455,7 +480,7 @@ onMounted(() => {
                     <input 
                       v-model="editForm.user_email" 
                       type="email" 
-                      placeholder="e.g. researcher@university.edu" 
+                      placeholder="jwlankford@gmail.com" 
                       class="form-input"
                     />
                   </div>

@@ -24,7 +24,7 @@ from .schemas import (
     ProjectCommentCreate,
     ProjectCommentResponse
 )
-from .seed import seed_initial_projects
+from .seed import seed_initial_projects, seed_initial_users
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -83,8 +83,9 @@ async def lifespan(app: FastAPI):
             conn.execute(text("ALTER TABLE proposals ADD COLUMN IF NOT EXISTS user_id VARCHAR(128);"))
             conn.execute(text("CREATE INDEX IF NOT EXISTS ix_proposals_user_id ON proposals (user_id);"))
             conn.commit()
-        # Seed initial projects if empty
+        # Seed sole user Jeremy Lankford and initial projects if needed
         with SessionLocal() as db:
+            seed_initial_users(db)
             seed_initial_projects(db)
         logger.info("Database initialized successfully.")
     except Exception as e:
@@ -440,8 +441,28 @@ def subscribe_newsletter(request: NewsletterRequest, db: Session = Depends(get_d
 
 @app.get("/api/admin/users", response_model=List[UserResponse])
 def get_all_registered_users(db: Session = Depends(get_db)):
-    """List registered users for assignment in the Lead Architect console."""
-    return db.query(User).order_by(desc(User.created_at)).all()
+    """List registered users for assignment in the Lead Architect console.
+    Jeremy Lankford is the sole registered user in the system.
+    """
+    jeremy = db.query(User).filter(
+        (User.id == "jeremy-lankford") | 
+        (User.email == "jwlankford@gmail.com") |
+        (User.email == "jlankford@cognitivemetrics.org") |
+        (User.display_name == "Jeremy Lankford")
+    ).first()
+    if not jeremy:
+        jeremy = User(
+            id="jeremy-lankford",
+            email="jwlankford@gmail.com",
+            display_name="Jeremy Lankford",
+            role="lead_architect",
+            institution="Cognitive Metrics",
+            department="ADLC Architecture"
+        )
+        db.add(jeremy)
+        db.commit()
+        db.refresh(jeremy)
+    return [jeremy]
 
 @app.get("/api/admin/projects")
 def get_admin_projects(db: Session = Depends(get_db)):
