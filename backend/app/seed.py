@@ -46,50 +46,20 @@ INITIAL_PROJECTS = [
         "demo_url": None,
         "production_url": None,
         "is_active": True
-    },
-    {
-        "id": "PROP-ADLC-9042",
-        "title": "Human-in-the-Loop ADLC Code Synthesis Testbed",
-        "slug": "human-in-the-loop-code-synthesis",
-        "domain": "Software Engineering & HCI Testbed",
-        "status": "Approved · Implementation Active",
-        "status_badge": "Implementation Active",
-        "summary": "Full-stack experimental IDE testbed measuring developer cognitive load, latency, and autonomous agent handoff dynamics.",
-        "description": "Designed and engineered an experimental IDE testbed measuring developer cognitive load, interruption recovery latency, and task completion fidelity during autonomous agent code synthesis.",
-        "framework": "Agentic Development Life Cycle (ADLC)",
-        "lead_architect": "Jeremy Lankford",
-        "traces_count": 14290,
-        "target_venue": "Target: ICSE / CHI 2027",
-        "tags": ["ADLC Metrics", "Cognitive Load", "FastAPI", "Vue 3", "Eye-Tracking Hook"],
-        "repo_url": None,
-        "demo_url": None,
-        "production_url": None,
-        "is_active": True
-    },
-    {
-        "id": "PROP-ADLC-8411",
-        "title": "Clinical Diagnostic Agent Verification Protocol",
-        "slug": "clinical-diagnostic-agent-verification",
-        "domain": "Biomedical Informatics Research",
-        "status": "Protocol Scoped · Pending Pilot",
-        "status_badge": "Pending Pilot",
-        "summary": "Multi-agent orchestration testbed evaluating physician trust calibration and double-blind verification safety rubrics.",
-        "description": "Multi-agent orchestration testbed allowing medical researchers to evaluate physician trust calibration, cognitive friction, and autonomous verification protocols in healthcare workflows.",
-        "framework": "Agentic Development Life Cycle (ADLC)",
-        "lead_architect": "Jeremy Lankford",
-        "traces_count": 3100,
-        "target_venue": "Target: JAMIA / AMIA 2027",
-        "tags": ["Clinical ADLC", "Multi-Agent Systems", "Safety Auditing", "Python"],
-        "repo_url": None,
-        "demo_url": None,
-        "production_url": None,
-        "is_active": True
     }
 ]
 
 def seed_initial_projects(db: Session):
     """Seed initial project records if the table is empty, and ensure default URLs and owner assignments are populated."""
     from .models import UserProject
+    # Purge any legacy placeholder projects from the database
+    legacy_placeholders = db.query(Project).filter(Project.id.in_(["PROP-ADLC-9042", "PROP-ADLC-8411"])).all()
+    if legacy_placeholders:
+        for ph in legacy_placeholders:
+            db.delete(ph)
+        db.commit()
+        logger.info("Purged %d legacy placeholder projects from database.", len(legacy_placeholders))
+
     existing_count = db.query(Project).count()
     if existing_count == 0:
         logger.info("Projects table is empty. Seeding initial ADLC projects into database...")
