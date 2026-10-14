@@ -6,7 +6,9 @@ import {
   assignProjectToUser,
   DEFAULT_ADLC_PROJECTS,
   fetchProjectComments,
-  postProjectComment
+  postProjectComment,
+  filterUserProjects,
+  getLocalProjects
 } from '../services/projects'
 
 const props = defineProps({
@@ -118,16 +120,21 @@ const loadProjectComments = async (projId) => {
 const loadUserProjects = async () => {
   isLoading.value = true
   try {
-    const data = await fetchProjects(props.user?.uid || null)
-    if (props.user?.uid) {
-      projects.value = Array.isArray(data) ? data : []
+    const data = await fetchProjects(props.user || null)
+    if (props.user) {
+      if (Array.isArray(data) && data.length > 0) {
+        projects.value = data
+      } else {
+        // Fall back to local storage cache matching this user
+        projects.value = filterUserProjects(getLocalProjects(), props.user)
+      }
     } else {
       projects.value = data && data.length ? data : DEFAULT_ADLC_PROJECTS
     }
     syncProjectFromHash()
   } catch (err) {
     console.warn('Failed loading projects:', err)
-    projects.value = props.user?.uid ? [] : DEFAULT_ADLC_PROJECTS
+    projects.value = props.user ? filterUserProjects(getLocalProjects(), props.user) : DEFAULT_ADLC_PROJECTS
     syncProjectFromHash()
   } finally {
     isLoading.value = false
@@ -144,7 +151,7 @@ onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashChange)
 })
 
-watch(() => props.user?.uid, () => {
+watch(() => [props.user?.uid, props.user?.email], () => {
   loadUserProjects()
 })
 

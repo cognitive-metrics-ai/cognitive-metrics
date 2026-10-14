@@ -95,9 +95,16 @@ const loadData = async () => {
     
     // Ensure Jeremy Lankford (Lead Architect) is always present in users list
     const resolvedUsers = (userList && userList.length > 0) ? [...userList] : [...DEFAULT_REGISTERED_USERS]
-    const hasJeremy = resolvedUsers.some(u => u.email === 'jwlankford@gmail.com' || u.id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1')
-    if (!hasJeremy) {
-      resolvedUsers.unshift(DEFAULT_REGISTERED_USERS[0])
+    const activeUid = (props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) ? props.user.uid : null
+    const jeremyIdx = resolvedUsers.findIndex(u => u.email === 'jwlankford@gmail.com' || u.id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1')
+    if (jeremyIdx !== -1) {
+      if (activeUid) {
+        resolvedUsers[jeremyIdx] = { ...resolvedUsers[jeremyIdx], id: activeUid }
+      }
+    } else {
+      const jeremyUser = { ...DEFAULT_REGISTERED_USERS[0] }
+      if (activeUid) jeremyUser.id = activeUid
+      resolvedUsers.unshift(jeremyUser)
     }
     users.value = resolvedUsers
 
@@ -120,16 +127,22 @@ const selectProject = async (projId) => {
 
   const proj = projects.value.find(p => p.id === projId)
   if (proj) {
-    const isJeremyArchitect = proj.lead_architect && proj.lead_architect.toLowerCase().includes('jeremy')
-    const defaultUserId = isJeremyArchitect ? 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1' : ''
-    const defaultUserEmail = defaultUserId ? 'jwlankford@gmail.com' : ''
+    const isJeremyArchitect = (proj.lead_architect && proj.lead_architect.toLowerCase().includes('jeremy')) || (proj.user_email === 'jwlankford@gmail.com')
+    const activeJeremyUid = (props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) ? props.user.uid : 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1'
+    const defaultUserId = isJeremyArchitect ? activeJeremyUid : ''
+    const defaultUserEmail = isJeremyArchitect ? 'jwlankford@gmail.com' : ''
+
+    let resolvedUserId = proj.user_id || defaultUserId
+    if ((resolvedUserId === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1' || proj.user_email === 'jwlankford@gmail.com') && props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) {
+      resolvedUserId = props.user.uid
+    }
 
     editForm.value = {
       title: proj.title || '',
       domain: proj.domain || '',
       status: proj.status || 'Active · ADLC Development',
       phase: proj.phase || 'Phase 1: Agentic Specification & Requirements',
-      user_id: proj.user_id || defaultUserId,
+      user_id: resolvedUserId,
       user_email: proj.user_email || defaultUserEmail,
       lead_architect: proj.lead_architect || 'Jeremy Lankford',
       framework: proj.framework || 'Agentic Development Life Cycle (ADLC)',
@@ -185,19 +198,33 @@ const filteredUsers = computed(() => {
 // Helper to get projects bound to a specific user
 const getProjectsForUser = (user) => {
   if (!user) return []
-  return projects.value.filter(p =>
-    (p.user_id && p.user_id === user.id) ||
-    (p.user_email && user.email && p.user_email.toLowerCase() === user.email.toLowerCase())
-  )
+  const uid = user.id || user.uid
+  const email = (user.email || '').toLowerCase()
+  const isJeremy = email === 'jwlankford@gmail.com' || uid === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1'
+
+  return projects.value.filter(p => {
+    if (uid && p.user_id && p.user_id === uid) return true
+    if (email && p.user_email && p.user_email.toLowerCase() === email) return true
+    if (isJeremy) {
+      if (p.user_id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1') return true
+      if (p.user_email && p.user_email.toLowerCase() === 'jwlankford@gmail.com') return true
+      if (p.lead_architect && p.lead_architect.toLowerCase().includes('jeremy')) return true
+    }
+    return false
+  })
 }
 
 // Quick action to assign a user to the currently selected project
 const assignUserToSelectedProject = (user) => {
   if (!user) return
-  editForm.value.user_id = user.id
+  let targetUid = user.id
+  if (user.email === 'jwlankford@gmail.com' && props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) {
+    targetUid = props.user.uid
+  }
+  editForm.value.user_id = targetUid
   editForm.value.user_email = user.email || ''
   activeTab.value = 'controls'
-  saveSuccessMessage.value = `Account "${user.display_name || user.email}" selected. Click "Save Project & Phase Updates" to persist.`
+  saveSuccessMessage.value = `Account "${user.display_name || user.email}" selected. Click "Save Project Specifications" to persist.`
 }
 
 // Re-fetch users from the database API
@@ -206,9 +233,16 @@ const refreshUserData = async () => {
   try {
     const userList = await fetchRegisteredUsers()
     const resolvedUsers = (userList && userList.length > 0) ? [...userList] : [...DEFAULT_REGISTERED_USERS]
-    const hasJeremy = resolvedUsers.some(u => u.email === 'jwlankford@gmail.com' || u.id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1')
-    if (!hasJeremy) {
-      resolvedUsers.unshift(DEFAULT_REGISTERED_USERS[0])
+    const activeUid = (props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) ? props.user.uid : null
+    const jeremyIdx = resolvedUsers.findIndex(u => u.email === 'jwlankford@gmail.com' || u.id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1')
+    if (jeremyIdx !== -1) {
+      if (activeUid) {
+        resolvedUsers[jeremyIdx] = { ...resolvedUsers[jeremyIdx], id: activeUid }
+      }
+    } else {
+      const jeremyUser = { ...DEFAULT_REGISTERED_USERS[0] }
+      if (activeUid) jeremyUser.id = activeUid
+      resolvedUsers.unshift(jeremyUser)
     }
     users.value = resolvedUsers
   } catch (err) {
@@ -225,13 +259,17 @@ watch(() => props.user, () => {
 // Handle Account Selection from dropdown
 const handleAccountSelection = (e) => {
   const chosenUid = e.target.value
-  editForm.value.user_id = chosenUid
+  let targetUid = chosenUid
   const chosenUser = users.value.find(u => u.id === chosenUid)
   if (chosenUser) {
     editForm.value.user_email = chosenUser.email
+    if (chosenUser.email === 'jwlankford@gmail.com' && props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) {
+      targetUid = props.user.uid
+    }
   } else if (!chosenUid) {
     editForm.value.user_email = ''
   }
+  editForm.value.user_id = targetUid
 }
 
 // Save Project Updates as Lead Architect
