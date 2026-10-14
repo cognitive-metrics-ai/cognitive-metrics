@@ -357,9 +357,22 @@ def assign_project_to_user(
             detail=f"Project '{project_id}' not found."
         )
     
+    if not user_id or user_id.strip().lower() in ["unassigned", "none", "null", ""]:
+        project.user_id = None
+        project.user_email = None
+        db.query(UserProject).filter(UserProject.project_id == project.id).delete(synchronize_session=False)
+        db.commit()
+        db.refresh(project)
+        return project
+
     project.user_id = user_id
     if user_email:
         project.user_email = user_email
+    else:
+        project.user_email = None
+
+    # Clean up prior junction records for this project so it binds cleanly
+    db.query(UserProject).filter(UserProject.project_id == project.id).delete(synchronize_session=False)
 
     # Also ensure user and junction table record exist
     user = db.query(User).filter(User.id == user_id).first()
@@ -598,14 +611,20 @@ def update_admin_project(
     for key, value in update_data.items():
         setattr(project, key, value)
 
+    if "user_email" in update_data and (not update_data["user_email"] or (isinstance(update_data["user_email"], str) and update_data["user_email"].strip() == "")):
+        project.user_email = None
+
     # If assignment changed, ensure user and user_projects junction table record exist
     if "user_id" in update_data:
         uid = update_data["user_id"]
-        if not uid:
+        if not uid or (isinstance(uid, str) and uid.strip().lower() in ["unassigned", "none", "null", ""]):
             project.user_id = None
-            if not update_data.get("user_email"):
-                project.user_email = None
+            project.user_email = None
+            # CRITICAL: Clean up junction table so this project does NOT show up for anyone
+            db.query(UserProject).filter(UserProject.project_id == project.id).delete(synchronize_session=False)
         else:
+            # Clean up prior junction records for this project so it binds cleanly
+            db.query(UserProject).filter(UserProject.project_id == project.id).delete(synchronize_session=False)
             user = db.query(User).filter(User.id == uid).first()
             if not user and project.user_email:
                 user = db.query(User).filter(func.lower(User.email) == func.lower(project.user_email)).first()
