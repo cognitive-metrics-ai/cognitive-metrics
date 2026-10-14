@@ -104,11 +104,20 @@ export function updateLocalProject(projectId, updateData) {
   const current = getLocalProjects()
   const idx = current.findIndex(p => p.id === projectId || p.slug === projectId)
   let updatedItem
+
+  const sanitizedUpdate = { ...updateData }
+  if (sanitizedUpdate.user_id === '' || sanitizedUpdate.user_id === 'unassigned') {
+    sanitizedUpdate.user_id = null
+  }
+  if (sanitizedUpdate.user_email === '') {
+    sanitizedUpdate.user_email = null
+  }
+
   if (idx !== -1) {
-    current[idx] = { ...current[idx], ...updateData, updated_at: new Date().toISOString() }
+    current[idx] = { ...current[idx], ...sanitizedUpdate, updated_at: new Date().toISOString() }
     updatedItem = current[idx]
   } else {
-    updatedItem = { id: projectId, ...updateData, updated_at: new Date().toISOString() }
+    updatedItem = { id: projectId, ...sanitizedUpdate, updated_at: new Date().toISOString() }
     current.push(updatedItem)
   }
   saveLocalProjects(current)
@@ -116,13 +125,14 @@ export function updateLocalProject(projectId, updateData) {
   // Also sync in-memory DEFAULT_ADLC_PROJECTS
   const defIdx = DEFAULT_ADLC_PROJECTS.findIndex(p => p.id === projectId || p.slug === projectId)
   if (defIdx !== -1) {
-    DEFAULT_ADLC_PROJECTS[defIdx] = { ...DEFAULT_ADLC_PROJECTS[defIdx], ...updateData }
+    DEFAULT_ADLC_PROJECTS[defIdx] = { ...DEFAULT_ADLC_PROJECTS[defIdx], ...sanitizedUpdate }
   }
   return updatedItem
 }
 
 /**
- * Determine if a project belongs to a user (matching user ID, user email, or lead architect).
+ * Determine if a project belongs to a user (matching user ID or user email).
+ * An unassigned project (no user_id and no user_email) belongs to no one and must never match.
  */
 export function filterUserProjects(projectsList, user) {
   if (!user) return []
@@ -131,6 +141,11 @@ export function filterUserProjects(projectsList, user) {
   const isJeremy = email === 'jwlankford@gmail.com' || uid === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1'
 
   return (projectsList || []).filter(p => {
+    // Unassigned check: if neither user_id nor user_email is set, project belongs to NO ONE
+    const hasUserId = p.user_id && p.user_id !== 'unassigned' && p.user_id !== 'null'
+    const hasUserEmail = p.user_email && p.user_email !== 'null'
+    if (!hasUserId && !hasUserEmail) return false
+
     // 1. Direct match on user_id
     if (uid && p.user_id && p.user_id === uid) return true
     // 2. Direct match on user_email
@@ -139,7 +154,6 @@ export function filterUserProjects(projectsList, user) {
     if (isJeremy) {
       if (p.user_id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1') return true
       if (p.user_email && p.user_email.trim().toLowerCase() === 'jwlankford@gmail.com') return true
-      if (p.lead_architect && p.lead_architect.toLowerCase().includes('jeremy')) return true
     }
     return false
   })
@@ -185,13 +199,7 @@ export async function fetchProjects(userOrId = null, userEmail = null) {
           saveLocalProjects(data)
         }
         if (isUserQuery) {
-          if (data.length > 0) {
-            return data
-          }
-          // If backend returns empty, verify against local cache
-          const localMatch = filterUserProjects(getLocalProjects(), { uid: userId, email })
-          if (localMatch.length > 0) return localMatch
-          return []
+          return data
         }
         if (data.length > 0) {
           return data

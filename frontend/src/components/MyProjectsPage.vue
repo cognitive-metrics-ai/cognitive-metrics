@@ -122,7 +122,7 @@ const loadUserProjects = async () => {
   try {
     const data = await fetchProjects(props.user || null)
     if (props.user) {
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         projects.value = data
       } else {
         // Fall back to local storage cache matching this user

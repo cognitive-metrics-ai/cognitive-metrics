@@ -82,8 +82,19 @@ const commentTypeOptions = [
   { value: 'verification_signoff', label: 'Verification Sign-off', icon: '✅' }
 ]
 
+const isLeadArchitect = computed(() => {
+  if (!props.user) return false
+  if (props.user.role === 'lead_architect') return true
+  const email = (props.user.email || '').toLowerCase().trim()
+  return email === 'jwlankford@gmail.com' || email === 'jlankford@cognitivemetrics.org'
+})
+
 // Load all admin data
 const loadData = async () => {
+  if (!isLeadArchitect.value) {
+    isLoading.value = false
+    return
+  }
   isLoading.value = true
   errorMessage.value = ''
   try {
@@ -127,14 +138,16 @@ const selectProject = async (projId) => {
 
   const proj = projects.value.find(p => p.id === projId)
   if (proj) {
-    const isJeremyArchitect = (proj.lead_architect && proj.lead_architect.toLowerCase().includes('jeremy')) || (proj.user_email === 'jwlankford@gmail.com')
-    const activeJeremyUid = (props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) ? props.user.uid : 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1'
-    const defaultUserId = isJeremyArchitect ? activeJeremyUid : ''
-    const defaultUserEmail = isJeremyArchitect ? 'jwlankford@gmail.com' : ''
+    const hasAssignedAccount = !!(proj.user_id || proj.user_email)
+    let resolvedUserId = ''
+    let resolvedUserEmail = ''
 
-    let resolvedUserId = proj.user_id || defaultUserId
-    if ((resolvedUserId === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1' || proj.user_email === 'jwlankford@gmail.com') && props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) {
-      resolvedUserId = props.user.uid
+    if (hasAssignedAccount) {
+      resolvedUserId = proj.user_id || ''
+      resolvedUserEmail = proj.user_email || ''
+      if ((resolvedUserId === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1' || resolvedUserEmail === 'jwlankford@gmail.com') && props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) {
+        resolvedUserId = props.user.uid
+      }
     }
 
     editForm.value = {
@@ -143,7 +156,7 @@ const selectProject = async (projId) => {
       status: proj.status || 'Active · ADLC Development',
       phase: proj.phase || 'Phase 1: Agentic Specification & Requirements',
       user_id: resolvedUserId,
-      user_email: proj.user_email || defaultUserEmail,
+      user_email: resolvedUserEmail,
       lead_architect: proj.lead_architect || 'Jeremy Lankford',
       framework: proj.framework || 'Agentic Development Life Cycle (ADLC)',
       production_url: proj.production_url || '',
@@ -203,12 +216,13 @@ const getProjectsForUser = (user) => {
   const isJeremy = email === 'jwlankford@gmail.com' || uid === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1'
 
   return projects.value.filter(p => {
+    // An unassigned project belongs to NO ONE
+    if (!p.user_id && !p.user_email) return false
     if (uid && p.user_id && p.user_id === uid) return true
     if (email && p.user_email && p.user_email.toLowerCase() === email) return true
     if (isJeremy) {
       if (p.user_id === 'Jq4WTmNLN9XbtDqZsbIesLWCTTn1') return true
       if (p.user_email && p.user_email.toLowerCase() === 'jwlankford@gmail.com') return true
-      if (p.lead_architect && p.lead_architect.toLowerCase().includes('jeremy')) return true
     }
     return false
   })
@@ -266,7 +280,8 @@ const handleAccountSelection = (e) => {
     if (chosenUser.email === 'jwlankford@gmail.com' && props.user?.email === 'jwlankford@gmail.com' && props.user?.uid) {
       targetUid = props.user.uid
     }
-  } else if (!chosenUid) {
+  } else if (!chosenUid || chosenUid === 'unassigned') {
+    targetUid = ''
     editForm.value.user_email = ''
   }
   editForm.value.user_id = targetUid
@@ -362,7 +377,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="admin-console-page">
+  <div v-if="!isLeadArchitect" class="admin-console-page restricted-state">
+    <div class="container" style="padding: 5rem 1.5rem; text-align: center; max-width: 520px; margin: 0 auto;">
+      <div style="font-size: 3.5rem; margin-bottom: 1.25rem;">🔒</div>
+      <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--color-navy); margin-bottom: 0.75rem;">Access Restricted</h2>
+      <p style="color: var(--color-text-muted); margin-bottom: 2rem; line-height: 1.6; font-size: 1rem;">
+        Only accounts with the <strong>Lead Architect</strong> role are authorized to view and manage the Lead Architect Console.
+      </p>
+      <button @click="emit('go-home')" class="btn btn-primary" style="padding: 0.85rem 2rem; border-radius: 10px; font-weight: 700;">
+        Return to Home
+      </button>
+    </div>
+  </div>
+
+  <div v-else class="admin-console-page">
     <!-- Top Navigation Bar -->
     <div class="admin-subnav">
       <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -475,7 +503,7 @@ onMounted(() => {
               </div>
               <div class="proj-account-line">
                 <span class="account-icon">👤</span>
-                <span class="account-text">{{ p.user_email === 'jwlankford@gmail.com' ? 'Jeremy Lankford (Lead Architect)' : (p.user_email || p.user_id || 'Unassigned / Open Testbed') }}</span>
+                <span class="account-text">{{ p.user_email === 'jwlankford@gmail.com' ? 'Jeremy Lankford (Lead Architect)' : (p.user_email || p.user_id || 'Unassigned') }}</span>
               </div>
             </div>
 
@@ -556,7 +584,7 @@ onMounted(() => {
                   <div class="form-group">
                     <label class="form-label">Assign to Registered User Account</label>
                     <select v-model="editForm.user_id" @change="handleAccountSelection" class="form-select">
-                      <option value="">-- Open ADLC Testbed (No Specific Owner) --</option>
+                      <option value="">Unassigned</option>
                       <option v-for="u in users" :key="u.id" :value="u.id">
                         {{ u.display_name || u.email }} ({{ u.email }}){{ (u.role === 'lead_architect' || u.email === 'jwlankford@gmail.com') ? ' — Lead Architect' : '' }}
                       </option>
