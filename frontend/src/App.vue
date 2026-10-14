@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import Navbar from './components/Navbar.vue'
 import HeroSection from './components/HeroSection.vue'
 import ResearcherProfileSection from './components/ResearcherProfileSection.vue'
@@ -27,9 +27,21 @@ import { syncUserWithBackend } from './services/projects'
 const currentUser = ref(null)
 const preselectedService = ref('')
 
+const isLeadArchitect = (user) => {
+  if (!user) return false
+  if (user.role === 'lead_architect') return true
+  const email = (user.email || '').toLowerCase().trim()
+  return email === 'jwlankford@gmail.com' || email === 'jlankford@cognitivemetrics.org'
+}
+
 const resolveCurrentPage = () => {
   const hash = window.location.hash || ''
-  if (hash.startsWith('#admin-console')) return 'admin-console'
+  if (hash.startsWith('#admin-console')) {
+    if (!isLeadArchitect(currentUser.value)) {
+      return 'home'
+    }
+    return 'admin-console'
+  }
   if (hash.startsWith('#my-projects')) return 'my-projects'
   return 'home'
 }
@@ -43,8 +55,18 @@ const showPreferencesModal = ref(false)
 let unsubscribeAuth = null
 
 const handleHashChange = () => {
-  currentPage.value = resolveCurrentPage()
+  const target = resolveCurrentPage()
+  currentPage.value = target
+  if (target === 'home' && window.location.hash.startsWith('#admin-console')) {
+    window.location.hash = ''
+  }
 }
+
+watch(() => currentUser.value, (newVal) => {
+  if (currentPage.value === 'admin-console' && !isLeadArchitect(newVal)) {
+    navigateToHome()
+  }
+})
 
 onMounted(() => {
   window.addEventListener('hashchange', handleHashChange)
@@ -52,7 +74,10 @@ onMounted(() => {
     currentUser.value = user
     if (user) {
       try {
-        await syncUserWithBackend(user)
+        const synced = await syncUserWithBackend(user)
+        if (synced && synced.role) {
+          currentUser.value = { ...user, role: synced.role }
+        }
       } catch (err) {
         console.warn('Backend sync warning on auth state change:', err)
       }
@@ -71,6 +96,10 @@ const navigateToMyProjects = () => {
 }
 
 const navigateToAdminConsole = () => {
+  if (!isLeadArchitect(currentUser.value)) {
+    navigateToHome()
+    return
+  }
   currentPage.value = 'admin-console'
   window.location.hash = '#admin-console'
 }
@@ -91,7 +120,10 @@ const handleAuthSuccess = async (user) => {
   showAuthModal.value = false
   if (user) {
     try {
-      await syncUserWithBackend(user)
+      const synced = await syncUserWithBackend(user)
+      if (synced && synced.role) {
+        currentUser.value = { ...user, role: synced.role }
+      }
     } catch (err) {
       console.warn('Backend sync warning on auth success:', err)
     }

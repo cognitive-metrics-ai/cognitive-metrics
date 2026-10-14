@@ -82,8 +82,19 @@ const commentTypeOptions = [
   { value: 'verification_signoff', label: 'Verification Sign-off', icon: '✅' }
 ]
 
+const isLeadArchitect = computed(() => {
+  if (!props.user) return false
+  if (props.user.role === 'lead_architect') return true
+  const email = (props.user.email || '').toLowerCase().trim()
+  return email === 'jwlankford@gmail.com' || email === 'jlankford@cognitivemetrics.org'
+})
+
 // Load all admin data
 const loadData = async () => {
+  if (!isLeadArchitect.value) {
+    isLoading.value = false
+    return
+  }
   isLoading.value = true
   errorMessage.value = ''
   try {
@@ -366,7 +377,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="admin-console-page">
+  <div v-if="!isLeadArchitect" class="admin-console-page restricted-state">
+    <div class="container" style="padding: 5rem 1.5rem; text-align: center; max-width: 520px; margin: 0 auto;">
+      <div style="font-size: 3.5rem; margin-bottom: 1.25rem;">🔒</div>
+      <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--color-navy); margin-bottom: 0.75rem;">Access Restricted</h2>
+      <p style="color: var(--color-text-muted); margin-bottom: 2rem; line-height: 1.6; font-size: 1rem;">
+        Only accounts with the <strong>Lead Architect</strong> role are authorized to view and manage the Lead Architect Console.
+      </p>
+      <button @click="emit('go-home')" class="btn btn-primary" style="padding: 0.85rem 2rem; border-radius: 10px; font-weight: 700;">
+        Return to Home
+      </button>
+    </div>
+  </div>
+
+  <div v-else class="admin-console-page">
     <!-- Top Navigation Bar -->
     <div class="admin-subnav">
       <div class="container" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

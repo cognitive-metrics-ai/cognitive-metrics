@@ -33,6 +33,13 @@ const userInitials = computed(() => {
   return name.slice(0, 2).toUpperCase()
 })
 
+const isLeadArchitect = computed(() => {
+  if (!props.user) return false
+  if (props.user.role === 'lead_architect') return true
+  const email = (props.user.email || '').toLowerCase().trim()
+  return email === 'jwlankford@gmail.com' || email === 'jlankford@cognitivemetrics.org'
+})
+
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value
 }
@@ -147,7 +154,16 @@ const handleAction = (action) => {
         <div style="font-size: 0.8rem; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.4rem;">
           {{ user.email }}
         </div>
-        <span style="display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--color-primary); background: var(--color-primary-light); padding: 0.15rem 0.5rem; border-radius: 9999px;">
+        <span 
+          v-if="isLeadArchitect"
+          style="display: inline-block; font-size: 0.7rem; font-weight: 700; color: #8b5cf6; background: rgba(139, 92, 246, 0.12); border: 1px solid rgba(139, 92, 246, 0.25); padding: 0.15rem 0.5rem; border-radius: 9999px;"
+        >
+          Lead Architect
+        </span>
+        <span 
+          v-else
+          style="display: inline-block; font-size: 0.7rem; font-weight: 700; color: var(--color-primary); background: var(--color-primary-light); padding: 0.15rem 0.5rem; border-radius: 9999px;"
+        >
           Verified Researcher
         </span>
       </div>
@@ -192,8 +208,9 @@ const handleAction = (action) => {
           </span>
         </button>
 
-        <!-- 3. Lead Architect Console -->
+        <!-- 3. Lead Architect Console (Only visible to lead_architect) -->
         <button 
+          v-if="isLeadArchitect"
           @click="handleAction('admin-console')"
           class="dropdown-item"
           style="background-color: rgba(139, 92, 246, 0.06);"

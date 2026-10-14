@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import UserMenu from './UserMenu.vue'
 import BrandLogo from './BrandLogo.vue'
 import { logoutUser } from '../services/firebase'
@@ -10,6 +10,13 @@ const props = defineProps({
     type: Object,
     default: null
   }
+})
+
+const isLeadArchitect = computed(() => {
+  if (!props.currentUser) return false
+  if (props.currentUser.role === 'lead_architect') return true
+  const email = (props.currentUser.email || '').toLowerCase().trim()
+  return email === 'jwlankford@gmail.com' || email === 'jlankford@cognitivemetrics.org'
 })
 
 const emit = defineEmits([
@@ -204,7 +211,12 @@ onUnmounted(() => {
         <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%; font-weight: 600;" @click="handleMobileAction('my-projects')">
           📂 My Projects
         </button>
-        <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; width: 100%; font-weight: 700; color: #8b5cf6;" @click="handleMobileAction('admin-console')">
+        <button 
+          v-if="isLeadArchitect"
+          class="nav-link" 
+          style="background: none; border: none; text-align: left; cursor: pointer; width: 100%; font-weight: 700; color: #8b5cf6;" 
+          @click="handleMobileAction('admin-console')"
+        >
           ⚡ Lead Architect Console
         </button>
         <button class="nav-link" style="background: none; border: none; text-align: left; cursor: pointer; color: #dc2626; width: 100%;" @click="handleMobileAction('logout')">
