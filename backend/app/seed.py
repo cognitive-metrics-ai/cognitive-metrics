@@ -16,6 +16,8 @@ INITIAL_PROJECTS = [
         "description": "The fluid-guardian application serves as an experimental testbed for hospital patient fluid intake/output monitoring, designed from ground up using the Agentic Development Life Cycle (ADLC). It logs developer cognitive load, agent task delegation traces, and multi-tier verification safety rubrics.",
         "framework": "Agentic Development Life Cycle (ADLC)",
         "lead_architect": "Jeremy Lankford",
+        "user_id": "Jq4WTmNLN9XbtDqZsbIesLWCTTn1",
+        "user_email": "jwlankford@gmail.com",
         "traces_count": 22400,
         "target_venue": "Clinical Fluid Monitoring · ADLC Research",
         "tags": ["Clinical Telemetry", "Agentic Synthesis", "Safety Verification", "Trace Logging"],
@@ -35,6 +37,8 @@ INITIAL_PROJECTS = [
         "description": "Constructed to evaluate multi-agent architectural coordination on enterprise CRUD and analytical workflows. It measures latency overhead, agent verification gates, and cognitive fatigue during high-velocity software cycles under ADLC methodologies.",
         "framework": "Agentic Development Life Cycle (ADLC)",
         "lead_architect": "Jeremy Lankford",
+        "user_id": "Jq4WTmNLN9XbtDqZsbIesLWCTTn1",
+        "user_email": "jwlankford@gmail.com",
         "traces_count": 16850,
         "target_venue": "Enterprise Systems · ADLC Architecture",
         "tags": ["Enterprise Architecture", "Multi-Agent Orchestration", "Cognitive Profiling", "ADLC Telemetry"],
@@ -84,22 +88,36 @@ INITIAL_PROJECTS = [
 ]
 
 def seed_initial_projects(db: Session):
-    """Seed initial project records if the table is empty, and ensure default URLs are populated."""
+    """Seed initial project records if the table is empty, and ensure default URLs and owner assignments are populated."""
+    from .models import UserProject
     existing_count = db.query(Project).count()
     if existing_count == 0:
         logger.info("Projects table is empty. Seeding initial ADLC projects into database...")
         for p_data in INITIAL_PROJECTS:
             project = Project(**p_data)
             db.add(project)
+            if p_data.get("user_id"):
+                db.add(UserProject(user_id=p_data["user_id"], project_id=p_data["id"], role="lead_architect"))
         db.commit()
         logger.info("Successfully seeded %d projects.", len(INITIAL_PROJECTS))
     else:
-        logger.info("Database already contains %d projects. Checking for missing production_url...", existing_count)
-        fg = db.query(Project).filter(Project.id == "fluid-guardian").first()
-        if fg and not fg.production_url:
-            fg.production_url = "https://fluid-guardian.cognitivemetrics.app/"
-            db.commit()
-            logger.info("Updated fluid-guardian with default production_url.")
+        logger.info("Database already contains %d projects. Checking for missing metadata and assignments...", existing_count)
+        for p in db.query(Project).all():
+            if p.id == "fluid-guardian" and not p.production_url:
+                p.production_url = "https://fluid-guardian.cognitivemetrics.app/"
+            if p.lead_architect and "jeremy" in p.lead_architect.lower():
+                if not p.user_id:
+                    p.user_id = "Jq4WTmNLN9XbtDqZsbIesLWCTTn1"
+                if not p.user_email:
+                    p.user_email = "jwlankford@gmail.com"
+                link = db.query(UserProject).filter(
+                    UserProject.user_id == p.user_id,
+                    UserProject.project_id == p.id
+                ).first()
+                if not link:
+                    db.add(UserProject(user_id=p.user_id, project_id=p.id, role="lead_architect"))
+        db.commit()
+        logger.info("Project metadata and default owner assignments verified.")
 
 def seed_initial_users(db: Session):
     """Seed or update Lead Architect Jeremy Lankford in the users table."""

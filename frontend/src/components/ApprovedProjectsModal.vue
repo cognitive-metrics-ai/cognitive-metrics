@@ -20,14 +20,14 @@ const isLoading = ref(true)
 const loadProjects = async () => {
   isLoading.value = true
   try {
-    const data = await fetchProjects(props.user?.uid || null)
-    if (props.user?.uid) {
+    const data = await fetchProjects(props.user || null)
+    if (props.user?.uid || props.user?.email) {
       projectsList.value = Array.isArray(data) ? data : []
     } else {
       projectsList.value = data || []
     }
   } catch (err) {
-    projectsList.value = props.user?.uid ? [] : DEFAULT_ADLC_PROJECTS
+    projectsList.value = (props.user?.uid || props.user?.email) ? [] : DEFAULT_ADLC_PROJECTS
   } finally {
     isLoading.value = false
   }
@@ -37,7 +37,7 @@ onMounted(() => {
   loadProjects()
 })
 
-watch(() => props.user?.uid, () => {
+watch(() => [props.user?.uid, props.user?.email], () => {
   loadProjects()
 })
 

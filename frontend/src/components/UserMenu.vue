@@ -50,12 +50,12 @@ const handleClickOutside = (e) => {
 const userProjectsCount = ref(null)
 
 const loadUserProjectsCount = async () => {
-  if (!props.user?.uid) {
+  if (!props.user?.uid && !props.user?.email) {
     userProjectsCount.value = null
     return
   }
   try {
-    const list = await fetchProjects(props.user.uid)
+    const list = await fetchProjects(props.user)
     userProjectsCount.value = Array.isArray(list) ? list.length : 0
   } catch {
     userProjectsCount.value = 0
@@ -67,7 +67,7 @@ onMounted(() => {
   loadUserProjectsCount()
 })
 
-watch(() => props.user?.uid, () => {
+watch(() => [props.user?.uid, props.user?.email], () => {
   loadUserProjectsCount()
 })
 
